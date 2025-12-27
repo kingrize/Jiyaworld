@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api-ml/:path*",
+      "destination": "https://api.ryzumi.vip/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
