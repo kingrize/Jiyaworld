@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api-ml/:path*",
-      "destination": "https://api.ryzumi.vip/api/:path*"
+      "source": "/api-ml/:match*",
+      "destination": "https://api.ryzumi.vip/api/:match*"
     },
     {
       "source": "/(.*)",
