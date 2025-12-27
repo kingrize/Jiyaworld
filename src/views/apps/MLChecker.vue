@@ -4,7 +4,6 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import {
     ChevronLeft,
-    Search,
     Loader2,
     CheckCircle2,
     AlertCircle,
@@ -12,6 +11,7 @@ import {
     MapPin,
     Gamepad2,
     Hash,
+    Server,
 } from "lucide-vue-next";
 
 const router = useRouter();
@@ -22,8 +22,10 @@ const zoneId = ref("");
 const loading = ref(false);
 const result = ref(null);
 const errorMsg = ref("");
+const usedProvider = ref(""); // Untuk tahu API mana yang berhasil
 
-// --- ACTION ---
+// --- LIST API PROVIDER (Jalur Tikus) ---
+// Kita siapkan 3 Jalur Data Asli.
 const checkAccount = async () => {
     if (!userId.value || !zoneId.value) {
         errorMsg.value = "Mohon lengkapi User ID dan Zone ID.";
@@ -34,26 +36,90 @@ const checkAccount = async () => {
     errorMsg.value = "";
     result.value = null;
 
-    try {
-        const localUrl = `/api-ml/stalk/mobile-legends?userId=${userId.value}&zoneId=${zoneId.value}`;
-        const response = await axios.get(localUrl);
-        const data = response.data;
+    // DAFTAR PROVIDER (Urutan Prioritas)
+    // 1. Isan API (Biasanya direct access oke)
+    // 2. Ryzumi via CodeTabs Proxy
+    // 3. Ryzumi via AllOrigins Proxy
+    const providers = [
+        {
+            name: "Server A (Isan)",
+            url: `https://api.isan.eu.org/nickname/ml?id=${userId.value}&zone=${zoneId.value}`,
+            method: "GET",
+            transform: (data) => {
+                if (data.success && data.name)
+                    return { nickname: data.name, region: "Unknown" };
+                if (data.username)
+                    return { nickname: data.username, region: "Unknown" };
+                return null;
+            },
+        },
+        {
+            name: "Server B (Ryzumi/CodeTabs)",
+            url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId.value}&zoneId=${zoneId.value}`)}`,
+            method: "GET",
+            transform: (data) => {
+                if (data.success === true || data.username)
+                    return { nickname: data.username, region: data.region };
+                return null;
+            },
+        },
+        {
+            name: "Server C (Ryzumi/AllOrigins)",
+            url: `https://api.allorigins.win/get?url=${encodeURIComponent(`https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId.value}&zoneId=${zoneId.value}`)}`,
+            method: "GET",
+            transform: (data) => {
+                // AllOrigins membungkus JSON dalam field 'contents' string
+                if (data.contents) {
+                    try {
+                        const realData = JSON.parse(data.contents);
+                        if (realData.username)
+                            return {
+                                nickname: realData.username,
+                                region: realData.region,
+                            };
+                    } catch (e) {
+                        return null;
+                    }
+                }
+                return null;
+            },
+        },
+    ];
 
-        if (data && (data.success === true || data.username)) {
-            result.value = {
-                nickname: data.username,
-                region: data.region || "Unknown Region",
-                userId: userId.value,
-                zoneId: zoneId.value,
-            };
-        } else {
-            throw new Error("ID tidak ditemukan.");
+    // --- LOGIKA "SHOTGUN" (Coba satu-satu sampai berhasil) ---
+    for (const provider of providers) {
+        try {
+            console.log(`Mencoba menembak: ${provider.name}...`);
+
+            const response = await axios.get(provider.url, { timeout: 4000 });
+            const data = response.data;
+
+            const validData = provider.transform(data);
+
+            if (validData) {
+                // BERHASIL DAPAT DATA ASLI!
+                result.value = {
+                    nickname: validData.nickname,
+                    region: validData.region || "Server Zone " + zoneId.value,
+                    userId: userId.value,
+                    zoneId: zoneId.value,
+                    game: "Mobile Legends",
+                };
+                usedProvider.value = provider.name;
+                loading.value = false;
+                return; // Stop loop, jangan coba server lain
+            }
+        } catch (err) {
+            console.warn(
+                `${provider.name} gagal, mencoba server berikutnya...`,
+            );
+            // Lanjut ke provider berikutnya di loop
         }
-    } catch (err) {
-        errorMsg.value = "Akun tidak ditemukan. Cek kembali ID Anda.";
-    } finally {
-        loading.value = false;
     }
+
+    // Jika semua server gagal
+    errorMsg.value = "Semua server sibuk atau ID Salah. Coba lagi nanti.";
+    loading.value = false;
 };
 </script>
 
@@ -92,8 +158,7 @@ const checkAccount = async () => {
                 <p
                     class="text-slate-500 dark:text-gray-400 text-sm max-w-xs mx-auto"
                 >
-                    Masukkan ID dan Zone akun Anda untuk memverifikasi
-                    kepemilikan.
+                    Cek ID Real-time (Multi-Server Support).
                 </p>
             </div>
 
@@ -112,9 +177,7 @@ const checkAccount = async () => {
                         class="flex-1 py-3 bg-transparent text-right text-slate-900 dark:text-white placeholder:text-gray-400 focus:outline-none font-mono no-spinner"
                     />
                 </div>
-
                 <div class="h-[1px] bg-gray-100 dark:bg-gray-800 ml-4"></div>
-
                 <div class="flex items-center px-4 py-1">
                     <label
                         class="w-24 text-sm font-medium text-slate-900 dark:text-white"
@@ -135,14 +198,21 @@ const checkAccount = async () => {
                 class="w-full bg-[#007AFF] hover:bg-blue-600 text-white font-bold text-base py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
                 <Loader2 v-if="loading" :size="20" class="animate-spin" />
-                <span v-else>Check Account</span>
+                <span v-else>Check Real Account</span>
             </button>
 
             <transition name="slide-up">
                 <div
                     v-if="result"
-                    class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl mt-8"
+                    class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl mt-8 relative overflow-hidden"
                 >
+                    <div
+                        class="absolute top-0 right-0 bg-blue-500/10 text-blue-500 px-3 py-1 text-[10px] font-bold rounded-bl-xl flex items-center gap-1"
+                    >
+                        <Server :size="10" />
+                        {{ usedProvider }}
+                    </div>
+
                     <div class="flex items-center gap-4 mb-6">
                         <div
                             class="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400"
@@ -226,17 +296,14 @@ const checkAccount = async () => {
 </template>
 
 <style scoped>
-/* CSS TRICK UNTUK MENGHILANGKAN TANDA PANAH (SPINNER) PADA INPUT NUMBER */
 .no-spinner::-webkit-inner-spin-button,
 .no-spinner::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 .no-spinner {
-    -moz-appearance: textfield; /* Firefox */
+    -moz-appearance: textfield;
 }
-
-/* Animasi Slide Up untuk Result */
 .slide-up-enter-active,
 .slide-up-leave-active {
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
