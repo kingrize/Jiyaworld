@@ -11,24 +11,20 @@ import {
     MapPin,
     Gamepad2,
     Hash,
-    Server,
+    Zap,
 } from "lucide-vue-next";
 
 const router = useRouter();
 
-// --- STATE ---
 const userId = ref("");
 const zoneId = ref("");
 const loading = ref(false);
 const result = ref(null);
 const errorMsg = ref("");
-const usedProvider = ref(""); // Untuk tahu API mana yang berhasil
 
-// --- LIST API PROVIDER (Jalur Tikus) ---
-// Kita siapkan 3 Jalur Data Asli.
 const checkAccount = async () => {
     if (!userId.value || !zoneId.value) {
-        errorMsg.value = "Mohon lengkapi User ID dan Zone ID.";
+        errorMsg.value = "User ID dan Zone ID wajib diisi.";
         return;
     }
 
@@ -36,90 +32,52 @@ const checkAccount = async () => {
     errorMsg.value = "";
     result.value = null;
 
-    // DAFTAR PROVIDER (Urutan Prioritas)
-    // 1. Isan API (Biasanya direct access oke)
-    // 2. Ryzumi via CodeTabs Proxy
-    // 3. Ryzumi via AllOrigins Proxy
-    const providers = [
-        {
-            name: "Server A (Isan)",
-            url: `https://api.isan.eu.org/nickname/ml?id=${userId.value}&zone=${zoneId.value}`,
-            method: "GET",
-            transform: (data) => {
-                if (data.success && data.name)
-                    return { nickname: data.name, region: "Unknown" };
-                if (data.username)
-                    return { nickname: data.username, region: "Unknown" };
-                return null;
-            },
-        },
-        {
-            name: "Server B (Ryzumi/CodeTabs)",
-            url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId.value}&zoneId=${zoneId.value}`)}`,
-            method: "GET",
-            transform: (data) => {
-                if (data.success === true || data.username)
-                    return { nickname: data.username, region: data.region };
-                return null;
-            },
-        },
-        {
-            name: "Server C (Ryzumi/AllOrigins)",
-            url: `https://api.allorigins.win/get?url=${encodeURIComponent(`https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId.value}&zoneId=${zoneId.value}`)}`,
-            method: "GET",
-            transform: (data) => {
-                // AllOrigins membungkus JSON dalam field 'contents' string
-                if (data.contents) {
-                    try {
-                        const realData = JSON.parse(data.contents);
-                        if (realData.username)
-                            return {
-                                nickname: realData.username,
-                                region: realData.region,
-                            };
-                    } catch (e) {
-                        return null;
-                    }
-                }
-                return null;
-            },
-        },
-    ];
+    try {
+        // DETEKSI OTOMATIS: Lagi di Laptop (Local) atau di Cloud (Vercel)?
+        const isLocalhost =
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1";
 
-    // --- LOGIKA "SHOTGUN" (Coba satu-satu sampai berhasil) ---
-    for (const provider of providers) {
-        try {
-            console.log(`Mencoba menembak: ${provider.name}...`);
+        // TENTUKAN JALUR
+        // Localhost -> Lewat Vite Proxy (/api-local) yang sudah kita suntik Cookie
+        // Vercel -> Lewat Serverless Function (/api/check) yang juga punya Cookie
+        const baseUrl = isLocalhost
+            ? "/api-local/stalk/mobile-legends"
+            : "/api/check";
+        const finalUrl = `${baseUrl}?userId=${userId.value}&zoneId=${zoneId.value}`;
 
-            const response = await axios.get(provider.url, { timeout: 4000 });
-            const data = response.data;
+        console.log(
+            `Requesting via ${isLocalhost ? "Local Proxy (Vite)" : "Vercel Serverless"}...`,
+        );
 
-            const validData = provider.transform(data);
+        const response = await axios.get(finalUrl);
 
-            if (validData) {
-                // BERHASIL DAPAT DATA ASLI!
-                result.value = {
-                    nickname: validData.nickname,
-                    region: validData.region || "Server Zone " + zoneId.value,
-                    userId: userId.value,
-                    zoneId: zoneId.value,
-                    game: "Mobile Legends",
-                };
-                usedProvider.value = provider.name;
-                loading.value = false;
-                return; // Stop loop, jangan coba server lain
-            }
-        } catch (err) {
-            console.warn(
-                `${provider.name} gagal, mencoba server berikutnya...`,
-            );
-            // Lanjut ke provider berikutnya di loop
+        // Format data Localhost (langsung dari Ryzumi) dan Vercel (dibungkus wrapper) sedikit beda
+        // Kita normalisasi di sini:
+        const rawData = response.data;
+        const finalData = isLocalhost ? rawData : rawData.data;
+
+        // Validasi
+        const nickname = finalData.username || finalData.nickname;
+        const region = finalData.region;
+
+        if (nickname) {
+            result.value = {
+                nickname: nickname,
+                region: region || "Unknown Region",
+                userId: userId.value,
+                zoneId: zoneId.value,
+                provider: "Ryzumi (VIP Access)",
+            };
+        } else {
+            throw new Error("Data kosong / ID Salah");
         }
+    } catch (err) {
+        console.error(err);
+        errorMsg.value = "Gagal. Cookie mungkin kadaluarsa atau ID Salah.";
+    } finally {
+        loading.value = false;
     }
-
-    // Jika semua server gagal
-    errorMsg.value = "Semua server sibuk atau ID Salah. Coba lagi nanti.";
-    loading.value = false;
 };
 </script>
 
@@ -158,7 +116,7 @@ const checkAccount = async () => {
                 <p
                     class="text-slate-500 dark:text-gray-400 text-sm max-w-xs mx-auto"
                 >
-                    Cek ID Real-time (Multi-Server Support).
+                    Cek Data Asli (Region Spesifik).
                 </p>
             </div>
 
@@ -198,7 +156,7 @@ const checkAccount = async () => {
                 class="w-full bg-[#007AFF] hover:bg-blue-600 text-white font-bold text-base py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
                 <Loader2 v-if="loading" :size="20" class="animate-spin" />
-                <span v-else>Check Real Account</span>
+                <span v-else>Check Specific Region</span>
             </button>
 
             <transition name="slide-up">
@@ -207,10 +165,10 @@ const checkAccount = async () => {
                     class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl mt-8 relative overflow-hidden"
                 >
                     <div
-                        class="absolute top-0 right-0 bg-blue-500/10 text-blue-500 px-3 py-1 text-[10px] font-bold rounded-bl-xl flex items-center gap-1"
+                        class="absolute top-0 right-0 bg-yellow-500/10 text-yellow-600 px-3 py-1 text-[10px] font-bold rounded-bl-xl flex items-center gap-1"
                     >
-                        <Server :size="10" />
-                        {{ usedProvider }}
+                        <Zap :size="10" fill="currentColor" />
+                        PREMIUM DATA
                     </div>
 
                     <div class="flex items-center gap-4 mb-6">
@@ -223,7 +181,7 @@ const checkAccount = async () => {
                             <p
                                 class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider mb-1"
                             >
-                                Verified Account
+                                Account Verified
                             </p>
                             <h3
                                 class="text-xl font-black text-slate-900 dark:text-white"
