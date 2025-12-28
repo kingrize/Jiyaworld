@@ -11,36 +11,42 @@ export default async function handler(req, res) {
   }
 
   try {
-    const targetUrl = "https://api.ryzumi.vip/api/stalk/mobile-legends";
+    // GANTI PROVIDER: Menggunakan Isan (api.isan.eu.org)
+    // Provider ini lebih stabil untuk penggunaan Server-to-Server (Vercel)
+    const targetUrl = "https://api.isan.eu.org/nickname/ml";
 
-    // OPSI TERAKHIR: Mode Minimalis (Mirip CURL)
-    // Cloudflare sering memblokir request antar-server yang membawa Cookie IP berbeda.
-    // Kita coba HAPUS Cookie dan Referer, hanya gunakan User-Agent standar.
     const response = await axios.get(targetUrl, {
       params: {
-        userId,
-        zoneId,
+        id: userId, // Isan menggunakan parameter 'id'
+        server: zoneId, // Isan menggunakan parameter 'server'
       },
       headers: {
-        // Gunakan User-Agent Chrome standar (lebih umum diterima daripada Firefox developer edition)
+        // User-Agent standar cukup untuk Isan
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept: "application/json",
       },
     });
 
-    res.status(200).json(response.data);
+    const data = response.data;
+
+    // Normalisasi Respon
+    // Isan mengembalikan: { success: true, name: "Nickname", ... }
+    // Kita ubah agar sesuai dengan format yang diharapkan Frontend (nickname)
+    if (data.name) {
+      return res.status(200).json({
+        success: true,
+        nickname: data.name, // Mapping 'name' ke 'nickname'
+        userId: userId,
+        zoneId: zoneId,
+      });
+    } else if (data.success === false) {
+      return res.status(404).json({ message: "ID atau Server salah" });
+    } else {
+      // Fallback jika format response berbeda
+      return res.status(200).json(data);
+    }
   } catch (error) {
     console.error("API Proxy Error:", error.message);
-
-    // Fallback: Jika Ryzumi gagal/blokir (403), kita coba kembalikan pesan yang jelas
-    if (error.response && error.response.status === 403) {
-      return res.status(403).json({
-        message: "Akses Ditolak Cloudflare (IP Vercel Diblokir).",
-        suggestion:
-          "API Ryzumi memblokir IP Datacenter. Fitur ini hanya akan jalan di Localhost.",
-      });
-    }
 
     if (error.response) {
       return res.status(error.response.status).json({
