@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default async function handler(req, res) {
-  // Ambil parameter dari query URL (misal: /api/check?userId=123&zoneId=456)
+  // Ambil parameter dari query URL
   const { userId, zoneId } = req.query;
 
   if (!userId || !zoneId) {
@@ -13,8 +13,7 @@ export default async function handler(req, res) {
   try {
     const targetUrl = "https://api.ryzumi.vip/api/stalk/mobile-legends";
 
-    // Kita gunakan Header & Cookie SAMA PERSIS dengan yang ada di vite.config.js
-    // Agar Cloudflare target mengira ini adalah request dari browser valid
+    // Konfigurasi Header
     const response = await axios.get(targetUrl, {
       params: {
         userId,
@@ -31,23 +30,23 @@ export default async function handler(req, res) {
         "Sec-Fetch-Dest": "empty",
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-origin",
+        // PENTING: Jangan set Accept-Encoding manual (br/zstd) agar tidak error saat dekompresi di Node.js
       },
     });
 
-    // Kirim balik data sukses dari API Ryzumi ke Frontend
     res.status(200).json(response.data);
   } catch (error) {
     console.error("API Proxy Error:", error.message);
 
-    // Handle error jika API target menolak (misal 403 atau 404)
     if (error.response) {
+      // Error dari API Target (403, 404, dll)
       return res.status(error.response.status).json({
         message: error.response.data?.message || "Error from Target API",
         details: error.response.data,
       });
     }
 
-    // Handle error server internal
+    // Error Jaringan / Internal
     res.status(500).json({
       message: "Internal Server Error",
       error: error.message,
