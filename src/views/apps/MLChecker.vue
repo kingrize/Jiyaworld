@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import {
@@ -7,51 +7,28 @@ import {
     Loader2,
     CheckCircle2,
     AlertCircle,
+    User,
+    MapPin,
     Gamepad2,
     Hash,
-    Zap,
-    History,
-    MapPin,
-    Globe,
+    Server,
 } from "lucide-vue-next";
 
 const router = useRouter();
 
+// --- STATE ---
 const userId = ref("");
 const zoneId = ref("");
 const loading = ref(false);
 const result = ref(null);
 const errorMsg = ref("");
-const history = ref([]);
+const usedProvider = ref(""); // Untuk tahu API mana yang berhasil
 
-// Load history saat mounted
-onMounted(() => {
-    const saved = localStorage.getItem("ml_check_history");
-    if (saved) history.value = JSON.parse(saved);
-});
-
-const saveToHistory = (data) => {
-    const newEntry = {
-        nickname: data.nickname,
-        id: `${data.userId} (${data.zoneId})`,
-        timestamp: Date.now(),
-    };
-
-    const filtered = history.value.filter((h) => h.id !== newEntry.id);
-    const updated = [newEntry, ...filtered].slice(0, 3);
-
-    history.value = updated;
-    localStorage.setItem("ml_check_history", JSON.stringify(updated));
-};
-
-const clearHistory = () => {
-    history.value = [];
-    localStorage.removeItem("ml_check_history");
-};
-
+// --- LIST API PROVIDER (Jalur Tikus) ---
+// Kita siapkan 3 Jalur Data Asli.
 const checkAccount = async () => {
     if (!userId.value || !zoneId.value) {
-        errorMsg.value = "User ID dan Zone ID wajib diisi.";
+        errorMsg.value = "Mohon lengkapi User ID dan Zone ID.";
         return;
     }
 
@@ -59,219 +36,188 @@ const checkAccount = async () => {
     errorMsg.value = "";
     result.value = null;
 
-    try {
-        const isLocalhost =
-            window.location.hostname === "localhost" ||
-            window.location.hostname === "127.0.0.1";
-        let targetUrl;
-
-        // Catatan: Jika isLocalhost, kita bergantung pada vite.config.js untuk menyuntikkan Header & Cookie.
-        if (isLocalhost) {
-            targetUrl = "/api-local/stalk/mobile-legends";
-        } else {
-            targetUrl = "/api/check";
-        }
-
-        const response = await axios.get(targetUrl, {
-            params: {
-                userId: userId.value,
-                zoneId: zoneId.value,
+    // DAFTAR PROVIDER (Urutan Prioritas)
+    // 1. Isan API (Biasanya direct access oke)
+    // 2. Ryzumi via CodeTabs Proxy
+    // 3. Ryzumi via AllOrigins Proxy
+    const providers = [
+        {
+            name: "Server A (Isan)",
+            url: `https://api.isan.eu.org/nickname/ml?id=${userId.value}&zone=${zoneId.value}`,
+            method: "GET",
+            transform: (data) => {
+                if (data.success && data.name)
+                    return { nickname: data.name, region: "Unknown" };
+                if (data.username)
+                    return { nickname: data.username, region: "Unknown" };
+                return null;
             },
-            headers: {
-                Accept: "application/json",
+        },
+        {
+            name: "Server B (Ryzumi/CodeTabs)",
+            url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId.value}&zoneId=${zoneId.value}`)}`,
+            method: "GET",
+            transform: (data) => {
+                if (data.success === true || data.username)
+                    return { nickname: data.username, region: data.region };
+                return null;
             },
-        });
+        },
+        {
+            name: "Server C (Ryzumi/AllOrigins)",
+            url: `https://api.allorigins.win/get?url=${encodeURIComponent(`https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId.value}&zoneId=${zoneId.value}`)}`,
+            method: "GET",
+            transform: (data) => {
+                // AllOrigins membungkus JSON dalam field 'contents' string
+                if (data.contents) {
+                    try {
+                        const realData = JSON.parse(data.contents);
+                        if (realData.username)
+                            return {
+                                nickname: realData.username,
+                                region: realData.region,
+                            };
+                    } catch (e) {
+                        return null;
+                    }
+                }
+                return null;
+            },
+        },
+    ];
 
-        console.log("API Response:", response.data);
+    // --- LOGIKA "SHOTGUN" (Coba satu-satu sampai berhasil) ---
+    for (const provider of providers) {
+        try {
+            console.log(`Mencoba menembak: ${provider.name}...`);
 
-        const data = response.data;
-        let playerData = null;
+            const response = await axios.get(provider.url, { timeout: 4000 });
+            const data = response.data;
 
-        // Flexible parsing logic
-        if (data.username || data.nickname) {
-            playerData = data;
-        } else if (data.data && (data.data.username || data.data.nickname)) {
-            playerData = data.data;
-        } else if (
-            data.result &&
-            (data.result.username || data.result.nickname)
-        ) {
-            playerData = data.result;
-        }
+            const validData = provider.transform(data);
 
-        if (playerData) {
-            const nickname = playerData.username || playerData.nickname;
-            const resData = {
-                nickname: nickname,
-                region: playerData.region || "Unknown Server",
-                userId: userId.value,
-                zoneId: zoneId.value,
-            };
-            result.value = resData;
-            saveToHistory(resData);
-        } else {
-            throw new Error("Akun tidak ditemukan atau ID salah.");
-        }
-    } catch (err) {
-        console.error("Check Error:", err);
-
-        if (err.response) {
-            // Handle specific HTTP errors
-            if (err.response.status === 403) {
-                errorMsg.value =
-                    "Akses Ditolak (403). Cookie/Token di vite.config.js mungkin expired.";
-            } else if (err.response.data && err.response.data.message) {
-                errorMsg.value = `Gagal: ${err.response.data.message}`;
-            } else {
-                errorMsg.value = `Error Server (${err.response.status}). Coba lagi nanti.`;
+            if (validData) {
+                // BERHASIL DAPAT DATA ASLI!
+                result.value = {
+                    nickname: validData.nickname,
+                    region: validData.region || "Server Zone " + zoneId.value,
+                    userId: userId.value,
+                    zoneId: zoneId.value,
+                    game: "Mobile Legends",
+                };
+                usedProvider.value = provider.name;
+                loading.value = false;
+                return; // Stop loop, jangan coba server lain
             }
-        } else {
-            errorMsg.value =
-                "Koneksi gagal. Cek internet atau konfigurasi proxy.";
+        } catch (err) {
+            console.warn(
+                `${provider.name} gagal, mencoba server berikutnya...`,
+            );
+            // Lanjut ke provider berikutnya di loop
         }
-    } finally {
-        loading.value = false;
     }
-};
 
-const useHistory = (item) => {
-    const parts = item.id.split("(");
-    userId.value = parts[0].trim();
-    zoneId.value = parts[1].replace(")", "").trim();
-    checkAccount();
+    // Jika semua server gagal
+    errorMsg.value = "Semua server sibuk atau ID Salah. Coba lagi nanti.";
+    loading.value = false;
 };
 </script>
 
 <template>
-    <div class="max-w-xl mx-auto pt-2 pb-12 animate-fade-in">
-        <!-- Header -->
-        <div class="flex items-center gap-3 mb-8">
+    <div class="max-w-xl mx-auto pt-2 pb-12">
+        <div class="flex items-center gap-2 mb-6 px-1">
             <button
                 @click="router.back()"
-                class="p-2.5 -ml-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-colors"
+                class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#1e1f22] text-blue-600 transition-colors group"
             >
-                <ChevronLeft :size="24" />
+                <div class="flex items-center gap-1">
+                    <ChevronLeft
+                        :size="24"
+                        class="group-active:-translate-x-1 transition-transform"
+                    />
+                    <span class="text-base font-medium">Back</span>
+                </div>
             </button>
-            <div>
-                <h1 class="text-xl font-bold text-slate-900 dark:text-white">
-                    MLBB Checker
-                </h1>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Verifikasi akun real-time
-                </p>
-            </div>
+            <h1
+                class="text-lg font-bold text-slate-900 dark:text-white mx-auto pr-12"
+            >
+                Checker
+            </h1>
         </div>
 
         <div class="space-y-6">
-            <!-- Input Card -->
-            <div
-                class="bg-white dark:bg-[#18181b] rounded-2xl p-6 border border-gray-200 dark:border-white/5 shadow-sm"
-            >
-                <div class="flex items-center gap-4 mb-6">
-                    <div
-                        class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400"
-                    >
-                        <Gamepad2 :size="24" />
-                    </div>
-                    <div>
-                        <h2 class="font-bold text-slate-900 dark:text-white">
-                            Input ID Player
-                        </h2>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Masukkan ID dan Server (4-5 digit)
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex gap-4 mb-6">
-                    <div class="flex-1 space-y-2">
-                        <label class="text-xs font-bold text-gray-500 uppercase"
-                            >User ID</label
-                        >
-                        <input
-                            v-model="userId"
-                            type="number"
-                            placeholder="12345678"
-                            class="w-full bg-gray-50 dark:bg-[#202023] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all no-spinner"
-                        />
-                    </div>
-                    <div class="w-1/3 space-y-2">
-                        <label class="text-xs font-bold text-gray-500 uppercase"
-                            >Zone ID</label
-                        >
-                        <input
-                            v-model="zoneId"
-                            type="number"
-                            placeholder="1234"
-                            class="w-full bg-gray-50 dark:bg-[#202023] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all no-spinner"
-                        />
-                    </div>
-                </div>
-
-                <button
-                    @click="checkAccount"
-                    :disabled="loading"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            <div class="text-center space-y-2 px-4">
+                <div
+                    class="w-16 h-16 bg-blue-500 rounded-[22px] flex items-center justify-center text-white mx-auto shadow-lg shadow-blue-500/30 mb-4"
                 >
-                    <Loader2 v-if="loading" :size="20" class="animate-spin" />
-                    <span v-else>Check Account</span>
-                </button>
+                    <Gamepad2 :size="32" />
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
+                    Mobile Legends
+                </h2>
+                <p
+                    class="text-slate-500 dark:text-gray-400 text-sm max-w-xs mx-auto"
+                >
+                    Cek ID Real-time (Multi-Server Support).
+                </p>
             </div>
 
-            <!-- History Section -->
-            <div v-if="history.length > 0 && !result" class="animate-fade-in">
-                <div class="flex items-center justify-between mb-3 px-1">
-                    <h3
-                        class="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2"
+            <div
+                class="bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm"
+            >
+                <div class="flex items-center px-4 py-1">
+                    <label
+                        class="w-24 text-sm font-medium text-slate-900 dark:text-white"
+                        >User ID</label
                     >
-                        <History :size="14" /> Recent Checks
-                    </h3>
-                    <button
-                        @click="clearHistory"
-                        class="text-xs text-red-500 hover:text-red-400 flex items-center gap-1"
-                    >
-                        Clear
-                    </button>
+                    <input
+                        v-model="userId"
+                        type="number"
+                        placeholder="Contoh: 12345678"
+                        class="flex-1 py-3 bg-transparent text-right text-slate-900 dark:text-white placeholder:text-gray-400 focus:outline-none font-mono no-spinner"
+                    />
                 </div>
-                <div class="space-y-2">
-                    <div
-                        v-for="(item, idx) in history"
-                        :key="idx"
-                        @click="useHistory(item)"
-                        class="bg-white dark:bg-[#18181b] p-3 rounded-xl border border-gray-200 dark:border-white/5 flex justify-between items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition"
+                <div class="h-[1px] bg-gray-100 dark:bg-gray-800 ml-4"></div>
+                <div class="flex items-center px-4 py-1">
+                    <label
+                        class="w-24 text-sm font-medium text-slate-900 dark:text-white"
+                        >Zone ID</label
                     >
-                        <div>
-                            <p
-                                class="text-sm font-bold text-slate-900 dark:text-white"
-                            >
-                                {{ item.nickname }}
-                            </p>
-                            <p class="text-xs text-gray-500 font-mono">
-                                {{ item.id }}
-                            </p>
-                        </div>
-                        <div class="text-xs text-gray-400">Re-check</div>
-                    </div>
+                    <input
+                        v-model="zoneId"
+                        type="number"
+                        placeholder="1234"
+                        class="flex-1 py-3 bg-transparent text-right text-slate-900 dark:text-white placeholder:text-gray-400 focus:outline-none font-mono no-spinner"
+                    />
                 </div>
             </div>
 
-            <!-- Result Card -->
+            <button
+                @click="checkAccount"
+                :disabled="loading"
+                class="w-full bg-[#007AFF] hover:bg-blue-600 text-white font-bold text-base py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+                <Loader2 v-if="loading" :size="20" class="animate-spin" />
+                <span v-else>Check Real Account</span>
+            </button>
+
             <transition name="slide-up">
                 <div
                     v-if="result"
-                    class="bg-white dark:bg-[#18181b] rounded-3xl p-6 border-2 border-blue-500/10 dark:border-blue-500/20 shadow-xl relative overflow-hidden"
+                    class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl mt-8 relative overflow-hidden"
                 >
                     <div
-                        class="absolute top-0 right-0 bg-gradient-to-bl from-blue-500 to-indigo-600 text-white px-4 py-1.5 text-[10px] font-bold rounded-bl-2xl flex items-center gap-1 shadow-lg"
+                        class="absolute top-0 right-0 bg-blue-500/10 text-blue-500 px-3 py-1 text-[10px] font-bold rounded-bl-xl flex items-center gap-1"
                     >
-                        <Zap :size="12" fill="currentColor" /> VALID
+                        <Server :size="10" />
+                        {{ usedProvider }}
                     </div>
 
-                    <div class="flex items-center gap-4 mb-8">
+                    <div class="flex items-center gap-4 mb-6">
                         <div
-                            class="w-16 h-16 bg-green-100 dark:bg-green-500/20 rounded-2xl flex items-center justify-center text-green-600 dark:text-green-400 ring-4 ring-green-50 dark:ring-green-900/10"
+                            class="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400"
                         >
-                            <CheckCircle2 :size="32" />
+                            <CheckCircle2 :size="28" />
                         </div>
                         <div>
                             <p
@@ -280,7 +226,7 @@ const useHistory = (item) => {
                                 Verified Account
                             </p>
                             <h3
-                                class="text-2xl font-black text-slate-900 dark:text-white"
+                                class="text-xl font-black text-slate-900 dark:text-white"
                             >
                                 {{ result.nickname }}
                             </h3>
@@ -288,15 +234,17 @@ const useHistory = (item) => {
                     </div>
 
                     <div
-                        class="bg-gray-50 dark:bg-[#202023] rounded-2xl overflow-hidden divide-y divide-gray-100 dark:divide-white/5 border border-gray-100 dark:border-white/5"
+                        class="bg-gray-50 dark:bg-[#151517] rounded-xl overflow-hidden"
                     >
-                        <div class="flex justify-between items-center p-4">
+                        <div
+                            class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-800/50"
+                        >
                             <div
                                 class="flex items-center gap-3 text-slate-500 dark:text-gray-400"
                             >
-                                <Hash :size="16" />
-                                <span class="text-xs font-bold uppercase"
-                                    >ID</span
+                                <Hash :size="18" />
+                                <span class="text-sm font-medium"
+                                    >Account ID</span
                                 >
                             </div>
                             <span
@@ -304,33 +252,31 @@ const useHistory = (item) => {
                                 >{{ result.userId }}</span
                             >
                         </div>
-                        <div class="flex justify-between items-center p-4">
-                            <div
-                                class="flex items-center gap-3 text-slate-500 dark:text-gray-400"
-                            >
-                                <MapPin :size="16" />
-                                <span class="text-xs font-bold uppercase"
-                                    >Server</span
-                                >
-                            </div>
-                            <span
-                                class="text-sm font-bold text-slate-900 dark:text-white font-mono"
-                                >{{ result.zoneId }}</span
-                            >
-                        </div>
                         <div
-                            class="flex justify-between items-center p-4 bg-blue-50/50 dark:bg-blue-500/5"
+                            class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-800/50"
                         >
                             <div
                                 class="flex items-center gap-3 text-slate-500 dark:text-gray-400"
                             >
-                                <Globe :size="16" />
-                                <span class="text-xs font-bold uppercase"
-                                    >Region</span
+                                <MapPin :size="18" />
+                                <span class="text-sm font-medium"
+                                    >Server Zone</span
                                 >
                             </div>
                             <span
-                                class="text-sm font-bold text-blue-600 dark:text-blue-400"
+                                class="text-sm font-bold text-slate-900 dark:text-white font-mono"
+                                >({{ result.zoneId }})</span
+                            >
+                        </div>
+                        <div class="flex justify-between items-center p-4">
+                            <div
+                                class="flex items-center gap-3 text-slate-500 dark:text-gray-400"
+                            >
+                                <User :size="18" />
+                                <span class="text-sm font-medium">Region</span>
+                            </div>
+                            <span
+                                class="text-sm font-bold text-slate-900 dark:text-white"
                                 >{{ result.region }}</span
                             >
                         </div>
@@ -338,12 +284,11 @@ const useHistory = (item) => {
                 </div>
             </transition>
 
-            <!-- Error Alert -->
             <div
                 v-if="errorMsg"
-                class="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-4 rounded-xl flex items-center gap-3 text-sm font-medium border border-red-100 dark:border-red-500/20 animate-in fade-in slide-in-from-top-2"
+                class="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 p-4 rounded-xl flex items-center gap-3 text-sm font-medium animate-in fade-in slide-in-from-top-2"
             >
-                <AlertCircle :size="20" />
+                <AlertCircle :size="18" />
                 {{ errorMsg }}
             </div>
         </div>
@@ -355,5 +300,17 @@ const useHistory = (item) => {
 .no-spinner::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+.no-spinner {
+    -moz-appearance: textfield;
+}
+.slide-up-enter-active,
+.slide-up-leave-active {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+    opacity: 0;
+    transform: translateY(20px);
 }
 </style>

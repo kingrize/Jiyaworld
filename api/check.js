@@ -1,63 +1,63 @@
-import axios from "axios";
+// File: api/check.js
+// Ini berjalan di Server Vercel (Backend), bukan di Browser User.
 
 export default async function handler(req, res) {
-  // Ambil parameter dari query URL
+  // 1. Ambil ID dari request
   const { userId, zoneId } = req.query;
 
   if (!userId || !zoneId) {
-    return res
-      .status(400)
-      .json({ message: "User ID and Zone ID are required" });
+    return res.status(400).json({ error: "ID Wajib diisi" });
   }
 
-  try {
-    // GANTI PROVIDER: Menggunakan Isan (api.isan.eu.org)
-    // Provider ini lebih stabil untuk penggunaan Server-to-Server (Vercel)
-    const targetUrl = "https://api.isan.eu.org/nickname/ml";
+  // 2. Daftar API Target (Prioritas Region Spesifik)
+  // Kita manipulasi Header seolah-olah ini Browser Chrome
+  const headers = {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    Referer: "https://google.com",
+  };
 
-    const response = await axios.get(targetUrl, {
-      params: {
-        id: userId, // Isan menggunakan parameter 'id'
-        server: zoneId, // Isan menggunakan parameter 'server'
-      },
-      headers: {
-        // User-Agent standar cukup untuk Isan
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-    });
+  // List URL yang menyediakan Region
+  const targets = [
+    // TARGET 1: Ryzumi (Paling lengkap regionnya)
+    `https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId}&zoneId=${zoneId}`,
 
-    const data = response.data;
+    // TARGET 2: API Alternative (Jika Ryzumi blokir Vercel)
+    // Menggunakan endpoint publik lain yang sering dipakai checker
+    `https://api.isan.eu.org/nickname/ml?id=${userId}&zone=${zoneId}`,
+  ];
 
-    // Normalisasi Respon
-    // Isan mengembalikan: { success: true, name: "Nickname", ... }
-    // Kita ubah agar sesuai dengan format yang diharapkan Frontend (nickname)
-    if (data.name) {
-      return res.status(200).json({
-        success: true,
-        nickname: data.name, // Mapping 'name' ke 'nickname'
-        userId: userId,
-        zoneId: zoneId,
-      });
-    } else if (data.success === false) {
-      return res.status(404).json({ message: "ID atau Server salah" });
-    } else {
-      // Fallback jika format response berbeda
-      return res.status(200).json(data);
+  for (const url of targets) {
+    try {
+      console.log("Menembak:", url);
+      const response = await fetch(url, { headers });
+      const data = await response.json();
+
+      // Cek apakah data valid
+      if (data.username || data.name || data.success) {
+        // Normalisasi Data (Agar formatnya seragam)
+        const nickname = data.username || data.name;
+        // Ambil region jika ada, jika tidak ada (API Isan), biarkan null nanti diurus frontend
+        const region = data.region || null;
+
+        return res.status(200).json({
+          success: true,
+          nickname: nickname,
+          region: region, // Kirim apa adanya (bisa region spesifik atau null)
+          source: url.includes("ryzumi") ? "Ryzumi" : "Isan",
+        });
+      }
+    } catch (error) {
+      console.error("Gagal menembak:", url);
+      // Lanjut ke target berikutnya
     }
-  } catch (error) {
-    console.error("API Proxy Error:", error.message);
-
-    if (error.response) {
-      return res.status(error.response.status).json({
-        message: error.response.data?.message || "Error from Target API",
-        details: error.response.data,
-      });
-    }
-
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message,
-    });
   }
+
+  // Jika semua gagal
+  return res
+    .status(500)
+    .json({ error: "Gagal mengambil data dari semua server." });
 }
