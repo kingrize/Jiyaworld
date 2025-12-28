@@ -1,54 +1,56 @@
-// File: api/check.js
+import axios from "axios";
+
 export default async function handler(req, res) {
+  // Ambil parameter dari query URL (misal: /api/check?userId=123&zoneId=456)
   const { userId, zoneId } = req.query;
 
   if (!userId || !zoneId) {
-    return res.status(400).json({ error: "Missing parameters" });
+    return res
+      .status(400)
+      .json({ message: "User ID and Zone ID are required" });
   }
 
-  const targetUrl = `https://api.ryzumi.vip/api/stalk/mobile-legends?userId=${userId}&zoneId=${zoneId}`;
-
   try {
-    const response = await fetch(targetUrl, {
-      method: "GET",
+    const targetUrl = "https://api.ryzumi.vip/api/stalk/mobile-legends";
+
+    // Kita gunakan Header & Cookie SAMA PERSIS dengan yang ada di vite.config.js
+    // Agar Cloudflare target mengira ini adalah request dari browser valid
+    const response = await axios.get(targetUrl, {
+      params: {
+        userId,
+        zoneId,
+      },
       headers: {
-        // --- DATA DARI LOG BROWSER ANDA ---
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        // INI KUNCI SAKTINYA (cf_clearance):
+        Referer: "https://api.ryzumi.vip/docs/",
         Cookie:
-          "cf_clearance=qYICNYfmGwtiBLQpEDTqLjBCuGtNHqKQ77goZ52zIkk-1766853688-1.2.1.1-hgicEl0E8g1BGBLoprsuXfXy3oFtjHyc2Y5ih2h9855vaj9zXRj_NPiQoEU.BCD3hQyny_EwITjA.oUESsQF.V9RarZ7yNNa6P7sq5E816fSZqs3Wd9HfU_ebp5GCVkCC0GVSFEw952jkORmpOUUvzUVDmaXEH4cGE8Sdi8ohIh3uQ12hwK9Dcdrn7w.TPe5zPtxLp1iiE9Br__Ckdp6ERCHgsdClOUzcYJgvuiRe9upSsPTTc4mL8WFZN8LIC7D",
-        Connection: "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-        "Sec-Fetch-User": "?1",
+          "cf_clearance=PtvseIEO5MpVUtVSLm62rtuzZ7ttZQGabCQzmO149Jc-1766960965-1.2.1.1-6oxo9d3HzXHgOl_SXtlylPQDLjYCFfmg3403USQlCHjHPIY43D.lqRMq.hvOVUZ4iGn8.nd0tqxKHn9AHvFCNKiPk3ff6Uu01KSlzsV8ADOrxuLGUu_G3gLr4FEztI_7xjLHhOiFR3qVLih_IhjuDJpPSsCTN2qZ_Nfcfd9kKjt2xiVzqDS3ACH2mC200E1XLV4XYql0cmjGlKP1xYv33WkX1oawmOttyKOYd8qp1.beaXy2Y4KFOLQl4viqUQTO",
+        Accept: "application/json",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
       },
     });
 
-    const data = await response.json();
-
-    // Cek apakah berhasil
-    if (data.username) {
-      return res.status(200).json({
-        success: true,
-        data: {
-          nickname: data.username,
-          // DATA REGION ASLI DARI RYZUMI AKAN MUNCUL DISINI
-          region: data.region || "Unknown",
-          userId: userId,
-          zoneId: zoneId,
-        },
-      });
-    } else {
-      return res.status(404).json({ error: "ID Not Found" });
-    }
+    // Kirim balik data sukses dari API Ryzumi ke Frontend
+    res.status(200).json(response.data);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Server Error" });
+    console.error("API Proxy Error:", error.message);
+
+    // Handle error jika API target menolak (misal 403 atau 404)
+    if (error.response) {
+      return res.status(error.response.status).json({
+        message: error.response.data?.message || "Error from Target API",
+        details: error.response.data,
+      });
+    }
+
+    // Handle error server internal
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 }
