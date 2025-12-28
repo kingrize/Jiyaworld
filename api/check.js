@@ -20,17 +20,13 @@ export default async function handler(req, res) {
         zoneId,
       },
       headers: {
+        // Gunakan User-Agent umum agar dianggap browser valid
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Referer: "https://api.ryzumi.vip/docs/",
-        Cookie:
-          "cf_clearance=PtvseIEO5MpVUtVSLm62rtuzZ7ttZQGabCQzmO149Jc-1766960965-1.2.1.1-6oxo9d3HzXHgOl_SXtlylPQDLjYCFfmg3403USQlCHjHPIY43D.lqRMq.hvOVUZ4iGn8.nd0tqxKHn9AHvFCNKiPk3ff6Uu01KSlzsV8ADOrxuLGUu_G3gLr4FEztI_7xjLHhOiFR3qVLih_IhjuDJpPSsCTN2qZ_Nfcfd9kKjt2xiVzqDS3ACH2mC200E1XLV4XYql0cmjGlKP1xYv33WkX1oawmOttyKOYd8qp1.beaXy2Y4KFOLQl4viqUQTO",
         Accept: "application/json",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-origin",
-        // PENTING: Jangan set Accept-Encoding manual (br/zstd) agar tidak error saat dekompresi di Node.js
+        // PENTING: Cookie dihapus.
+        // Cookie cf_clearance terikat pada IP. Mengirim cookie IP Local dari Server Vercel akan memicu Auto-Block (403).
       },
     });
 
@@ -40,6 +36,7 @@ export default async function handler(req, res) {
 
     if (error.response) {
       // Error dari API Target (403, 404, dll)
+      // Kita return status aslinya agar frontend tahu reason-nya
       return res.status(error.response.status).json({
         message: error.response.data?.message || "Error from Target API",
         details: error.response.data,
