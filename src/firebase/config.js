@@ -1,26 +1,26 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-// Analytics opsional, tapi kita biarkan saja agar tidak error
 import { getAnalytics } from "firebase/analytics";
 
+// Menggunakan Environment Variables (Lebih Aman)
 const firebaseConfig = {
-  apiKey: "AIzaSyB2H6xENGdqissnpUn6QWXfpM9BS5X67Wo",
-  authDomain: "jiyaworld.firebaseapp.com",
-  projectId: "jiyaworld",
-  storageBucket: "jiyaworld.firebasestorage.app",
-  messagingSenderId: "49947992138",
-  appId: "1:49947992138:web:25df54d8a57940821e46b3",
-  measurementId: "G-0PRP0ZEN2B",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID,
 };
 
-// 1. Inisialisasi Aplikasi Utama
+// Inisialisasi
 const app = initializeApp(firebaseConfig);
-
-// 2. Inisialisasi Database (Firestore) -> INI PENTING
 const db = getFirestore(app);
 
-// 3. Inisialisasi Analytics (Opsional)
-const analytics = getAnalytics(app);
+// Analytics (Hanya di client side)
+let analytics;
+if (typeof window !== "undefined") {
+  analytics = getAnalytics(app);
+}
 
-// 4. Export 'db' supaya bisa dipanggil di file lain
 export { db, analytics };
