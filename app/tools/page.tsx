@@ -3,8 +3,8 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Instagram, Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid } from "lucide-react";
-import { FloatingSidebar } from "../components/floating-sidebar";
+import { Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid } from "lucide-react";
+import { FloatingSidebar } from "../../components/floating-sidebar";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
   const [text, setText] = useState("");
@@ -41,16 +41,14 @@ export default function Home() {
     <main>
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
-      {/* STICKY NAVBAR 
-        Class & Style dikontrol via CSS di globals.css (tag nav)
-      */}
+      {/* STICKY NAVBAR */}
       <nav>
         <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "var(--text-one)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <Terminal size={24} color="var(--primary)" />
           <span>Jiya<span style={{ color: "var(--primary)" }}>World</span></span>
         </div>
         
-        {/* Tombol Sidebar Mobile (Hanya muncul di mobile via CSS) */}
+        {/* Tombol Sidebar Mobile */}
         <button 
           onClick={() => setIsSidebarOpen(true)} 
           className="nav-sidebar-btn"
@@ -64,7 +62,7 @@ export default function Home() {
         {/* Hero Header */}
         <header className="hero-header">
           
-          {/* Avatar - Ukuran diatur via class CSS */}
+          {/* Avatar */}
           <div className="hero-avatar-wrapper animate-float">
             <img 
               src="/avatar.png" 
@@ -88,7 +86,7 @@ export default function Home() {
               <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-one)" }}>Online & Ready</span>
             </div>
 
-            {/* Title & Bio - Class CSS mengontrol ukuran font mobile */}
+            {/* Title & Bio */}
             <h1 className="hero-title animate-slide-up" style={{ animationDelay: "0.1s" }}>
               Hi, I'm <span style={{ color: "var(--primary)" }}>Jiya</span>
             </h1>
@@ -97,22 +95,27 @@ export default function Home() {
               Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems. 
             </p>
             
-            {/* CTA Buttons - Class CSS mengontrol layout stack di mobile */}
+            {/* CTA Buttons - Removed Instagram button as requested */}
             <div className="animate-slide-up" style={{ marginTop: "1rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
               <button onClick={() => setIsSidebarOpen(true)} className="btn-hero primary">
                 <Compass size={20} />
                 <span>Explore Tools</span>
               </button>
-              <Link href="https://www.instagram.com/jiya.py" target="_blank" className="btn-hero outline">
-                <Instagram size={20} />
-                <span>Follow Me</span>
-              </Link>
             </div>
           </div>
         </header>
 
         {/* Terminal Window Decoration */}
-        <div className="terminal-window">
+        <div style={{
+          width: "100%",
+          maxWidth: "800px",
+          margin: "0 auto 4rem auto",
+          borderRadius: "12px",
+          border: "1px solid var(--border)",
+          backgroundColor: "var(--surface-two)",
+          boxShadow: "var(--drop-shadow-one)",
+          overflow: "hidden"
+        }}>
           <div style={{
             display: "flex",
             alignItems: "center",
