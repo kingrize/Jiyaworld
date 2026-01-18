@@ -1,8 +1,9 @@
+/* app/page.tsx */
 "use client";
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Instagram, Compass, Home as HomeIcon, User, LogIn, Github, Twitter, Sparkles, Terminal, Code2, Cpu, Globe, Zap } from "lucide-react";
+import { Instagram, Compass, Terminal, Code2, Cpu, Globe, Zap } from "lucide-react";
 import { FloatingSidebar } from "../components/floating-sidebar";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
@@ -39,19 +40,13 @@ export default function Home() {
   return (
     <main>
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      {/* Navigation */}
+      {/* Navigation - Cleaned */}
       <nav>
         <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "var(--text-one)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <Terminal size={24} color="var(--primary)" />
           <span>Jiya<span style={{ color: "var(--primary)" }}>World</span></span>
         </div>
-        <div className="nav-buttons">
-          <Link href="/" className="nav-btn" style={{ gap: "0.5rem" }}><HomeIcon size={18} /> Home</Link>
-          <Link href="/about" className="nav-btn" style={{ gap: "0.5rem" }}><User size={18} /> About</Link>
-          <button className="nav-btn" style={{ backgroundColor: "var(--primary)", color: "var(--text-three)", gap: "0.5rem" }}>
-            <LogIn size={18} /> Login
-          </button>
-        </div>
+        {/* Menu Buttons Removed from Top Nav */}
       </nav>
 
       {/* Main Content */}

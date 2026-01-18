@@ -194,6 +194,22 @@ export default function StudyAIPage() {
 
   return (
     <main>
+      <style dangerouslySetInnerHTML={{__html: `
+        .sidebar-trigger { display: none !important; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+        @media (max-width: 768px) {
+          .result-card { padding: 1rem !important; }
+          .question-card { padding: 1rem !important; }
+          .study-container { padding-left: 1rem; padding-right: 1rem; }
+        }
+      `}} />
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
       {/* Simple Nav for Tool Page */}
@@ -214,7 +230,7 @@ export default function StudyAIPage() {
         </button>
       </nav>
 
-      <div className="wrapper study-container">
+      <div className="wrapper study-container" style={{ marginTop: "4rem" }}>
         <div className="study-grid">
           {/* LEFT COLUMN: Controls & Input */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -414,7 +430,7 @@ export default function StudyAIPage() {
                   </h3>
                   <div style={{ display: "grid", gap: "1rem" }}>
                     {result.questions.map((q, idx) => (
-                      <div key={idx} style={{ padding: "1.5rem", background: "var(--surface-three)", borderRadius: "12px", border: "1px solid var(--border)" }}>
+                      <div key={idx} className="question-card" style={{ padding: "1.5rem", background: "var(--surface-three)", borderRadius: "12px", border: "1px solid var(--border)" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
                           <span style={{ fontWeight: 600, color: "var(--text-one)" }}>Soal {idx + 1}</span>
                           <span style={{ 

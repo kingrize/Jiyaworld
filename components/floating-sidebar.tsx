@@ -1,9 +1,8 @@
-// c:\Users\ArzyuEXT\Documents\jiyaworld\components\floating-sidebar.tsx
-
+/* components/floating-sidebar.tsx */
 "use client";
 
 import { useState, useEffect } from "react";
-import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor } from "lucide-react";
+import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor, Home, User, LogIn } from "lucide-react";
 
 type Category = {
   name: string;
@@ -128,7 +127,26 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
           ))}
         </div>
 
+        {/* Sidebar Footer with Added Menu Links */}
         <div className="sidebar-footer">
+          {/* New Menu Section */}
+          <div style={{ marginBottom: "2rem" }}>
+             <div style={{ marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.4)" }}>
+                <span>Menu</span>
+             </div>
+             <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <a href="/" className="sidebar-link">
+                  <Home size={16} /> Home
+                </a>
+                <a href="/about" className="sidebar-link">
+                  <User size={16} /> About
+                </a>
+                <button className="sidebar-link" style={{ width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
+                  <LogIn size={16} /> Login
+                </button>
+             </div>
+          </div>
+
           <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.4)" }}>
             <Settings size={14} />
             <span>Appearance</span>
