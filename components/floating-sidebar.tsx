@@ -1,8 +1,7 @@
-/* components/floating-sidebar.tsx */
 "use client";
 
 import { useState, useEffect } from "react";
-import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor, Home, User, LogIn } from "lucide-react";
+import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor, Home, User, LogIn, Youtube } from "lucide-react"; // Import Youtube icon
 
 type Category = {
   name: string;
@@ -17,6 +16,11 @@ const categories: Category[] = [
     items: [{ name: "StudyAI", href: "/tools/study-ai" }],
   },
   {
+    name: "MEDIA", // Kategori Baru
+    icon: Youtube,
+    items: [{ name: "YT Saver", href: "/tools/youtube-downloader" }],
+  },
+  {
     name: "GAME",
     icon: Gamepad2,
     items: [{ name: "Check Nickname", href: "/tools/check-nickname" }],
@@ -24,7 +28,7 @@ const categories: Category[] = [
 ];
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
-  const [expanded, setExpanded] = useState<string[]>(["STUDY", "GAME"]);
+  const [expanded, setExpanded] = useState<string[]>(["STUDY", "MEDIA", "GAME"]); // Auto expand Media
   const [theme, setTheme] = useState("system");
 
   useEffect(() => {
@@ -41,7 +45,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
     } else if (newTheme === "light") {
       root.setAttribute("data-theme", "light");
     } else {
-      root.removeAttribute("data-theme"); // System default (usually dark in your CSS)
+      root.removeAttribute("data-theme"); // System default
     }
   };
 
