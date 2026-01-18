@@ -1,65 +1,174 @@
-import Image from "next/image";
+"use client";
+
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { Instagram, SquareTerminal, Home as HomeIcon, User, LogIn, Github, Twitter, Sparkles, Terminal, Code2, Cpu, Globe, Zap } from "lucide-react";
+import { FloatingSidebar } from "../components/floating-sidebar";
+
+const Typewriter = ({ texts }: { texts: string[] }) => {
+  const [text, setText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loopNum, setLoopNum] = useState(0);
+
+  useEffect(() => {
+    const i = loopNum % texts.length;
+    const fullText = texts[i];
+
+    let timer: ReturnType<typeof setTimeout>;
+
+    if (!isDeleting && text === fullText) {
+      timer = setTimeout(() => setIsDeleting(true), 2000);
+    } else if (isDeleting && text === "") {
+      setIsDeleting(false);
+      setLoopNum(loopNum + 1);
+    } else {
+      timer = setTimeout(() => {
+        setText(isDeleting ? fullText.substring(0, text.length - 1) : fullText.substring(0, text.length + 1));
+      }, isDeleting ? 50 : 150);
+    }
+
+    return () => clearTimeout(timer);
+  }, [text, isDeleting, loopNum, texts]);
+
+  return <span>{text}</span>;
+};
 
 export default function Home() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      {/* Navigation */}
+      <nav>
+        <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "var(--text-one)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <Terminal size={24} color="var(--primary)" />
+          <span>Jiya<span style={{ color: "var(--primary)" }}>World</span></span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        <div className="nav-buttons">
+          <Link href="/" className="nav-btn" style={{ gap: "0.5rem" }}><HomeIcon size={18} /> Home</Link>
+          <Link href="/about" className="nav-btn" style={{ gap: "0.5rem" }}><User size={18} /> About</Link>
+          <button className="nav-btn" style={{ backgroundColor: "var(--primary)", color: "var(--text-three)", gap: "0.5rem" }}>
+            <LogIn size={18} /> Login
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="wrapper">
+        <header style={{ marginBottom: "4rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "2rem", textAlign: "center" }}>
+          {/* Avatar */}
+          <div style={{ flex: "0 0 auto" }} className="animate-float">
+            <img 
+              src="/avatar.png" 
+              alt="Jiya" 
+              style={{ 
+                width: "200px", 
+                height: "200px", 
+                borderRadius: "50%", 
+                objectFit: "cover", 
+                border: "4px solid var(--surface-three)",
+                boxShadow: "var(--drop-shadow-one)"
+              }} 
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem", maxWidth: "700px" }}>
+            {/* Status Indicator */}
+            <div className="animate-slide-up" style={{ 
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: "0.75rem", 
+              padding: "0.5rem 1rem", 
+              backgroundColor: "var(--surface-three)", 
+              borderRadius: "100px",
+              width: "fit-content",
+              border: "1px solid var(--border)"
+            }}>
+              <span className="status-dot"></span>
+              <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "var(--text-one)" }}>Online & Ready to Code</span>
+            </div>
+
+            {/* Name & Title */}
+            <h1 className="animate-slide-up" style={{ fontSize: "clamp(3rem, 6vw, 4.5rem)", lineHeight: "1.1", animationDelay: "0.1s" }}>
+              Hi, I'm <span style={{ color: "var(--primary)" }}>Jiya</span>
+            </h1>
+            
+            {/* Bio */}
+            <p className="animate-slide-up" style={{ fontSize: "1.2rem", color: "var(--text-four)", maxWidth: "650px", lineHeight: "1.7", animationDelay: "0.2s" }}>
+              Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems. 
+              Exploring the boundaries of web technology.
+            </p>
+            
+            {/* CTA Buttons */}
+            <div className="animate-slide-up" style={{ marginTop: "2rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
+              <button onClick={() => setIsSidebarOpen(true)} className="btn-hero primary">
+                <SquareTerminal size={20} />
+                <span>Explore Tools</span>
+              </button>
+              <Link href="https://www.instagram.com/jiya.py" target="_blank" className="btn-hero outline">
+                <Instagram size={20} />
+                <span>Follow Me</span>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Terminal Window Decoration */}
+        <div style={{
+          width: "100%",
+          maxWidth: "800px",
+          margin: "0 auto 4rem auto",
+          borderRadius: "12px",
+          border: "1px solid var(--border)",
+          backgroundColor: "var(--surface-two)",
+          boxShadow: "var(--drop-shadow-one)",
+          overflow: "hidden"
+        }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            padding: "0.75rem 1rem",
+            backgroundColor: "var(--surface-three)",
+            borderBottom: "1px solid var(--border)"
+          }}>
+            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ff5f56" }}></div>
+            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ffbd2e" }}></div>
+            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27c93f" }}></div>
+            <div style={{ marginLeft: "auto", marginRight: "auto", fontSize: "0.85rem", color: "var(--text-four)", fontFamily: "monospace", opacity: 0.7 }}>jiya@world:~</div>
+          </div>
+          <div style={{ padding: "1.5rem", fontFamily: "monospace", fontSize: "0.95rem", color: "var(--text-four)", minHeight: "100px" }}>
+             <div>
+                <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>jiya@world:~$</span>
+                <Typewriter texts={["welcome to website", "kinda lazy but...", "stay tuned for more", "just a hobbyist"]} />
+                <span className="cursor-blink">_</span>
+             </div>
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Tech Stack Section */}
+        <div className="section-title">Powered By</div>
+        <div className="tech-grid">
+          <div className="tech-item"><Code2 size={16} /> Next.js</div>
+          <div className="tech-item"><Cpu size={16} /> TypeScript</div>
+          <div className="tech-item"><Globe size={16} /> React</div>
+          <div className="tech-item"><Zap size={16} /> Vercel</div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="footer-minimal">
+        <div className="footer-links">
+          <Link href="/">Home</Link>
+          <Link href="/about">About</Link>
+          <Link href="/contact">Contact</Link>
+          <Link href="https://github.com">GitHub</Link>
+        </div>
+        <div className="footer-copy">
+          &copy; {new Date().getFullYear()} Jiya World. Crafted with passion.
+        </div>
+      </footer>
+    </main>
   );
 }
