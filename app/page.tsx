@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Instagram, Compass, Terminal, Code2, Cpu, Globe, Zap } from "lucide-react";
+import { Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid } from "lucide-react";
 import { FloatingSidebar } from "../components/floating-sidebar";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
@@ -40,71 +40,67 @@ export default function Home() {
   return (
     <main>
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      {/* Navigation - Cleaned */}
+      
+      {/* STICKY NAVBAR */}
       <nav>
         <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "var(--text-one)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <Terminal size={24} color="var(--primary)" />
           <span>Jiya<span style={{ color: "var(--primary)" }}>World</span></span>
         </div>
-        {/* Menu Buttons Removed from Top Nav */}
+        
+        {/* Tombol Sidebar Mobile */}
+        <button 
+          onClick={() => setIsSidebarOpen(true)} 
+          className="nav-sidebar-btn"
+          aria-label="Open Menu"
+        >
+          <LayoutGrid size={24} />
+        </button>
       </nav>
 
-      {/* Main Content */}
       <div className="wrapper">
-        <header style={{ marginBottom: "4rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "2rem", textAlign: "center" }}>
+        {/* Hero Header */}
+        <header className="hero-header">
+          
           {/* Avatar */}
-          <div style={{ flex: "0 0 auto" }} className="animate-float">
+          <div className="hero-avatar-wrapper animate-float">
             <img 
               src="/avatar.png" 
               alt="Jiya" 
-              style={{ 
-                width: "200px", 
-                height: "200px", 
-                borderRadius: "50%", 
-                objectFit: "cover", 
-                border: "4px solid var(--surface-three)",
-                boxShadow: "var(--drop-shadow-one)"
-              }} 
+              className="hero-avatar"
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem", maxWidth: "700px" }}>
-            {/* Status Indicator */}
+          <div className="hero-content">
+            {/* Status */}
             <div className="animate-slide-up" style={{ 
               display: "inline-flex", 
               alignItems: "center", 
               gap: "0.75rem", 
               padding: "0.5rem 1rem", 
               backgroundColor: "var(--surface-three)", 
-              borderRadius: "100px",
-              width: "fit-content",
+              borderRadius: "100px", 
               border: "1px solid var(--border)"
             }}>
               <span className="status-dot"></span>
-              <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "var(--text-one)" }}>Online & Ready to Code</span>
+              <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-one)" }}>Online & Ready</span>
             </div>
 
-            {/* Name & Title */}
-            <h1 className="animate-slide-up" style={{ fontSize: "clamp(3rem, 6vw, 4.5rem)", lineHeight: "1.1", animationDelay: "0.1s" }}>
+            {/* Title & Bio */}
+            <h1 className="hero-title animate-slide-up" style={{ animationDelay: "0.1s" }}>
               Hi, I'm <span style={{ color: "var(--primary)" }}>Jiya</span>
             </h1>
             
-            {/* Bio */}
-            <p className="animate-slide-up" style={{ fontSize: "1.2rem", color: "var(--text-four)", maxWidth: "650px", lineHeight: "1.7", animationDelay: "0.2s" }}>
+            <p className="hero-bio animate-slide-up" style={{ animationDelay: "0.2s" }}>
               Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems. 
-              Exploring the boundaries of web technology.
             </p>
             
-            {/* CTA Buttons */}
-            <div className="animate-slide-up" style={{ marginTop: "2rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
+            {/* CTA Buttons - Removed Instagram button as requested */}
+            <div className="animate-slide-up" style={{ marginTop: "1rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
               <button onClick={() => setIsSidebarOpen(true)} className="btn-hero primary">
                 <Compass size={20} />
                 <span>Explore Tools</span>
               </button>
-              <Link href="https://www.instagram.com/jiya.py" target="_blank" className="btn-hero outline">
-                <Instagram size={20} />
-                <span>Follow Me</span>
-              </Link>
             </div>
           </div>
         </header>
@@ -142,7 +138,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Tech Stack Section */}
+        {/* Tech Stack */}
         <div className="section-title">Powered By</div>
         <div className="tech-grid">
           <div className="tech-item"><Code2 size={16} /> Next.js</div>
@@ -152,7 +148,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="footer-minimal">
         <div className="footer-links">
           <Link href="/">Home</Link>
