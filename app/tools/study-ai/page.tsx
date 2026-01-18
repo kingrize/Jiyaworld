@@ -18,31 +18,13 @@ type AnalysisResult = {
   unclear: string;
 };
 
-// API Key Rotation Logic
-const getGeminiKey = () => {
-  const keys = [
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY_1,
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY_2,
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY_3,
-  ].filter(Boolean);
-  return keys[Math.floor(Math.random() * keys.length)];
-};
-
-const getGroqKey = () => {
-  const keys = [
-    process.env.NEXT_PUBLIC_GROQ_API_KEY_1,
-    process.env.NEXT_PUBLIC_GROQ_API_KEY_2,
-  ].filter(Boolean);
-  return keys[Math.floor(Math.random() * keys.length)];
-};
-
 export default function StudyAIPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [mode, setMode] = useState<"STRICT" | "SMART">("STRICT");
   const [inputType, setInputType] = useState<"PDF" | "TEXT">("PDF");
   const [file, setFile] = useState<File | null>(null);
   const [textInput, setTextInput] = useState("");
-  const [model, setModel] = useState("Gemini");
+  const [model, setModel] = useState("gemini"); // Lowercase match backend
   const [questionCount, setQuestionCount] = useState(5);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progressStep, setProgressStep] = useState("");
@@ -62,19 +44,6 @@ export default function StudyAIPage() {
     }
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const result = reader.result as string;
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = error => reject(error);
-    });
-  };
-
   const toggleAnswer = (index: number) => {
     setVisibleAnswers(prev => 
       prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
@@ -90,7 +59,7 @@ export default function StudyAIPage() {
     setVisibleAnswers([]);
 
     try {
-      setProgressStep("Preparing data...");
+      setProgressStep("Preparing AI model...");
       
       const systemPrompt = `
         You are StudyAI, an intelligent study assistant.
@@ -112,76 +81,48 @@ export default function StudyAIPage() {
         }
         
         Generate exactly ${questionCount} questions.
-        Ensure the output is valid JSON. Language: Indonesian.
+        Ensure the output is valid JSON (do not use markdown code blocks). Language: Indonesian.
       `;
 
-      let jsonResponse;
-
-      if (model === "Gemini") {
-        setProgressStep("Sending to Gemini 2.5 Flash...");
-        const apiKey = getGeminiKey();
-        
-        let contentPart;
-        if (inputType === "PDF" && file) {
-          const base64Data = await fileToBase64(file);
-          contentPart = { inline_data: { mime_type: "application/pdf", data: base64Data } };
-        } else {
-          contentPart = { text: textInput };
-        }
-
-        // Menggunakan model gemini-2.5-flash sesuai permintaan
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: systemPrompt },
-                contentPart
-              ]
-            }],
-            generationConfig: { response_mime_type: "application/json" }
-          })
-        });
-
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-        
-        const textResponse = data.candidates[0].content.parts[0].text;
-        jsonResponse = JSON.parse(textResponse);
-
-      } else if (model === "Groq") {
-        setProgressStep("Sending to Groq (Llama 3.3)...");
-        const apiKey = getGroqKey();
-
-        // Groq doesn't support PDF directly, fallback to text input or warn
-        let contentToSend = textInput;
-        if (inputType === "PDF") {
-           throw new Error("Groq model currently only supports Text Input. Please switch to Gemini for PDF analysis or copy-paste the text.");
-        }
-
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: contentToSend }
-            ],
-            // Menggunakan model llama-3.3-70b-versatile sesuai permintaan
-            model: "llama-3.3-70b-versatile",
-            response_format: { type: "json_object" }
-          })
-        });
-
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-        jsonResponse = JSON.parse(data.choices[0].message.content);
+      const formData = new FormData();
+      
+      // Susun Prompt
+      let finalPrompt = systemPrompt;
+      if (inputType === "TEXT") {
+        finalPrompt += `\n\nCONTEXT MATERIAL:\n${textInput}`;
       }
 
+      formData.append("prompt", finalPrompt);
+      formData.append("model", model); // 'gemini' atau 'groq'
+      
+      if (inputType === "PDF" && file) {
+        formData.append("file", file);
+      }
+
+      setProgressStep(model === 'groq' && inputType === 'PDF' 
+        ? "Relaying: Gemini (Vision) -> Groq (Reasoning)..." 
+        : `Sending to ${model === 'gemini' ? 'Gemini 2.5' : 'Groq Llama 3'}...`
+      );
+
+      // Call Backend API
+      const response = await fetch("/api/study-ai", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Analysis failed");
+      }
+
+      setProgressStep("Processing result...");
+      
+      // Clean up result if AI wrapped it in markdown code blocks
+      let rawJson = data.result;
+      rawJson = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
+      
+      const jsonResponse = JSON.parse(rawJson);
       setResult(jsonResponse);
 
     } catch (error) {
@@ -301,7 +242,7 @@ export default function StudyAIPage() {
                         {file ? file.name : "Upload PDF"}
                       </div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-four)" }}>
-                        Max 10MB.
+                        Max 10MB. {fileSizeWarning && <span style={{ color: "var(--red-two)" }}>File terlalu besar!</span>}
                       </div>
                     </div>
                   </div>
@@ -323,8 +264,8 @@ export default function StudyAIPage() {
                         onChange={(e) => setModel(e.target.value)}
                         style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--surface-two)", color: "var(--text-one)", cursor: "pointer", fontSize: "0.9rem" }}
                       >
-                        <option value="Gemini">Gemini 2.5 Flash</option>
-                        <option value="Groq">Groq (Llama 3.3)</option>
+                        <option value="gemini">Gemini 2.5 Flash</option>
+                        <option value="groq">Groq (Llama 3.3)</option>
                       </select>
                     </div>
                     <div style={{ width: "80px" }}>
