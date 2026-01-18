@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Instagram, SquareTerminal, Home as HomeIcon, User, LogIn, Github, Twitter, Sparkles, Terminal, Code2, Cpu, Globe, Zap } from "lucide-react";
+import { Instagram, Compass, Home as HomeIcon, User, LogIn, Github, Twitter, Sparkles, Terminal, Code2, Cpu, Globe, Zap } from "lucide-react";
 import { FloatingSidebar } from "../components/floating-sidebar";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
@@ -103,7 +103,7 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="animate-slide-up" style={{ marginTop: "2rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
               <button onClick={() => setIsSidebarOpen(true)} className="btn-hero primary">
-                <SquareTerminal size={20} />
+                <Compass size={20} />
                 <span>Explore Tools</span>
               </button>
               <Link href="https://www.instagram.com/jiya.py" target="_blank" className="btn-hero outline">

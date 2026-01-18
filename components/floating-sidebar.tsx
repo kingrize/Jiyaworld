@@ -2,8 +2,8 @@
 
 "use client";
 
-import { useState } from "react";
-import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, Menu, X, Moon, Sun, Monitor } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor } from "lucide-react";
 
 type Category = {
   name: string;
@@ -26,6 +26,31 @@ const categories: Category[] = [
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
   const [expanded, setExpanded] = useState<string[]>(["STUDY", "GAME"]);
+  const [theme, setTheme] = useState("system");
+
+  useEffect(() => {
+    // Load saved theme on mount
+    const savedTheme = localStorage.getItem("theme") || "system";
+    setTheme(savedTheme);
+    applyTheme(savedTheme);
+  }, []);
+
+  const applyTheme = (newTheme: string) => {
+    const root = document.documentElement;
+    if (newTheme === "dark") {
+      root.setAttribute("data-theme", "dark");
+    } else if (newTheme === "light") {
+      root.setAttribute("data-theme", "light");
+    } else {
+      root.removeAttribute("data-theme"); // System default (usually dark in your CSS)
+    }
+  };
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    applyTheme(newTheme);
+  };
 
   const toggleCategory = (name: string) => {
     setExpanded((prev) =>
@@ -41,7 +66,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
         className={`sidebar-trigger ${isOpen ? "hidden" : ""}`}
         aria-label="Open Menu"
       >
-        <Menu size={20} />
+        <LayoutGrid size={20} />
       </button>
 
       {/* Sidebar Overlay */}
@@ -109,15 +134,15 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
             <span>Appearance</span>
           </div>
           <div className="appearance-grid">
-             <button className="appearance-btn">
+             <button className={`appearance-btn ${theme === 'light' ? 'active' : ''}`} onClick={() => handleThemeChange('light')}>
                 <Sun size={16} />
                 <span>Light</span>
              </button>
-             <button className="appearance-btn" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white" }}>
+             <button className={`appearance-btn ${theme === 'dark' ? 'active' : ''}`} onClick={() => handleThemeChange('dark')}>
                 <Moon size={16} />
                 <span>Dark</span>
              </button>
-             <button className="appearance-btn">
+             <button className={`appearance-btn ${theme === 'system' ? 'active' : ''}`} onClick={() => handleThemeChange('system')}>
                 <Monitor size={16} />
                 <span>System</span>
              </button>
