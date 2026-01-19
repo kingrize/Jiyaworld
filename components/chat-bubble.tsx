@@ -139,59 +139,7 @@ export function ChatBubble() {
   return (
     <>
       {/* Custom Styles */}
-      <style jsx global>{`
-        @keyframes chatSlideIn {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        
-        @keyframes pulseRing {
-          0% {
-            transform: scale(1);
-            opacity: 0.8;
-          }
-          50% {
-            transform: scale(1.15);
-            opacity: 0;
-          }
-          100% {
-            transform: scale(1.15);
-            opacity: 0;
-          }
-        }
-        
-        @keyframes typingBounce {
-          0%, 60%, 100% {
-            transform: translateY(0);
-          }
-          30% {
-            transform: translateY(-4px);
-          }
-        }
-        
-        .chat-bubble-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .chat-bubble-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        
-        .chat-bubble-scrollbar::-webkit-scrollbar-thumb {
-          background: var(--border);
-          border-radius: 10px;
-        }
-        
-        .chat-bubble-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: var(--text-four);
-        }
-      `}</style>
+
 
       <div style={{
         position: "fixed",

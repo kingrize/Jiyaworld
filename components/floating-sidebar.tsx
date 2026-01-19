@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor, Home, User, LogIn, Youtube } from "lucide-react"; // Import Youtube icon
+import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor, Home, User, LogIn, Youtube, Languages } from "lucide-react"; // Import Youtube icon
 
 type Category = {
   name: string;
@@ -21,6 +21,11 @@ const categories: Category[] = [
     items: [{ name: "YT Saver", href: "/tools/youtube-downloader" }],
   },
   {
+    name: "TRANSLATE",
+    icon: Languages,
+    items: [{ name: "TranslateAI", href: "/tools/translate-ai" }],
+  },
+  {
     name: "GAME",
     icon: Gamepad2,
     items: [{ name: "Check Nickname", href: "/tools/check-nickname" }],
@@ -28,7 +33,7 @@ const categories: Category[] = [
 ];
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
-  const [expanded, setExpanded] = useState<string[]>(["STUDY", "MEDIA", "GAME"]); // Auto expand Media
+  const [expanded, setExpanded] = useState<string[]>(["STUDY", "MEDIA", "TRANSLATE", "GAME"]); // Auto expand Media
   const [theme, setTheme] = useState("system");
 
   useEffect(() => {
@@ -85,7 +90,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <div className="sidebar-logo">
-               <span>J</span>
+              <span>J</span>
             </div>
             <span style={{ fontWeight: "bold", fontSize: "1.125rem", letterSpacing: "0.025em" }}>Tools</span>
           </div>
@@ -114,7 +119,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                   <ChevronRight size={14} />
                 )}
               </button>
-              
+
               <div className={`sidebar-category-content ${expanded.includes(cat.name) ? "expanded" : ""}`}>
                 {cat.items.map((item) => (
                   <a
@@ -135,20 +140,20 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
         <div className="sidebar-footer">
           {/* New Menu Section */}
           <div style={{ marginBottom: "2rem" }}>
-             <div style={{ marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.4)" }}>
-                <span>Menu</span>
-             </div>
-             <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                <a href="/" className="sidebar-link">
-                  <Home size={16} /> Home
-                </a>
-                <a href="/about" className="sidebar-link">
-                  <User size={16} /> About
-                </a>
-                <button className="sidebar-link" style={{ width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
-                  <LogIn size={16} /> Login
-                </button>
-             </div>
+            <div style={{ marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.4)" }}>
+              <span>Menu</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+              <a href="/" className="sidebar-link">
+                <Home size={16} /> Home
+              </a>
+              <a href="/about" className="sidebar-link">
+                <User size={16} /> About
+              </a>
+              <button className="sidebar-link" style={{ width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
+                <LogIn size={16} /> Login
+              </button>
+            </div>
           </div>
 
           <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.4)" }}>
@@ -156,18 +161,18 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
             <span>Appearance</span>
           </div>
           <div className="appearance-grid">
-             <button className={`appearance-btn ${theme === 'light' ? 'active' : ''}`} onClick={() => handleThemeChange('light')}>
-                <Sun size={16} />
-                <span>Light</span>
-             </button>
-             <button className={`appearance-btn ${theme === 'dark' ? 'active' : ''}`} onClick={() => handleThemeChange('dark')}>
-                <Moon size={16} />
-                <span>Dark</span>
-             </button>
-             <button className={`appearance-btn ${theme === 'system' ? 'active' : ''}`} onClick={() => handleThemeChange('system')}>
-                <Monitor size={16} />
-                <span>System</span>
-             </button>
+            <button className={`appearance-btn ${theme === 'light' ? 'active' : ''}`} onClick={() => handleThemeChange('light')}>
+              <Sun size={16} />
+              <span>Light</span>
+            </button>
+            <button className={`appearance-btn ${theme === 'dark' ? 'active' : ''}`} onClick={() => handleThemeChange('dark')}>
+              <Moon size={16} />
+              <span>Dark</span>
+            </button>
+            <button className={`appearance-btn ${theme === 'system' ? 'active' : ''}`} onClick={() => handleThemeChange('system')}>
+              <Monitor size={16} />
+              <span>System</span>
+            </button>
           </div>
         </div>
       </div>

@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FloatingSidebar } from "@/components/floating-sidebar";
-import { 
-  Upload, FileText, Brain, Zap, Check, AlertCircle, 
-  ChevronRight, Loader2, Terminal, ArrowLeft, FileType, 
+import {
+  Upload, FileText, Brain, Zap, Check, AlertCircle,
+  ChevronRight, Loader2, Terminal, ArrowLeft, FileType,
   Sparkles, Shield, Search, Eye, EyeOff, HelpCircle
 } from "lucide-react";
 
@@ -45,7 +45,7 @@ export default function StudyAIPage() {
   };
 
   const toggleAnswer = (index: number) => {
-    setVisibleAnswers(prev => 
+    setVisibleAnswers(prev =>
       prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
     );
   };
@@ -60,7 +60,7 @@ export default function StudyAIPage() {
 
     try {
       setProgressStep("Preparing AI model...");
-      
+
       const systemPrompt = `
         You are StudyAI, an intelligent study assistant.
         Mode: ${mode}
@@ -85,7 +85,7 @@ export default function StudyAIPage() {
       `;
 
       const formData = new FormData();
-      
+
       // Susun Prompt
       let finalPrompt = systemPrompt;
       if (inputType === "TEXT") {
@@ -94,13 +94,13 @@ export default function StudyAIPage() {
 
       formData.append("prompt", finalPrompt);
       formData.append("model", model); // 'gemini' atau 'groq'
-      
+
       if (inputType === "PDF" && file) {
         formData.append("file", file);
       }
 
-      setProgressStep(model === 'groq' && inputType === 'PDF' 
-        ? "Relaying: Gemini (Vision) -> Groq (Reasoning)..." 
+      setProgressStep(model === 'groq' && inputType === 'PDF'
+        ? "Relaying: Gemini (Vision) -> Groq (Reasoning)..."
         : `Sending to ${model === 'gemini' ? 'Gemini 2.5' : 'Groq Llama 3'}...`
       );
 
@@ -117,11 +117,11 @@ export default function StudyAIPage() {
       }
 
       setProgressStep("Processing result...");
-      
+
       // Clean up result if AI wrapped it in markdown code blocks
       let rawJson = data.result;
       rawJson = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
-      
+
       const jsonResponse = JSON.parse(rawJson);
       setResult(jsonResponse);
 
@@ -135,7 +135,8 @@ export default function StudyAIPage() {
 
   return (
     <main>
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .sidebar-trigger { display: none !important; }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -152,7 +153,7 @@ export default function StudyAIPage() {
         }
       `}} />
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      
+
       {/* Simple Nav for Tool Page */}
       <nav style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid var(--border)", background: "var(--background-one)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -184,14 +185,14 @@ export default function StudyAIPage() {
             <div className="result-card" style={{ padding: "1.5rem" }}>
               <h3 style={{ fontSize: "1rem", marginBottom: "1rem", color: "var(--text-one)" }}>Analysis Mode</h3>
               <div className="mode-selector" style={{ width: "100%", display: "flex", marginBottom: "1rem" }}>
-                <button 
+                <button
                   className={`mode-btn ${mode === "STRICT" ? "active" : ""}`}
                   onClick={() => setMode("STRICT")}
                   style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                 >
                   <Shield size={16} /> STRICT
                 </button>
-                <button 
+                <button
                   className={`mode-btn ${mode === "SMART" ? "active" : ""}`}
                   onClick={() => setMode("SMART")}
                   style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
@@ -201,8 +202,8 @@ export default function StudyAIPage() {
               </div>
               <div style={{ fontSize: "0.8rem", color: "var(--text-four)", display: "flex", gap: "0.5rem", lineHeight: "1.4" }}>
                 <AlertCircle size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
-                {mode === "STRICT" 
-                  ? "Hanya menggunakan fakta dari materi. Tidak ada halusinasi." 
+                {mode === "STRICT"
+                  ? "Hanya menggunakan fakta dari materi. Tidak ada halusinasi."
                   : "Menambahkan konteks eksternal yang relevan untuk memperjelas."}
               </div>
             </div>
@@ -210,13 +211,13 @@ export default function StudyAIPage() {
             {/* Input Section */}
             <div className="result-card" style={{ padding: "0", overflow: "hidden" }}>
               <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
-                <button 
+                <button
                   onClick={() => setInputType("PDF")}
                   style={{ flex: 1, padding: "1rem", background: inputType === "PDF" ? "var(--surface-three)" : "transparent", border: "none", color: inputType === "PDF" ? "var(--text-one)" : "var(--text-four)", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                 >
                   <FileType size={18} /> PDF
                 </button>
-                <button 
+                <button
                   onClick={() => setInputType("TEXT")}
                   style={{ flex: 1, padding: "1rem", background: inputType === "TEXT" ? "var(--surface-three)" : "transparent", border: "none", color: inputType === "TEXT" ? "var(--text-one)" : "var(--text-four)", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                 >
@@ -227,12 +228,12 @@ export default function StudyAIPage() {
               <div style={{ padding: "1.5rem" }}>
                 {inputType === "PDF" ? (
                   <div className="upload-area" style={{ padding: "2rem 1rem" }} onClick={() => document.getElementById("file-upload")?.click()}>
-                    <input 
-                      id="file-upload" 
-                      type="file" 
-                      accept=".pdf" 
-                      onChange={handleFileChange} 
-                      style={{ display: "none" }} 
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      style={{ display: "none" }}
                     />
                     <div style={{ width: "50px", height: "50px", borderRadius: "50%", background: "var(--surface-four)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
                       <Upload size={24} />
@@ -247,8 +248,8 @@ export default function StudyAIPage() {
                     </div>
                   </div>
                 ) : (
-                  <textarea 
-                    placeholder="Paste text here..." 
+                  <textarea
+                    placeholder="Paste text here..."
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}
                     style={{ minHeight: "150px", resize: "vertical", fontFamily: "var(--mono-font)", fontSize: "0.85rem" }}
@@ -259,8 +260,8 @@ export default function StudyAIPage() {
                   <div style={{ display: "flex", gap: "1rem" }}>
                     <div style={{ flex: 1 }}>
                       <label style={{ fontSize: "0.85rem", color: "var(--text-four)", fontWeight: 600, display: "block", marginBottom: "0.5rem" }}>Model</label>
-                      <select 
-                        value={model} 
+                      <select
+                        value={model}
                         onChange={(e) => setModel(e.target.value)}
                         style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--surface-two)", color: "var(--text-one)", cursor: "pointer", fontSize: "0.9rem" }}
                       >
@@ -270,18 +271,18 @@ export default function StudyAIPage() {
                     </div>
                     <div style={{ width: "80px" }}>
                       <label style={{ fontSize: "0.85rem", color: "var(--text-four)", fontWeight: 600, display: "block", marginBottom: "0.5rem" }}>Soal</label>
-                      <input 
-                        type="number" 
-                        min={1} 
-                        max={20} 
-                        value={questionCount} 
+                      <input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={questionCount}
                         onChange={(e) => setQuestionCount(Number(e.target.value))}
-                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--surface-two)", color: "var(--text-one)", fontSize: "0.9rem" }} 
+                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--surface-two)", color: "var(--text-one)", fontSize: "0.9rem" }}
                       />
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={handleAnalyze}
                     disabled={isAnalyzing || (inputType === "PDF" && !file) || (inputType === "TEXT" && !textInput)}
                     className="btn-hero primary"
@@ -355,7 +356,7 @@ export default function StudyAIPage() {
                       <li key={idx} style={{ color: "var(--text-four)" }}>
                         {point.includes("[Eksternal]") ? (
                           <span>
-                            {point.replace("[Eksternal]", "")} 
+                            {point.replace("[Eksternal]", "")}
                             <span style={{ fontSize: "0.75rem", background: "var(--surface-four)", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px", color: "var(--primary)" }}>Eksternal</span>
                           </span>
                         ) : point}
@@ -374,10 +375,10 @@ export default function StudyAIPage() {
                       <div key={idx} className="question-card" style={{ padding: "1.5rem", background: "var(--surface-three)", borderRadius: "12px", border: "1px solid var(--border)" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
                           <span style={{ fontWeight: 600, color: "var(--text-one)" }}>Soal {idx + 1}</span>
-                          <span style={{ 
-                            fontSize: "0.75rem", 
-                            padding: "2px 8px", 
-                            borderRadius: "100px", 
+                          <span style={{
+                            fontSize: "0.75rem",
+                            padding: "2px 8px",
+                            borderRadius: "100px",
                             background: q.level === "Dasar" ? "var(--surface-four)" : q.level === "Menengah" ? "var(--tertiary)" : "var(--red-three)",
                             color: q.level === "Sulit" ? "#601410" : "var(--text-one)"
                           }}>
@@ -385,26 +386,26 @@ export default function StudyAIPage() {
                           </span>
                         </div>
                         <p style={{ margin: "0 0 1rem 0", color: "var(--text-one)" }}>{q.text}</p>
-                        
+
                         <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
-                          <button 
+                          <button
                             onClick={() => toggleAnswer(idx)}
-                            style={{ 
-                              background: "transparent", 
-                              border: "none", 
-                              color: "var(--primary)", 
-                              fontSize: "0.85rem", 
-                              fontWeight: 600, 
-                              cursor: "pointer", 
-                              display: "flex", 
-                              alignItems: "center", 
-                              gap: "0.5rem" 
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              color: "var(--primary)",
+                              fontSize: "0.85rem",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem"
                             }}
                           >
                             {visibleAnswers.includes(idx) ? <EyeOff size={16} /> : <Eye size={16} />}
                             {visibleAnswers.includes(idx) ? "Sembunyikan Jawaban" : "Lihat Jawaban"}
                           </button>
-                          
+
                           {visibleAnswers.includes(idx) && (
                             <div className="animate-slide-up" style={{ marginTop: "0.75rem", fontSize: "0.9rem", color: "var(--text-four)", background: "var(--surface-two)", padding: "0.75rem", borderRadius: "8px" }}>
                               {q.answer}
