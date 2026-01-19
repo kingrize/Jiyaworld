@@ -4,8 +4,8 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid, Heart } from "lucide-react";
-import { FloatingSidebar } from "../components/floating-sidebar";
-import { ChatBubble } from "../components/ChatBubble";
+import { FloatingSidebar } from "@/components/floating-sidebar";
+import { ChatBubble } from "@/components/chat-bubble";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
   const [text, setText] = useState("");
