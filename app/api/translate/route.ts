@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Groq } from "groq-sdk";
 
 // Load all available API keys
 const API_KEYS = [
@@ -82,9 +83,84 @@ async function callGeminiAPI(
     return { success: false, error: lastError, status: lastStatus };
 }
 
+// Helper to get all available keys for a provider
+const getKeys = (provider: string) => {
+    const keys: string[] = [];
+    const env = process.env;
+    const baseNames = [
+        `${provider}_API_KEY`,
+        `NEXT_PUBLIC_${provider}_API_KEY`
+    ];
+
+    baseNames.forEach(base => {
+        if (env[base]) keys.push(env[base] as string);
+        for (let i = 1; i <= 10; i++) {
+            const keyWithSuffix = `${base}_${i}`;
+            if (env[keyWithSuffix]) keys.push(env[keyWithSuffix] as string);
+        }
+    });
+
+    return Array.from(new Set(keys)).filter(Boolean);
+};
+
+// Generic rotation executor
+async function executeWithRotation<T>(
+    provider: "GEMINI" | "GROQ",
+    callback: (apiKey: string) => Promise<T>
+): Promise<T> {
+    const keys = getKeys(provider);
+
+    if (keys.length === 0) {
+        throw new Error(`No API keys found for ${provider}`);
+    }
+
+    let lastError: any;
+
+    for (const key of keys) {
+        try {
+            return await callback(key);
+        } catch (error: any) {
+            console.warn(`[${provider}] Key ...${key.slice(-4)} failed.`);
+
+            const isQuotaError =
+                error.message?.includes("429") ||
+                error.status === 429;
+
+            if (isQuotaError) {
+                lastError = error;
+                continue;
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    throw new Error(`All ${provider} keys exhausted. Last error: ${lastError?.message}`);
+}
+
+async function callGroqAPI(prompt: string): Promise<{ success: boolean; text?: string; error?: string; status?: number }> {
+    try {
+        const text = await executeWithRotation("GROQ", async (apiKey) => {
+            const groq = new Groq({ apiKey });
+            const completion = await groq.chat.completions.create({
+                messages: [{ role: "user", content: prompt }],
+                model: "llama-3.3-70b-versatile",
+                temperature: 0.7,
+                max_tokens: 1000,
+            });
+            return completion.choices[0]?.message?.content || "";
+        });
+
+        return { success: true, text };
+    } catch (error: any) {
+        console.error("Groq API Error:", error);
+        return { success: false, error: error.message || "Groq request failed", status: 500 };
+    }
+}
+
 export async function POST(req: Request) {
     try {
-        const { text, sourceLang, targetLang, tone } = await req.json();
+        const { text, sourceLang, targetLang, tone, model } = await req.json();
 
         if (!text || !targetLang) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -114,7 +190,13 @@ export async function POST(req: Request) {
       "${text}"
     `;
 
-        const result = await callGeminiAPI(prompt);
+        let result;
+
+        if (model === "groq") {
+            result = await callGroqAPI(prompt);
+        } else {
+            result = await callGeminiAPI(prompt);
+        }
 
         if (!result.success) {
             return NextResponse.json({ error: result.error || "Translation failed" }, { status: result.status || 500 });

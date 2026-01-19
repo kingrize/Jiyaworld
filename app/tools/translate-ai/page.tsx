@@ -17,11 +17,13 @@ import {
     RefreshCw,
     MoveRight,
     ChevronDown,
-    ArrowLeftRight
+    ArrowLeftRight,
+    Bot
 } from "lucide-react";
 
 export default function TranslateAIPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [model, setModel] = useState<"gemini" | "groq">("gemini");
     const [text, setText] = useState("");
     const [sourceLang, setSourceLang] = useState("");
     const [targetLang, setTargetLang] = useState("English");
@@ -55,7 +57,8 @@ export default function TranslateAIPage() {
                     text,
                     sourceLang: sourceLang || "Auto-detect",
                     targetLang,
-                    tone
+                    tone,
+                    model
                 }),
             });
 
@@ -171,6 +174,43 @@ export default function TranslateAIPage() {
             width: 1px;
             height: auto;
         }
+        
+        /* Footer Controls Responsive */
+        .footer-container {
+            padding: 1.25rem 2rem;
+            border-top: 1px solid var(--border);
+            background: var(--surface-two);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-controls-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .control-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            display: block;
+        }
+        .selector-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .selector-group {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--surface-three);
+            padding: 3px;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 768px) {
             .translation-grid {
                 display: flex;
@@ -180,6 +220,30 @@ export default function TranslateAIPage() {
             .translation-divider {
                 width: 100%;
                 height: 1px;
+            }
+            
+            /* Footer Mobile Adjustments */
+            .footer-container {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1.5rem;
+            }
+            .footer-controls-left {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.25rem;
+                width: 100%;
+            }
+            .control-divider {
+                display: none;
+            }
+            .selector-wrapper {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .btn-hero {
+                width: 100%;
+                justify-content: center;
             }
         }
       `}} />
@@ -324,7 +388,7 @@ export default function TranslateAIPage() {
                         <div className="translation-divider"></div>
 
                         {/* OUTPUT AREA */}
-                        <div style={{ display: "flex", flexDirection: "column", background: "var(--date-bg)", position: "relative" }}>
+                        <div style={{ display: "flex", flexDirection: "column", background: "transparent", position: "relative" }}>
                             {isLoading ? (
                                 <div style={{
                                     flex: 1,
@@ -349,13 +413,15 @@ export default function TranslateAIPage() {
                                 <div style={{
                                     flex: 1,
                                     display: "flex",
+                                    flexDirection: "column",
                                     alignItems: "center",
                                     justifyContent: "center",
+                                    gap: "1rem",
                                     color: "var(--text-four)",
-                                    opacity: 0.4,
-                                    fontStyle: "italic"
+                                    opacity: 0.5
                                 }}>
-                                    Translation will appear here
+                                    <Sparkles size={48} style={{ opacity: 0.2 }} />
+                                    <p style={{ fontStyle: "italic" }}>Translation will appear here</p>
                                 </div>
                             )}
 
@@ -388,48 +454,114 @@ export default function TranslateAIPage() {
                         </div>
                     </div>
 
-                    {/* Footer: Tone and Action */}
-                    <div style={{
-                        padding: "1rem 1.5rem",
-                        borderTop: "1px solid var(--border)",
-                        background: "var(--surface-two)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flexWrap: "wrap",
-                        gap: "1rem"
-                    }}>
-                        {/* Tone Selector pills */}
-                        <div style={{ display: "flex", gap: "0.5rem" }}>
-                            {tones.map((t) => (
-                                <button
-                                    key={t.id}
-                                    onClick={() => setTone(t.id as any)}
-                                    className={`tone-tab ${tone === t.id ? "active" : ""}`}
-                                >
-                                    {t.id === "Native" && <Sparkles size={14} />}
-                                    {t.id === "Casual" && <MessageSquare size={14} />}
-                                    {t.id === "Close Friend" && <Zap size={14} />}
-                                    {t.label}
-                                </button>
-                            ))}
+                    {/* Footer: Controls & Action */}
+                    <div className="footer-container">
+
+                        {/* Left: Configuration (Tone & Model) */}
+                        <div className="footer-controls-left">
+
+                            {/* Tone Selector */}
+                            <div className="selector-wrapper">
+                                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-four)", textTransform: "uppercase", tracking: "0.05em" }}>Tone</span>
+                                <div className="selector-group">
+                                    {tones.map((t) => (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => setTone(t.id as any)}
+                                            className={`tone-tab ${tone === t.id ? "active" : ""}`}
+                                            title={t.desc}
+                                            style={{
+                                                padding: "0.25rem 0.75rem",
+                                                borderRadius: "6px",
+                                                fontSize: "0.85rem",
+                                                fontWeight: 500,
+                                                background: tone === t.id ? "var(--surface-four)" : "transparent",
+                                                color: tone === t.id ? "var(--text-one)" : "var(--text-four)",
+                                                border: "none",
+                                                boxShadow: tone === t.id ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+                                                transition: "all 0.15s ease",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "0.4rem"
+                                            }}
+                                        >
+                                            {t.id === "Native" && <Sparkles size={12} />}
+                                            {t.id === "Casual" && <MessageSquare size={12} />}
+                                            {t.id === "Close Friend" && <Zap size={12} />}
+                                            {t.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="control-divider"></div>
+
+                            {/* Model Selector */}
+                            <div className="selector-wrapper">
+                                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-four)", textTransform: "uppercase", tracking: "0.05em" }}>Model</span>
+                                <div className="selector-group">
+                                    <button
+                                        onClick={() => setModel("gemini")}
+                                        style={{
+                                            padding: "0.25rem 0.75rem",
+                                            borderRadius: "6px",
+                                            background: model === "gemini" ? "var(--surface-four)" : "transparent",
+                                            color: model === "gemini" ? "var(--text-one)" : "var(--text-four)",
+                                            border: "none",
+                                            boxShadow: model === "gemini" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+                                            cursor: "pointer",
+                                            fontSize: "0.85rem",
+                                            fontWeight: 500,
+                                            transition: "all 0.15s ease",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.4rem"
+                                        }}
+                                    >
+                                        <Sparkles size={12} /> Gemini
+                                    </button>
+                                    <button
+                                        onClick={() => setModel("groq")}
+                                        style={{
+                                            padding: "0.25rem 0.75rem",
+                                            borderRadius: "6px",
+                                            background: model === "groq" ? "var(--surface-four)" : "transparent",
+                                            color: model === "groq" ? "var(--text-one)" : "var(--text-four)",
+                                            border: "none",
+                                            boxShadow: model === "groq" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+                                            cursor: "pointer",
+                                            fontSize: "0.85rem",
+                                            fontWeight: 500,
+                                            transition: "all 0.15s ease",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.4rem"
+                                        }}
+                                    >
+                                        <Bot size={12} /> Groq
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
 
-                        {/* Translate Button */}
+                        {/* Right: Translate Action */}
                         <button
                             onClick={handleTranslate}
                             disabled={isLoading || !text}
                             className="btn-hero primary"
                             style={{
-                                padding: "0.75rem 2rem",
-                                borderRadius: "100px",
-                                fontSize: "0.95rem",
+                                padding: "0.75rem 2.5rem",
+                                borderRadius: "12px",
+                                fontSize: "1rem",
+                                fontWeight: 600,
+                                letterSpacing: "0.02em",
                                 opacity: (!text || isLoading) ? 0.6 : 1,
                                 cursor: (!text || isLoading) ? "not-allowed" : "pointer",
-                                marginLeft: "auto" // Push to right
+                                boxShadow: "0 4px 12px rgba(var(--primary-rgb), 0.2)"
                             }}
                         >
-                            {isLoading ? "Processing..." : "Translate"}
+                            {isLoading ? "Translating..." : "Translate"}
                         </button>
                     </div>
 
