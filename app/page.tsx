@@ -2,10 +2,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid, Heart } from "lucide-react";
 import { FloatingSidebar } from "../components/floating-sidebar";
-import { ChatBubble } from "../components/ChatBubble"; // <-- IMPORT INI
+import { ChatBubble } from "../components/ChatBubble";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
   const [text, setText] = useState("");
@@ -37,11 +37,26 @@ const Typewriter = ({ texts }: { texts: string[] }) => {
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const avatarRef = useRef<HTMLDivElement>(null);
+
+  // Parallax effect on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Calculate parallax offset (subtle movement)
+  const parallaxOffset = scrollY * 0.15;
 
   return (
     <main>
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      
+
       {/* Pasang ChatBubble disini */}
       <ChatBubble />
 
@@ -51,10 +66,10 @@ export default function Home() {
           <Terminal size={24} color="var(--primary)" />
           <span>Jiya<span style={{ color: "var(--primary)" }}>World</span></span>
         </div>
-        
+
         {/* Tombol Sidebar Mobile */}
-        <button 
-          onClick={() => setIsSidebarOpen(true)} 
+        <button
+          onClick={() => setIsSidebarOpen(true)}
           className="nav-sidebar-btn"
           aria-label="Open Menu"
         >
@@ -65,25 +80,68 @@ export default function Home() {
       <div className="wrapper">
         {/* Hero Header */}
         <header className="hero-header">
-          
-          {/* Avatar */}
-          <div className="hero-avatar-wrapper animate-float">
-            <img 
-              src="/avatar.png" 
-              alt="Jiya" 
+
+          {/* Avatar with Glow and Parallax */}
+          <div
+            ref={avatarRef}
+            className="hero-avatar-wrapper animate-float"
+            style={{
+              position: "relative",
+              transform: `translateY(${parallaxOffset}px)`,
+              transition: "transform 0.1s ease-out",
+            }}
+          >
+            {/* Gradient Glow Background */}
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "280px",
+              height: "280px",
+              background: "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
+              opacity: 0.15,
+              borderRadius: "50%",
+              filter: "blur(40px)",
+              zIndex: -1,
+              animation: "pulseGlow 4s ease-in-out infinite",
+            }} />
+
+            {/* Secondary Glow Layer */}
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "320px",
+              height: "320px",
+              background: "radial-gradient(circle, var(--secondary) 0%, transparent 60%)",
+              opacity: 0.1,
+              borderRadius: "50%",
+              filter: "blur(60px)",
+              zIndex: -2,
+            }} />
+
+            <img
+              src="/avatar.png"
+              alt="Jiya"
               className="hero-avatar"
+              style={{
+                position: "relative",
+                zIndex: 1,
+              }}
             />
           </div>
 
           <div className="hero-content">
             {/* Status */}
-            <div className="animate-slide-up" style={{ 
-              display: "inline-flex", 
-              alignItems: "center", 
-              gap: "0.75rem", 
-              padding: "0.5rem 1rem", 
-              backgroundColor: "var(--surface-three)", 
-              borderRadius: "100px", 
+            <div className="animate-slide-up" style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              padding: "0.5rem 1rem",
+              backgroundColor: "var(--surface-three)",
+              borderRadius: "100px",
               border: "1px solid var(--border)"
             }}>
               <span className="status-dot"></span>
@@ -94,15 +152,15 @@ export default function Home() {
             <h1 className="hero-title animate-slide-up" style={{ animationDelay: "0.1s" }}>
               Hi, I'm <span style={{ color: "var(--primary)" }}>Jiya</span>
             </h1>
-            
+
             <p className="hero-bio animate-slide-up" style={{ animationDelay: "0.2s" }}>
-              Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems. 
+              Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems.
             </p>
-            
+
             {/* CTA Buttons */}
             <div className="animate-slide-up" style={{ marginTop: "1rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
-              <button 
-                onClick={() => setIsSidebarOpen(true)} 
+              <button
+                onClick={() => setIsSidebarOpen(true)}
                 className="btn-hero primary"
                 style={{ display: "inline-flex", alignItems: "center", gap: "0.75rem" }}
               >
@@ -137,15 +195,15 @@ export default function Home() {
             <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ff5f56", zIndex: 10 }}></div>
             <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ffbd2e", zIndex: 10 }}></div>
             <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27c93f", zIndex: 10 }}></div>
-            
-            <div style={{ 
-              position: "absolute", 
-              left: 0, 
-              right: 0, 
-              textAlign: "center", 
-              fontSize: "0.85rem", 
-              color: "var(--text-four)", 
-              fontFamily: "monospace", 
+
+            <div style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              textAlign: "center",
+              fontSize: "0.85rem",
+              color: "var(--text-four)",
+              fontFamily: "monospace",
               opacity: 0.7,
               pointerEvents: "none"
             }}>
@@ -154,11 +212,11 @@ export default function Home() {
           </div>
 
           <div style={{ padding: "1.5rem", fontFamily: "monospace", fontSize: "0.95rem", color: "var(--text-four)", minHeight: "100px" }}>
-             <div>
-                <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>jiya@world:~$</span>
-                <Typewriter texts={["welcome to website", "kinda lazy but...", "stay tuned for more", "just a hobbyist"]} />
-                <span className="cursor-blink">_</span>
-             </div>
+            <div>
+              <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>jiya@world:~$</span>
+              <Typewriter texts={["welcome to website", "kinda lazy but...", "stay tuned for more", "just a hobbyist"]} />
+              <span className="cursor-blink">_</span>
+            </div>
           </div>
         </div>
 
@@ -179,10 +237,71 @@ export default function Home() {
           <Link href="/contact">Contact</Link>
           <Link href="https://github.com">GitHub</Link>
         </div>
-        <div className="footer-copy">
-          &copy; {new Date().getFullYear()} Jiya World. Crafted with passion.
+        <div className="footer-copy" style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.5rem",
+          flexWrap: "wrap"
+        }}>
+          <span>Made with</span>
+          <Heart
+            size={16}
+            fill="var(--red-one)"
+            color="var(--red-one)"
+            style={{
+              animation: "heartbeat 1.5s ease-in-out infinite",
+            }}
+          />
+          <span>and</span>
+          <span style={{
+            fontWeight: 600,
+            color: "var(--text-one)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.3rem"
+          }}>
+            Next.js
+          </span>
+        </div>
+        <div style={{
+          fontSize: "0.8rem",
+          color: "var(--text-four)",
+          opacity: 0.5,
+          marginTop: "0.5rem"
+        }}>
+          © {new Date().getFullYear()} Jiya World
         </div>
       </footer>
+
+      {/* Custom Keyframes for Glow Animation */}
+      <style jsx global>{`
+        @keyframes pulseGlow {
+          0%, 100% {
+            opacity: 0.15;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            opacity: 0.25;
+            transform: translate(-50%, -50%) scale(1.1);
+          }
+        }
+        
+        @keyframes heartbeat {
+          0%, 100% {
+            transform: scale(1);
+          }
+          25% {
+            transform: scale(1.15);
+          }
+          50% {
+            transform: scale(1);
+          }
+          75% {
+            transform: scale(1.15);
+          }
+        }
+      `}</style>
     </main>
   );
 }

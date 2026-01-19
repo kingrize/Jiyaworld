@@ -4,14 +4,24 @@ import { useState, useRef, useEffect } from "react";
 import { X, Send, Loader2, MessageCircle, Bot, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
+// Interface untuk tipe data pesan agar konsisten
+interface Message {
+  role: "user" | "model";
+  text: string;
+}
+
+// Minimum delay between requests (1.5 seconds)
+const MIN_REQUEST_DELAY = 1500;
+
 export function ChatBubble() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ role: "user" | "model"; text: string }[]>([
+  const [messages, setMessages] = useState<Message[]>([
     { role: "model", text: "Hey there! 👋 I'm **J.ai**, your friendly assistant. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [lastSendTime, setLastSendTime] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,58 +43,91 @@ export function ChatBubble() {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMessage = input.trim();
-    setInput("");
+    // Throttle: Check if enough time has passed since last request
+    const now = Date.now();
+    const timeSinceLastSend = now - lastSendTime;
 
-    // Add user message to the UI immediately
-    const newMessages = [...messages, { role: "user" as const, text: userMessage }];
-    setMessages(newMessages);
+    if (timeSinceLastSend < MIN_REQUEST_DELAY && lastSendTime > 0) {
+      const waitTime = Math.ceil((MIN_REQUEST_DELAY - timeSinceLastSend) / 1000);
+      setMessages((prev) => [...prev, {
+        role: "model",
+        text: `⏳ Please wait ${waitTime} second${waitTime > 1 ? 's' : ''} before sending another message.`
+      }]);
+      return;
+    }
+
+    const userMessageText = input.trim();
+    setInput("");
+    setLastSendTime(now);
+
+    // 1. Add user message to UI immediately
+    const newMessage: Message = { role: "user", text: userMessageText };
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
     setLoading(true);
 
     try {
-      // Build history for the API (exclude the initial greeting, keep last 10 messages)
-      // Filter only actual conversation messages (skip first greeting if it's the only model message)
-      const conversationHistory = newMessages
-        .slice(1) // Skip initial greeting
-        .slice(-10) // Keep last 10 messages
-        .map(msg => ({
-          role: msg.role === "user" ? "user" : "model",
-          parts: [{ text: msg.text }]
-        }));
+      // 2. Prepare History for Backend
+      // Skip the initial greeting and the current message (sent separately)
+      const historyMessages = updatedMessages.slice(1, -1).slice(-10);
 
-      // Remove the last message (current user message) since it's sent separately
-      const historyForBackend = conversationHistory.slice(0, -1);
+      const historyForBackend = historyMessages.map((msg) => ({
+        role: msg.role,
+        parts: [{ text: msg.text }]
+      }));
 
+      // 3. Send to API Route
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: userMessage,
+          message: userMessageText,
           history: historyForBackend
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        console.error("API Error:", data.error);
-        throw new Error(data.error || "Failed to get response");
+      // 4. Safely parse response
+      let data: any;
+      try {
+        const rawText = await res.text();
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch (parseError) {
+        console.error("Failed to parse response:", parseError);
+        throw new Error("Invalid response from server");
       }
 
-      // Add AI response to messages
-      setMessages((prev) => [...prev, { role: "model", text: data.text }]);
+      // 5. Check for errors
+      if (!res.ok) {
+        console.error("API Error:", res.status, data);
+        const errorMsg = data?.error || `Request failed with status ${res.status}`;
+        throw new Error(errorMsg);
+      }
+
+      // 6. Add AI response to UI
+      if (data.text) {
+        setMessages((prev) => [...prev, { role: "model", text: data.text }]);
+      } else {
+        throw new Error("No response text from AI");
+      }
+
     } catch (error: any) {
       console.error("Chat Error:", error);
 
-      // Provide more helpful error messages
+      // Determine user-friendly error message
       let errorMessage = "Oops! Something went wrong. Please try again. 🔄";
+      const errMsg = error.message?.toLowerCase() || "";
 
-      if (error.message?.includes("API Key")) {
-        errorMessage = "⚠️ API configuration issue. Please contact the administrator.";
-      } else if (error.message?.includes("network") || error.message?.includes("fetch")) {
-        errorMessage = "📡 Network error. Please check your connection and try again.";
-      } else if (error.message?.includes("rate") || error.message?.includes("limit")) {
+      if (errMsg.includes("api key") || errMsg.includes("authentication") || errMsg.includes("config")) {
+        errorMessage = "⚠️ System configuration issue. Please try again later.";
+      } else if (errMsg.includes("rate") || errMsg.includes("too many") || errMsg.includes("wait")) {
         errorMessage = "⏱️ Too many requests. Please wait a moment and try again.";
+      } else if (errMsg.includes("network") || errMsg.includes("fetch") || errMsg.includes("failed to fetch")) {
+        errorMessage = "📡 Connection issue. Please check your internet and try again.";
+      } else if (errMsg.includes("invalid response") || errMsg.includes("parse")) {
+        errorMessage = "🔧 Communication error. Please try again.";
+      } else if (error.message && error.message !== "Failed to get response") {
+        // Use the actual error message if it's specific
+        errorMessage = `❌ ${error.message}`;
       }
 
       setMessages((prev) => [...prev, { role: "model", text: errorMessage }]);
@@ -275,10 +318,10 @@ export function ChatBubble() {
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "1.25rem",
+              padding: "1.5rem",
               display: "flex",
               flexDirection: "column",
-              gap: "1.25rem",
+              gap: "1.5rem",
               background: "var(--background-one)",
             }}
           >
@@ -290,15 +333,15 @@ export function ChatBubble() {
                   style={{
                     display: "flex",
                     flexDirection: isUser ? "row-reverse" : "row",
-                    alignItems: "flex-start",
+                    alignItems: "flex-end", // Align avatars to bottom for modern look
                     gap: "0.75rem",
                     animation: "chatSlideIn 0.3s ease-out",
                   }}
                 >
                   {/* Avatar */}
                   <div style={{
-                    width: "36px",
-                    height: "36px",
+                    width: "32px",
+                    height: "32px",
                     borderRadius: "12px",
                     flexShrink: 0,
                     display: "flex",
@@ -308,47 +351,30 @@ export function ChatBubble() {
                       ? "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)"
                       : "var(--surface-four)",
                     border: isUser ? "none" : "1px solid var(--border)",
-                    boxShadow: isUser
-                      ? "0 3px 10px rgba(0,0,0,0.2)"
-                      : "0 2px 6px rgba(0,0,0,0.1)",
+                    boxShadow: "var(--drop-shadow-one)",
+                    marginBottom: "4px", // Slight lift
                   }}>
                     {isUser ? (
-                      <User size={18} color="var(--background-one)" strokeWidth={2.5} />
+                      <User size={16} color="var(--background-one)" strokeWidth={2.5} />
                     ) : (
-                      <Bot size={18} color="var(--primary)" strokeWidth={2.5} />
+                      <Bot size={16} color="var(--primary)" strokeWidth={2.5} />
                     )}
                   </div>
 
                   {/* Message Content */}
                   <div style={{
-                    maxWidth: "75%",
+                    maxWidth: "80%",
                     display: "flex",
                     flexDirection: "column",
-                    gap: "0.35rem",
                   }}>
-                    {/* Sender Label */}
-                    <span style={{
-                      fontSize: "0.7rem",
-                      fontWeight: "700",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      color: isUser ? "var(--primary)" : "var(--text-four)",
-                      textAlign: isUser ? "right" : "left",
-                      paddingLeft: isUser ? "0" : "0.25rem",
-                      paddingRight: isUser ? "0.25rem" : "0",
-                    }}>
-                      {isUser ? "You" : "J.ai"}
-                    </span>
-
-                    {/* Message Bubble */}
                     <div style={{
-                      padding: "0.9rem 1rem",
-                      borderRadius: isUser ? "18px 4px 18px 18px" : "4px 18px 18px 18px",
+                      padding: "1rem 1.25rem",
+                      borderRadius: isUser ? "24px 24px 4px 24px" : "24px 24px 24px 4px",
                       background: isUser
                         ? "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)"
                         : "var(--surface-three)",
                       boxShadow: isUser
-                        ? "0 4px 16px rgba(0,0,0,0.25)"
+                        ? "0 4px 12px rgba(0,0,0,0.15)"
                         : "inset 0 0 0 1px var(--border)",
                       borderLeft: isUser ? "none" : "3px solid var(--primary)",
                     }}>
@@ -357,9 +383,9 @@ export function ChatBubble() {
                           p: ({ node, ...props }) => (
                             <p style={{
                               margin: 0,
-                              fontSize: "0.9rem",
-                              lineHeight: "1.65",
-                              fontWeight: isUser ? 600 : 450,
+                              fontSize: "0.95rem",
+                              lineHeight: "1.6",
+                              fontWeight: isUser ? 500 : 450,
                               color: isUser ? "#1a1a2e" : "var(--text-one)",
                             }} {...props} />
                           ),
@@ -374,7 +400,7 @@ export function ChatBubble() {
                               style={{
                                 color: isUser ? "#0d0d1a" : "var(--primary)",
                                 textDecoration: "underline",
-                                textUnderlineOffset: "2px",
+                                textUnderlineOffset: "3px",
                                 fontWeight: 600,
                               }}
                               target="_blank"
@@ -385,11 +411,11 @@ export function ChatBubble() {
                           code: ({ node, ...props }) => (
                             <code
                               style={{
-                                background: isUser ? "rgba(0,0,0,0.15)" : "var(--surface-four)",
-                                padding: "0.15rem 0.5rem",
+                                background: isUser ? "rgba(255,255,255,0.2)" : "var(--surface-four)",
+                                padding: "0.2rem 0.6rem",
                                 borderRadius: "6px",
                                 fontFamily: "monospace",
-                                fontSize: "0.82em",
+                                fontSize: "0.85em",
                                 fontWeight: 600,
                                 color: isUser ? "#1a1a2e" : "var(--text-one)",
                                 border: isUser ? "none" : "1px solid var(--border)",
@@ -412,14 +438,13 @@ export function ChatBubble() {
               <div style={{
                 display: "flex",
                 flexDirection: "row",
-                alignItems: "flex-start",
+                alignItems: "flex-end",
                 gap: "0.75rem",
                 animation: "chatSlideIn 0.3s ease-out",
               }}>
-                {/* AI Avatar */}
                 <div style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "32px",
+                  height: "32px",
                   borderRadius: "12px",
                   flexShrink: 0,
                   display: "flex",
@@ -427,49 +452,35 @@ export function ChatBubble() {
                   justifyContent: "center",
                   background: "var(--surface-four)",
                   border: "1px solid var(--border)",
+                  marginBottom: "4px",
                 }}>
-                  <Bot size={18} color="var(--primary)" strokeWidth={2.5} />
+                  <Bot size={16} color="var(--primary)" strokeWidth={2.5} />
                 </div>
                 <div style={{
+                  padding: "1.1rem 1.4rem",
+                  borderRadius: "24px 24px 24px 4px",
+                  background: "var(--surface-three)",
+                  boxShadow: "inset 0 0 0 1px var(--border)",
+                  borderLeft: "3px solid var(--primary)",
                   display: "flex",
-                  flexDirection: "column",
-                  gap: "0.35rem",
+                  gap: "6px",
+                  alignItems: "center",
+                  height: "46px",
                 }}>
-                  <span style={{
-                    fontSize: "0.7rem",
-                    fontWeight: "700",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    color: "var(--text-four)",
-                    paddingLeft: "0.25rem",
-                  }}>
-                    J.ai
-                  </span>
-                  <div style={{
-                    padding: "0.9rem 1.25rem",
-                    borderRadius: "4px 18px 18px 18px",
-                    background: "var(--surface-three)",
-                    boxShadow: "inset 0 0 0 1px var(--border)",
-                    borderLeft: "3px solid var(--primary)",
-                    display: "flex",
-                    gap: "5px",
-                    alignItems: "center",
-                  }}>
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        style={{
-                          width: "7px",
-                          height: "7px",
-                          borderRadius: "50%",
-                          background: "var(--primary)",
-                          opacity: 0.8,
-                          animation: `typingBounce 1.4s infinite`,
-                          animationDelay: `${i * 0.2}s`,
-                        }}
-                      ></div>
-                    ))}
-                  </div>
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        background: "var(--primary)",
+                        opacity: 0.6,
+                        animation: `typingBounce 1.4s infinite`,
+                        animationDelay: `${i * 0.2}s`,
+                      }}
+                    ></div>
+                  ))}
                 </div>
               </div>
             )}
