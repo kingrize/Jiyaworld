@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid } from "lucide-react";
-import { FloatingSidebar } from "../../components/floating-sidebar";
+import { FloatingSidebar } from "../components/floating-sidebar";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
   const [text, setText] = useState("");
@@ -95,10 +95,15 @@ export default function Home() {
               Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems. 
             </p>
             
-            {/* CTA Buttons - Removed Instagram button as requested */}
+            {/* CTA Buttons */}
             <div className="animate-slide-up" style={{ marginTop: "1rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
-              <button onClick={() => setIsSidebarOpen(true)} className="btn-hero primary">
+              <button 
+                onClick={() => setIsSidebarOpen(true)} 
+                className="btn-hero primary"
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.75rem" }} // Memastikan align-items center
+              >
                 <Compass size={20} />
+                {/* Menambahkan sedikit margin-top jika font terasa tidak center secara visual, atau biarkan default */}
                 <span>Explore Tools</span>
               </button>
             </div>
@@ -116,7 +121,9 @@ export default function Home() {
           boxShadow: "var(--drop-shadow-one)",
           overflow: "hidden"
         }}>
+          {/* HEADER TERMINAL */}
           <div style={{
+            position: "relative", // Penting untuk absolute positioning judul
             display: "flex",
             alignItems: "center",
             gap: "0.6rem",
@@ -124,11 +131,27 @@ export default function Home() {
             backgroundColor: "var(--surface-three)",
             borderBottom: "1px solid var(--border)"
           }}>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ff5f56" }}></div>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ffbd2e" }}></div>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27c93f" }}></div>
-            <div style={{ marginLeft: "auto", marginRight: "auto", fontSize: "0.85rem", color: "var(--text-four)", fontFamily: "monospace", opacity: 0.7 }}>jiya@world:~</div>
+            {/* Dots Controls */}
+            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ff5f56", zIndex: 10 }}></div>
+            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ffbd2e", zIndex: 10 }}></div>
+            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27c93f", zIndex: 10 }}></div>
+            
+            {/* Title - Absolutely Centered */}
+            <div style={{ 
+              position: "absolute", 
+              left: 0, 
+              right: 0, 
+              textAlign: "center", 
+              fontSize: "0.85rem", 
+              color: "var(--text-four)", 
+              fontFamily: "monospace", 
+              opacity: 0.7,
+              pointerEvents: "none" // Agar tidak menghalangi klik (opsional)
+            }}>
+              jiya@world:~
+            </div>
           </div>
+
           <div style={{ padding: "1.5rem", fontFamily: "monospace", fontSize: "0.95rem", color: "var(--text-four)", minHeight: "100px" }}>
              <div>
                 <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>jiya@world:~$</span>
