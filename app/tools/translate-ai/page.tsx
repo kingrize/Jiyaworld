@@ -462,7 +462,7 @@ export default function TranslateAIPage() {
 
                             {/* Tone Selector */}
                             <div className="selector-wrapper">
-                                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-four)", textTransform: "uppercase", tracking: "0.05em" }}>Tone</span>
+                                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-four)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Tone</span>
                                 <div className="selector-group">
                                     {tones.map((t) => (
                                         <button
@@ -498,7 +498,7 @@ export default function TranslateAIPage() {
 
                             {/* Model Selector */}
                             <div className="selector-wrapper">
-                                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-four)", textTransform: "uppercase", tracking: "0.05em" }}>Model</span>
+                                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-four)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Model</span>
                                 <div className="selector-group">
                                     <button
                                         onClick={() => setModel("gemini")}
