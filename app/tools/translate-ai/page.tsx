@@ -13,7 +13,11 @@ import {
     Loader2,
     MessageSquare,
     Terminal,
-    ArrowLeft
+    ArrowLeft,
+    RefreshCw,
+    MoveRight,
+    ChevronDown,
+    ArrowLeftRight
 } from "lucide-react";
 
 export default function TranslateAIPage() {
@@ -29,6 +33,12 @@ export default function TranslateAIPage() {
     const languages = [
         "Indonesian", "English", "Japanese", "Korean", "German",
         "French", "Spanish", "Chinese (Simplified)", "Arabic", "Russian"
+    ];
+
+    const tones = [
+        { id: "Native", icon: Sparkles, label: "Native", desc: "Fluent" },
+        { id: "Casual", icon: MessageSquare, label: "Casual", desc: "Chill" },
+        { id: "Close Friend", icon: Zap, label: "Bestie", desc: "Fun" }
     ];
 
     const handleTranslate = async () => {
@@ -71,6 +81,15 @@ export default function TranslateAIPage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const swapLanguages = () => {
+        if (sourceLang && targetLang) {
+            setSourceLang(targetLang);
+            setTargetLang(sourceLang);
+            setText(result);
+            setResult(text);
+        }
+    };
+
     return (
         <main>
             <style dangerouslySetInnerHTML={{
@@ -79,162 +98,339 @@ export default function TranslateAIPage() {
         textarea {
             field-sizing: content;
         }
+        /* Dropdown Styling */
+        select.custom-select {
+            appearance: none;
+            background-color: transparent;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-one);
+            padding: 0.5rem 2rem 0.5rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        select.custom-select:hover {
+            background-color: var(--surface-three);
+        }
+        select.custom-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: var(--surface-three);
+        }
+        select.custom-select option {
+            background-color: var(--surface-two);
+            color: var(--text-one);
+            padding: 10px;
+        }
+
+        /* Tone Tabs */
+        .tone-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-four);
+        }
+        .tone-tab:hover {
+            background: var(--surface-three);
+            color: var(--text-one);
+        }
+        .tone-tab.active {
+            background: var(--surface-four);
+            border-color: var(--primary);
+            color: var(--text-one);
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        /* Scrollbars */
+        textarea::-webkit-scrollbar { width: 6px; }
+        textarea::-webkit-scrollbar-track { background: transparent; }
+        textarea::-webkit-scrollbar-thumb { background-color: var(--surface-four); border-radius: 10px; }
+        
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsive Layout */
+        .translation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr;
+            min-height: 350px;
+        }
+        .translation-divider {
+            background: var(--border);
+            width: 1px;
+            height: auto;
+        }
+        @media (max-width: 768px) {
+            .translation-grid {
+                display: flex;
+                flex-direction: column;
+                min-height: auto;
+            }
+            .translation-divider {
+                width: 100%;
+                height: 1px;
+            }
+        }
       `}} />
 
             <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-            {/* Nav */}
-            <nav style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid var(--border)", background: "var(--background-one)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-four)", padding: "0.5rem", borderRadius: "8px", transition: "all 0.2s" }} className="hover:bg-[var(--surface-three)] hover:text-[var(--text-one)]">
-                        <ArrowLeft size={20} />
-                        <span style={{ fontWeight: 600 }}>Back</span>
-                    </Link>
-                    <div style={{ height: "24px", width: "1px", background: "var(--border)" }}></div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "bold", fontSize: "1.1rem" }}>
-                        <Languages size={20} color="var(--primary)" />
-                        <span>TranslateAI</span>
+            {/* Navbar */}
+            <nav style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 40,
+                borderBottom: "1px solid var(--border)",
+                background: "rgba(var(--background-one), 0.8)",
+                backdropFilter: "blur(12px)"
+            }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", height: "70px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                        <Link href="/" className="nav-btn" style={{ padding: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <ArrowLeft size={18} />
+                        </Link>
+                        <div style={{ height: "20px", width: "1px", background: "var(--border)" }}></div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "bold", fontSize: "1rem" }}>
+                            <Languages size={18} color="var(--primary)" />
+                            <span>TranslateAI</span>
+                        </div>
                     </div>
                 </div>
-                <button onClick={() => setIsSidebarOpen(true)} style={{ background: "transparent", border: "none", color: "var(--text-four)", cursor: "pointer" }}>
-                    <Terminal size={20} />
-                </button>
             </nav>
 
-            <div className="wrapper" style={{ marginTop: "4rem", maxWidth: "1000px" }}>
-                <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-                    <h1 style={{ fontSize: "2.5rem", marginBottom: "1rem", lineHeight: 1.1 }}>
+            <div className="wrapper" style={{ marginTop: "2rem", maxWidth: "1000px", paddingBottom: "4rem" }}>
+
+                {/* Header */}
+                <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                    <h1 style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "0.5rem" }}>
                         Natural <span style={{ color: "var(--primary)" }}>Translation</span>
                     </h1>
-                    <p style={{ color: "var(--text-four)", maxWidth: "500px", margin: "0 auto" }}>
-                        Translate text with human-like tones. Choose how you want to sound, from professional to bestie.
+                    <p style={{ color: "var(--text-four)", fontSize: "1rem", maxWidth: "400px", margin: "0 auto" }}>
+                        Context-aware AI translation with customizable tones.
                     </p>
                 </div>
 
-                {/* Translation Container */}
+                {/* Main Card */}
                 <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-                    gap: "2rem",
-                    alignItems: "stretch"
+                    background: "var(--surface-two)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "24px",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    boxShadow: "var(--drop-shadow-one)"
                 }}>
 
-                    {/* INPUT CARD */}
-                    <div className="card" style={{ opacity: 1, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {/* Top Controls: Languages */}
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "1rem 1.5rem",
+                        borderBottom: "1px solid var(--border)",
+                        background: "var(--surface-three)"
+                    }}>
+                        {/* Source Lang */}
+                        <div style={{ position: "relative" }}>
                             <select
                                 value={sourceLang}
                                 onChange={(e) => setSourceLang(e.target.value)}
-                                style={{ width: "auto", padding: "0.5rem 1rem", fontSize: "0.9rem", border: "none", background: "var(--surface-two)", color: "var(--text-one)", fontWeight: 600, cursor: "pointer" }}
+                                className="custom-select"
                             >
-                                <option value="">Auto-detect</option>
+                                <option value="">Detect Language</option>
                                 {languages.map(l => <option key={l} value={l}>{l}</option>)}
                             </select>
+                            <ChevronDown size={14} style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--text-four)" }} />
                         </div>
 
-                        <textarea
-                            placeholder="Enter text to translate..."
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
+                        {/* Swap Button */}
+                        <button
+                            onClick={swapLanguages}
                             style={{
-                                flex: 1,
-                                minHeight: "200px",
-                                resize: "none",
-                                border: "none",
                                 background: "transparent",
-                                fontSize: "1.1rem",
-                                padding: "0",
-                                color: "var(--text-one)",
-                                outline: "none"
+                                border: "none",
+                                color: "var(--text-four)",
+                                cursor: "pointer",
+                                padding: "0.5rem",
+                                borderRadius: "50%",
+                                transition: "all 0.2s"
                             }}
-                        />
+                            className="hover:bg-[var(--surface-four)] hover:text-[var(--text-one)]"
+                        >
+                            <ArrowLeftRight size={18} />
+                        </button>
 
-                        <div style={{ height: "1px", background: "var(--border)", margin: "0.5rem 0" }}></div>
-
-                        {/* Tone Selector */}
-                        <div>
-                            <label style={{ fontSize: "0.8rem", color: "var(--text-four)", fontWeight: 600, marginBottom: "0.5rem", display: "block" }}>
-                                TONE STYLE
-                            </label>
-                            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                                {[
-                                    { id: "Native", icon: <Sparkles size={14} />, label: "Native" },
-                                    { id: "Casual", icon: <MessageSquare size={14} />, label: "Casual" },
-                                    { id: "Close Friend", icon: <Zap size={14} />, label: "Bestie" }
-                                ].map((t) => (
-                                    <button
-                                        key={t.id}
-                                        onClick={() => setTone(t.id as any)}
-                                        className="mode-btn"
-                                        style={{
-                                            flex: 1,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            gap: "0.4rem",
-                                            background: tone === t.id ? "var(--surface-four)" : "var(--surface-two)",
-                                            color: tone === t.id ? "var(--text-one)" : "var(--text-four)",
-                                            border: tone === t.id ? "1px solid var(--primary)" : "1px solid transparent",
-                                            padding: "0.6rem",
-                                            fontSize: "0.85rem"
-                                        }}
-                                    >
-                                        {t.icon} {t.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* OUTPUT CARD */}
-                    <div className="card" style={{ opacity: 1, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem", background: "var(--surface-two)", position: "relative" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        {/* Target Lang */}
+                        <div style={{ position: "relative" }}>
                             <select
                                 value={targetLang}
                                 onChange={(e) => setTargetLang(e.target.value)}
-                                style={{ width: "auto", padding: "0.5rem 1rem", fontSize: "0.9rem", border: "none", background: "var(--surface-three)", color: "var(--text-one)", fontWeight: 600, cursor: "pointer", borderRadius: "8px" }}
+                                className="custom-select"
                             >
                                 {languages.map(l => <option key={l} value={l}>{l}</option>)}
                             </select>
+                            <ChevronDown size={14} style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--text-four)" }} />
+                        </div>
+                    </div>
 
-                            <button
-                                onClick={copyToClipboard}
-                                disabled={!result}
-                                style={{ background: "transparent", border: "none", color: copied ? "var(--primary)" : "var(--text-four)", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
-                            >
-                                {copied ? <Check size={18} /> : <Copy size={18} />}
-                            </button>
+                    {/* Content Area: Split View */}
+                    <div className="translation-grid">
+
+                        {/* INPUT AREA */}
+                        <div style={{ display: "flex", flexDirection: "column", position: "relative" }}>
+                            <textarea
+                                placeholder="Enter text..."
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                spellCheck={false}
+                                style={{
+                                    flex: 1,
+                                    width: "100%",
+                                    padding: "2rem",
+                                    background: "transparent",
+                                    border: "none",
+                                    resize: "none",
+                                    fontSize: "1.25rem",
+                                    lineHeight: "1.6",
+                                    color: "var(--text-one)",
+                                    outline: "none",
+                                    fontFamily: "inherit"
+                                }}
+                            />
+                            {/* Char Count */}
+                            <div style={{
+                                padding: "1rem 2rem",
+                                fontSize: "0.75rem",
+                                color: "var(--text-four)",
+                                textAlign: "right",
+                                borderTop: "1px solid transparent" // Spacer
+                            }}>
+                                {text.length} chars
+                            </div>
                         </div>
 
-                        <div style={{ flex: 1, minHeight: "200px", position: "relative" }}>
+                        {/* Divider */}
+                        <div className="translation-divider"></div>
+
+                        {/* OUTPUT AREA */}
+                        <div style={{ display: "flex", flexDirection: "column", background: "var(--date-bg)", position: "relative" }}>
                             {isLoading ? (
-                                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1rem", color: "var(--text-four)" }}>
-                                    <Loader2 size={32} className="animate-spin" style={{ color: "var(--primary)" }} />
-                                    <span className="animate-pulse">Translating to {tone.toLowerCase()} tone...</span>
+                                <div style={{
+                                    flex: 1,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "1rem",
+                                    color: "var(--text-four)",
+                                    opacity: 0.7
+                                }}>
+                                    <Loader2 size={32} className="animate-spin" />
+                                    <span>Translating...</span>
                                 </div>
                             ) : result ? (
-                                <p className="animate-slide-up" style={{ fontSize: "1.1rem", lineHeight: "1.6", color: "var(--text-one)", whiteSpace: "pre-wrap" }}>
-                                    {result}
-                                </p>
+                                <div className="fade-in" style={{ flex: 1, padding: "2rem", overflowY: "auto" }}>
+                                    <p style={{ fontSize: "1.25rem", lineHeight: "1.6", color: "var(--text-one)", whiteSpace: "pre-wrap" }}>
+                                        {result}
+                                    </p>
+                                </div>
                             ) : (
-                                <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-four)", opacity: 0.5, fontStyle: "italic" }}>
+                                <div style={{
+                                    flex: 1,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "var(--text-four)",
+                                    opacity: 0.4,
+                                    fontStyle: "italic"
+                                }}>
                                     Translation will appear here
                                 </div>
                             )}
+
+                            {/* Copy Button (Floating) */}
+                            {result && (
+                                <button
+                                    onClick={copyToClipboard}
+                                    style={{
+                                        position: "absolute",
+                                        top: "1rem",
+                                        right: "1rem",
+                                        background: "var(--surface-three)",
+                                        border: "1px solid var(--border)",
+                                        borderRadius: "8px",
+                                        padding: "0.4rem 0.8rem",
+                                        fontSize: "0.8rem",
+                                        color: copied ? "var(--primary)" : "var(--text-four)",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "0.5rem",
+                                        transition: "all 0.2s"
+                                    }}
+                                    className="hover:bg-[var(--surface-four)] hover:text-[var(--text-one)]"
+                                >
+                                    {copied ? <Check size={14} /> : <Copy size={14} />}
+                                    {copied ? "Copied" : "Copy"}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Footer: Tone and Action */}
+                    <div style={{
+                        padding: "1rem 1.5rem",
+                        borderTop: "1px solid var(--border)",
+                        background: "var(--surface-two)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: "1rem"
+                    }}>
+                        {/* Tone Selector pills */}
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                            {tones.map((t) => (
+                                <button
+                                    key={t.id}
+                                    onClick={() => setTone(t.id as any)}
+                                    className={`tone-tab ${tone === t.id ? "active" : ""}`}
+                                >
+                                    {t.id === "Native" && <Sparkles size={14} />}
+                                    {t.id === "Casual" && <MessageSquare size={14} />}
+                                    {t.id === "Close Friend" && <Zap size={14} />}
+                                    {t.label}
+                                </button>
+                            ))}
                         </div>
 
-                        <div style={{ height: "1px", background: "var(--border)", margin: "0.5rem 0" }}></div>
-
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                            <button
-                                onClick={handleTranslate}
-                                disabled={isLoading || !text}
-                                className="btn-hero primary"
-                                style={{ width: "100%", opacity: (!text || isLoading) ? 0.7 : 1, padding: "0.8rem" }}
-                            >
-                                {isLoading ? "Translating..." : "Translate"} <ArrowRight size={18} />
-                            </button>
-                        </div>
+                        {/* Translate Button */}
+                        <button
+                            onClick={handleTranslate}
+                            disabled={isLoading || !text}
+                            className="btn-hero primary"
+                            style={{
+                                padding: "0.75rem 2rem",
+                                borderRadius: "100px",
+                                fontSize: "0.95rem",
+                                opacity: (!text || isLoading) ? 0.6 : 1,
+                                cursor: (!text || isLoading) ? "not-allowed" : "pointer",
+                                marginLeft: "auto" // Push to right
+                            }}
+                        >
+                            {isLoading ? "Processing..." : "Translate"}
+                        </button>
                     </div>
 
                 </div>
