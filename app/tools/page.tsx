@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Compass, Terminal, Code2, Cpu, Globe, Zap, LayoutGrid } from "lucide-react";
-import { FloatingSidebar } from "../components/floating-sidebar";
+import { FloatingSidebar } from "@/components/floating-sidebar";
 
 const Typewriter = ({ texts }: { texts: string[] }) => {
   const [text, setText] = useState("");
@@ -40,17 +40,17 @@ export default function Home() {
   return (
     <main>
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      
+
       {/* STICKY NAVBAR */}
       <nav>
         <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "var(--text-one)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <Terminal size={24} color="var(--primary)" />
           <span>Jiya<span style={{ color: "var(--primary)" }}>World</span></span>
         </div>
-        
+
         {/* Tombol Sidebar Mobile */}
-        <button 
-          onClick={() => setIsSidebarOpen(true)} 
+        <button
+          onClick={() => setIsSidebarOpen(true)}
           className="nav-sidebar-btn"
           aria-label="Open Menu"
         >
@@ -61,25 +61,25 @@ export default function Home() {
       <div className="wrapper">
         {/* Hero Header */}
         <header className="hero-header">
-          
+
           {/* Avatar */}
           <div className="hero-avatar-wrapper animate-float">
-            <img 
-              src="/avatar.png" 
-              alt="Jiya" 
+            <img
+              src="/avatar.png"
+              alt="Jiya"
               className="hero-avatar"
             />
           </div>
 
           <div className="hero-content">
             {/* Status */}
-            <div className="animate-slide-up" style={{ 
-              display: "inline-flex", 
-              alignItems: "center", 
-              gap: "0.75rem", 
-              padding: "0.5rem 1rem", 
-              backgroundColor: "var(--surface-three)", 
-              borderRadius: "100px", 
+            <div className="animate-slide-up" style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              padding: "0.5rem 1rem",
+              backgroundColor: "var(--surface-three)",
+              borderRadius: "100px",
               border: "1px solid var(--border)"
             }}>
               <span className="status-dot"></span>
@@ -90,15 +90,15 @@ export default function Home() {
             <h1 className="hero-title animate-slide-up" style={{ animationDelay: "0.1s" }}>
               Hi, I'm <span style={{ color: "var(--primary)" }}>Jiya</span>
             </h1>
-            
+
             <p className="hero-bio animate-slide-up" style={{ animationDelay: "0.2s" }}>
-              Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems. 
+              Welcome to my digital space. I am a creative developer passionate about building beautiful interfaces and solving complex problems.
             </p>
-            
+
             {/* CTA Buttons */}
             <div className="animate-slide-up" style={{ marginTop: "1rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
-              <button 
-                onClick={() => setIsSidebarOpen(true)} 
+              <button
+                onClick={() => setIsSidebarOpen(true)}
                 className="btn-hero primary"
                 style={{ display: "inline-flex", alignItems: "center", gap: "0.75rem" }} // Memastikan align-items center
               >
@@ -135,16 +135,16 @@ export default function Home() {
             <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ff5f56", zIndex: 10 }}></div>
             <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ffbd2e", zIndex: 10 }}></div>
             <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27c93f", zIndex: 10 }}></div>
-            
+
             {/* Title - Absolutely Centered */}
-            <div style={{ 
-              position: "absolute", 
-              left: 0, 
-              right: 0, 
-              textAlign: "center", 
-              fontSize: "0.85rem", 
-              color: "var(--text-four)", 
-              fontFamily: "monospace", 
+            <div style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              textAlign: "center",
+              fontSize: "0.85rem",
+              color: "var(--text-four)",
+              fontFamily: "monospace",
               opacity: 0.7,
               pointerEvents: "none" // Agar tidak menghalangi klik (opsional)
             }}>
@@ -153,11 +153,11 @@ export default function Home() {
           </div>
 
           <div style={{ padding: "1.5rem", fontFamily: "monospace", fontSize: "0.95rem", color: "var(--text-four)", minHeight: "100px" }}>
-             <div>
-                <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>jiya@world:~$</span>
-                <Typewriter texts={["welcome to website", "kinda lazy but...", "stay tuned for more", "just a hobbyist"]} />
-                <span className="cursor-blink">_</span>
-             </div>
+            <div>
+              <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>jiya@world:~$</span>
+              <Typewriter texts={["welcome to website", "kinda lazy but...", "stay tuned for more", "just a hobbyist"]} />
+              <span className="cursor-blink">_</span>
+            </div>
           </div>
         </div>
 
