@@ -128,7 +128,7 @@ export async function executeOptimizedRequest<T>(
             // Determine if error is a "rotate-able" error
             const isRateLimit = status === 429 || message.includes("429") || message.includes("too many requests");
             const isQuotaExceeded = message.includes("quota") || message.includes("limit exceeded");
-            const isAuthError = status === 401 || status === 403 || message.includes("invalid") || message.includes("key");
+            const isAuthError = status === 401 || status === 403 || status === 400 || message.includes("invalid") || message.includes("key");
 
             if (isRateLimit || isQuotaExceeded || isAuthError) {
                 meta.failCount++;

@@ -1,7 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Book, Gamepad2, Settings, ChevronRight, ChevronDown, LayoutGrid, X, Moon, Sun, Monitor, Home, User, LogIn, Youtube, Languages } from "lucide-react"; // Import Youtube icon
+import {
+  Book,
+  Gamepad2,
+  Settings,
+  ChevronRight,
+  ChevronDown,
+  LayoutGrid,
+  X,
+  Moon,
+  Sun,
+  Monitor,
+  Home,
+  User,
+  LogIn,
+  Youtube,
+  Languages,
+  ArrowRight
+} from "lucide-react";
 
 type Category = {
   name: string;
@@ -16,7 +33,7 @@ const categories: Category[] = [
     items: [{ name: "StudyAI", href: "/tools/study-ai" }],
   },
   {
-    name: "MEDIA", // Kategori Baru
+    name: "MEDIA",
     icon: Youtube,
     items: [{ name: "YT Saver", href: "/tools/youtube-downloader" }],
   },
@@ -33,15 +50,25 @@ const categories: Category[] = [
 ];
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
-  const [expanded, setExpanded] = useState<string[]>(["STUDY", "MEDIA", "TRANSLATE", "GAME"]); // Auto expand Media
+  const [expanded, setExpanded] = useState<string[]>(["STUDY", "MEDIA", "TRANSLATE", "GAME"]);
   const [theme, setTheme] = useState("system");
 
   useEffect(() => {
-    // Load saved theme on mount
     const savedTheme = localStorage.getItem("theme") || "system";
     setTheme(savedTheme);
     applyTheme(savedTheme);
-  }, []);
+
+    // Lock scroll when sidebar is open for mobile
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const applyTheme = (newTheme: string) => {
     const root = document.documentElement;
@@ -50,7 +77,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
     } else if (newTheme === "light") {
       root.setAttribute("data-theme", "light");
     } else {
-      root.removeAttribute("data-theme"); // System default
+      root.removeAttribute("data-theme");
     }
   };
 
@@ -68,7 +95,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
 
   return (
     <>
-      {/* Trigger Button */}
+      {/* Trigger Button (Desktop Only) */}
       <button
         onClick={() => setIsOpen(true)}
         className={`sidebar-trigger ${isOpen ? "hidden" : ""}`}
@@ -84,94 +111,117 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
       />
 
       {/* Sidebar Panel */}
-      <div
-        className={`sidebar-panel ${isOpen ? "open" : ""}`}
-      >
+      <div className={`sidebar-panel ${isOpen ? "open" : ""}`}>
+        {/* Header */}
         <div className="sidebar-header">
           <div className="sidebar-brand">
-            <div className="sidebar-logo">
+            <div className="sidebar-logo" style={{ background: "linear-gradient(135deg, var(--primary), var(--secondary))" }}>
               <span>J</span>
             </div>
-            <span style={{ fontWeight: "bold", fontSize: "1.125rem", letterSpacing: "0.025em" }}>Tools</span>
+            <div className="sidebar-brand-text">
+              <span className="brand-name">JiyaWorld</span>
+              <span className="brand-tag">Tools & Utility</span>
+            </div>
           </div>
           <button
             onClick={() => setIsOpen(false)}
             className="sidebar-close"
+            aria-label="Close"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          {categories.map((cat) => (
-            <div key={cat.name}>
-              <button
-                onClick={() => toggleCategory(cat.name)}
-                className="sidebar-category-btn group"
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <cat.icon size={14} style={{ transition: "color 0.2s" }} />
-                  <span>{cat.name}</span>
-                </div>
-                {expanded.includes(cat.name) ? (
-                  <ChevronDown size={14} />
-                ) : (
-                  <ChevronRight size={14} />
-                )}
-              </button>
-
-              <div className={`sidebar-category-content ${expanded.includes(cat.name) ? "expanded" : ""}`}>
-                {cat.items.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="sidebar-link"
-                  >
-                    <div style={{ height: "6px", width: "6px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.2)" }} />
-                    {item.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Sidebar Footer with Added Menu Links */}
-        <div className="sidebar-footer">
-          {/* New Menu Section */}
-          <div style={{ marginBottom: "2rem" }}>
-            <div style={{ marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.4)" }}>
-              <span>Menu</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-              <a href="/" className="sidebar-link">
-                <Home size={16} /> Home
+        {/* Navigation Content */}
+        <div className="sidebar-scroll-area">
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">Navigation</div>
+            <div className="sidebar-nav-grid">
+              <a href="/" className="sidebar-nav-item">
+                <Home size={18} />
+                <span>Home</span>
               </a>
-              <a href="/about" className="sidebar-link">
-                <User size={16} /> About
+              <a href="/about" className="sidebar-nav-item">
+                <User size={18} />
+                <span>About</span>
               </a>
-              <button className="sidebar-link" style={{ width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
-                <LogIn size={16} /> Login
-              </button>
             </div>
           </div>
 
-          <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.4)" }}>
+          <div className="sidebar-divider" />
+
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">AI Tools</div>
+            <div className="sidebar-categories">
+              {categories.map((cat) => (
+                <div key={cat.name} className="sidebar-category">
+                  <button
+                    onClick={() => toggleCategory(cat.name)}
+                    className="sidebar-category-header"
+                  >
+                    <div className="category-label">
+                      <cat.icon size={16} />
+                      <span>{cat.name}</span>
+                    </div>
+                    {expanded.includes(cat.name) ? (
+                      <ChevronDown size={14} className="chevron" />
+                    ) : (
+                      <ChevronRight size={14} className="chevron" />
+                    )}
+                  </button>
+
+                  <div className={`sidebar-category-items ${expanded.includes(cat.name) ? "expanded" : ""}`}>
+                    {cat.items.map((item) => (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        className="sidebar-item-link"
+                      >
+                        <ArrowRight size={12} className="bullet" />
+                        <span>{item.name}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="sidebar-footer">
+          <div className="sidebar-section-title" style={{ marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <Settings size={14} />
             <span>Appearance</span>
           </div>
           <div className="appearance-grid">
-            <button className={`appearance-btn ${theme === 'light' ? 'active' : ''}`} onClick={() => handleThemeChange('light')}>
+            <button
+              className={`appearance-btn ${theme === 'light' ? 'active' : ''}`}
+              onClick={() => handleThemeChange('light')}
+            >
               <Sun size={16} />
               <span>Light</span>
             </button>
-            <button className={`appearance-btn ${theme === 'dark' ? 'active' : ''}`} onClick={() => handleThemeChange('dark')}>
+            <button
+              className={`appearance-btn ${theme === 'dark' ? 'active' : ''}`}
+              onClick={() => handleThemeChange('dark')}
+            >
               <Moon size={16} />
               <span>Dark</span>
             </button>
-            <button className={`appearance-btn ${theme === 'system' ? 'active' : ''}`} onClick={() => handleThemeChange('system')}>
+            <button
+              className={`appearance-btn ${theme === 'system' ? 'active' : ''}`}
+              onClick={() => handleThemeChange('system')}
+            >
               <Monitor size={16} />
               <span>System</span>
+            </button>
+          </div>
+
+          <div className="sidebar-auth">
+            <button className="btn-login">
+              <LogIn size={18} />
+              <span>Login to Account</span>
             </button>
           </div>
         </div>
