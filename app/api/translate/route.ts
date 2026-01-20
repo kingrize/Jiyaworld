@@ -25,10 +25,47 @@ export async function POST(req: Request) {
         }
 
         const toneInstructions = {
-            "Native": "Translate this to sound completely natural and fluent, like a native speaker. Focus on capturing nuance and flow.",
-            "Casual": "Translate this into a relaxed, everyday conversational tone. Chill and easy to read.",
-            "Close Friend": "Translate this as if texting a very close friend. Informal, unpolished, and cool."
+            Native: `
+Translate this text so it sounds completely natural and fluent, as if written by a native speaker.
+Do NOT translate word-for-word.
+Focus on:
+- Natural sentence flow
+- Correct cultural nuance
+- Idiomatic expressions where appropriate
+- Smooth, human-like phrasing
+
+The result should feel like something a real native speaker would naturally say or write, not like a translation.
+Avoid stiff, formal, or textbook-style language.
+`,
+
+            Casual: `
+Translate this text into a relaxed, everyday conversational tone.
+The result should sound:
+- Friendly
+- Natural
+- Easy to read
+- Slightly informal
+
+Write it as if speaking casually to someone you know.
+Avoid formal wording, rigid grammar, or overly polite phrasing.
+The translation should feel human, modern, and effortless.
+`,
+
+            "Close Friend": `
+Translate this text as if you are texting a very close friend.
+Tone requirements:
+- Very informal
+- Natural and unfiltered
+- Casual and friendly
+- Can include slang, shortened words, or playful expressions
+
+This does NOT need to sound polished.
+It should feel like a real chat between close friends.
+Mild profanity or rough wording is acceptable if it fits the context and feels natural.
+Avoid sounding formal, robotic, or overly clean.
+`
         };
+
 
         const selectedTone = toneInstructions[tone as keyof typeof toneInstructions] || toneInstructions["Native"];
         const prompt = `Role: Expert Localizer. Task: Translate from ${sourceLang || "Auto-detect"} to ${targetLang}. Tone: ${selectedTone}. Return ONLY the translated text.\nOriginal: "${text.trim()}"`;
@@ -49,7 +86,7 @@ export async function POST(req: Request) {
                     });
                     return completion.choices[0]?.message?.content || "";
                 } else {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
                     const response = await fetch(url, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },

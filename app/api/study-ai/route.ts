@@ -10,7 +10,7 @@ async function callGemini(prompt: string, fileBase64: string | null, mimeType: s
   return executeOptimizedRequest("GEMINI", {
     customKey,
     onCall: async (apiKey) => {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
       const parts: any[] = [{ text: prompt }];
 
       if (fileBase64 && mimeType) {
