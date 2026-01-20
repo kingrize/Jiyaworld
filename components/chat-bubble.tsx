@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Send, Loader2, MessageCircle, Bot, User, Sparkles } from "lucide-react";
+import { X, Send, Loader2, MessageCircle, Bot, User, Sparkles, Settings } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 // Interface for consistent message data
@@ -22,8 +22,22 @@ export function ChatBubble() {
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [lastSendTime, setLastSendTime] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
+  const [customApiKey, setCustomApiKey] = useState("");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load custom API key from localStorage
+  useEffect(() => {
+    const savedKey = localStorage.getItem("kira_custom_api_key");
+    if (savedKey) setCustomApiKey(savedKey);
+  }, []);
+
+  const saveCustomKey = (key: string) => {
+    setCustomApiKey(key);
+    localStorage.setItem("kira_custom_api_key", key);
+  };
 
   const suggestions = [
     "What is Jiyaworld?",
@@ -41,28 +55,29 @@ export function ChatBubble() {
   }, [messages, isOpen]);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isOpen && inputRef.current && !showSettings) {
       inputRef.current.focus();
     }
-  }, [isOpen]);
+  }, [isOpen, showSettings]);
 
   const handleSend = async (e?: React.FormEvent, textOverride?: string) => {
     if (e) e.preventDefault();
 
-    // Use override if provided (for suggestions), otherwise use input state
-    const textToSend = textOverride || input.trim();
+    // Use override if provided, otherwise clean input state
+    const textToSend = (textOverride || input).trim();
 
-    if (!textToSend || loading) return;
+    // --- 1. PREVENT EMPTY OR LOW-QUALITY REQUESTS ---
+    // Rule: Must be at least 5 characters and not just whitespace
+    if (!textToSend || textToSend.length < 5 || loading) return;
 
-    // Throttle: Check if enough time has passed since last request
+    // Throttle: Prevent rapid-fire submissions
     const now = Date.now();
     const timeSinceLastSend = now - lastSendTime;
 
     if (timeSinceLastSend < MIN_REQUEST_DELAY && lastSendTime > 0) {
-      const waitTime = Math.ceil((MIN_REQUEST_DELAY - timeSinceLastSend) / 1000);
       setMessages((prev) => [...prev, {
         role: "model",
-        text: `⏳ Please wait ${waitTime} second${waitTime > 1 ? 's' : ''} before sending another message.`
+        text: `⏳ Take a breather! Please wait a second before sending another message.`
       }]);
       return;
     }
@@ -70,65 +85,62 @@ export function ChatBubble() {
     setInput("");
     setLastSendTime(now);
 
-    // 1. Add user message to UI immediately
+    // Add user message to UI
     const newMessage: Message = { role: "user", text: textToSend };
     const updatedMessages = [...messages, newMessage];
     setMessages(updatedMessages);
     setLoading(true);
 
     try {
-      // 2. Prepare History for Backend
-      // Skip the initial greeting and the current message (sent separately)
-      // We take the last 10 messages for context
+      // Prepare History for Backend
       const historyMessages = updatedMessages.slice(1, -1).slice(-10);
-
       const historyForBackend = historyMessages.map((msg) => ({
         role: msg.role,
         parts: [{ text: msg.text }]
       }));
 
-      // Inject context if this is the start of a conversation to ensure AI knows the site purpose
+      // Inject initial context if needed
       if (historyForBackend.length === 0) {
         historyForBackend.push({
           role: "user",
-          // @ts-ignore - The API expects parts but we construct it carefully. Actually 'parts' is correct.
+          // @ts-ignore
           parts: [{ text: "Context: The user is visiting Jiyaworld, a portfolio website by Jiya featuring AI tools like TranslateAI and StudyAI. You are Kira, the assistant helped to guide them." }]
         });
         historyForBackend.push({
           role: "model",
           // @ts-ignore
-          parts: [{ text: "Understood. I am ready to help the user navigate Jiyaworld." }]
+          parts: [{ text: "Understood. I am Kira, ready to help the user navigate Jiyaworld." }]
         });
       }
 
-      // 3. Send to API Route
+      // --- 5. CUSTOM API KEY OPTION ---
+      // We send it in headers
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-custom-api-key": customApiKey || ""
+        },
         body: JSON.stringify({
           message: textToSend,
           history: historyForBackend
         }),
       });
 
-      // 4. Safely parse response
       let data: any;
       try {
         const rawText = await res.text();
         data = rawText ? JSON.parse(rawText) : {};
       } catch (parseError) {
-        console.error("Failed to parse response:", parseError);
         throw new Error("Invalid response from server");
       }
 
-      // 5. Check for errors
       if (!res.ok) {
-        console.error("API Error:", res.status, data);
-        const errorMsg = data?.error || `Request failed with status ${res.status}`;
+        // Handle specific abuse or exhaustion messages quietly
+        const errorMsg = data?.error || `Request failed`;
         throw new Error(errorMsg);
       }
 
-      // 6. Add AI response to UI
       if (data.text) {
         setMessages((prev) => [...prev, { role: "model", text: data.text }]);
       } else {
@@ -137,19 +149,11 @@ export function ChatBubble() {
 
     } catch (error: any) {
       console.error("Chat Error:", error);
-
-      // Determine user-friendly error message
       let errorMessage = "Oops! Something went wrong. Please try again. 🔄";
-      const errMsg = error.message?.toLowerCase() || "";
 
-      if (errMsg.includes("api key") || errMsg.includes("authentication") || errMsg.includes("config")) {
-        errorMessage = "⚠️ System configuration issue. Please try again later.";
-      } else if (errMsg.includes("rate") || errMsg.includes("too many") || errMsg.includes("wait")) {
-        errorMessage = "⏱️ Too many requests. Please wait a moment and try again.";
-      } else if (errMsg.includes("network") || errMsg.includes("fetch") || errMsg.includes("failed to fetch")) {
-        errorMessage = "📡 Connection issue. Please check your internet and try again.";
-      } else if (error.message && error.message !== "Failed to get response") {
-        errorMessage = `❌ ${error.message}`;
+      // Protect from showing raw technische errors
+      if (error.message.includes("busy") || error.message.includes("quota") || error.message.includes("requests")) {
+        errorMessage = "⏱️ I'm a bit overwhelmed right now. Please try again in a moment!";
       }
 
       setMessages((prev) => [...prev, { role: "model", text: errorMessage }]);
@@ -241,32 +245,54 @@ export function ChatBubble() {
               </div>
             </div>
 
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "10px",
-                border: "none",
-                background: "var(--surface-four)",
-                color: "var(--text-four)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--red-one)";
-                e.currentTarget.style.color = "white";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--surface-four)";
-                e.currentTarget.style.color = "var(--text-four)";
-              }}
-            >
-              <X size={18} />
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              {/* --- 5. SETTINGS ICON --- */}
+              <button
+                onClick={() => setShowSettings(!showSettings)}
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "10px",
+                  border: "none",
+                  background: showSettings ? "var(--surface-five)" : "var(--surface-four)",
+                  color: "var(--text-four)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <Settings size={16} />
+              </button>
+
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "10px",
+                  border: "none",
+                  background: "var(--surface-four)",
+                  color: "var(--text-four)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--red-one)";
+                  e.currentTarget.style.color = "white";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--surface-four)";
+                  e.currentTarget.style.color = "var(--text-four)";
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Messages Area */}
@@ -280,8 +306,62 @@ export function ChatBubble() {
               flexDirection: "column",
               gap: "1.25rem",
               background: "var(--background-one)",
+              position: "relative",
             }}
           >
+            {/* --- 5. CUSTOM API KEY UI --- */}
+            {showSettings && (
+              <div style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                padding: "1rem",
+                background: "var(--surface-three)",
+                borderBottom: "1px solid var(--border)",
+                zIndex: 20,
+                animation: "chatSlideIn 0.3s ease-out",
+              }}>
+                <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "0.85rem", color: "var(--text-one)" }}>Custom API Key</h4>
+                <p style={{ margin: "0 0 0.75rem 0", fontSize: "0.75rem", color: "var(--text-four)" }}>
+                  Want higher capacity? Enter your own Google Gemini API key here.
+                </p>
+                <input
+                  type="password"
+                  placeholder="AIza..."
+                  value={customApiKey}
+                  onChange={(e) => saveCustomKey(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.6rem 0.75rem",
+                    borderRadius: "10px",
+                    border: "1px solid var(--border)",
+                    background: "var(--background-one)",
+                    color: "var(--text-one)",
+                    fontSize: "0.85rem",
+                    outline: "none",
+                  }}
+                />
+                <button
+                  onClick={() => setShowSettings(false)}
+                  style={{
+                    marginTop: "0.75rem",
+                    width: "100%",
+                    padding: "0.5rem",
+                    borderRadius: "8px",
+                    background: "var(--primary)",
+                    color: "var(--text-three)",
+                    border: "none",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  Save & Close
+                </button>
+              </div>
+            )}
+
             {messages.map((msg, idx) => {
               const isUser = msg.role === "user";
               return (
@@ -404,8 +484,8 @@ export function ChatBubble() {
               </div>
             )}
 
-            {/* Suggested Prompts (Only show if history is just the greeting) */}
-            {!loading && messages.length === 1 && (
+            {/* Suggested Prompts */}
+            {!loading && messages.length === 1 && !showSettings && (
               <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <p style={{ fontSize: "0.8rem", color: "var(--text-four)", marginLeft: "0.5rem", marginBottom: "0.25rem" }}>
                   Suggested questions
@@ -415,6 +495,7 @@ export function ChatBubble() {
                     <button
                       key={idx}
                       onClick={() => handleSend(undefined, suggestion)}
+                      className="suggestion-btn"
                       style={{
                         padding: "0.5rem 0.8rem",
                         borderRadius: "12px",
@@ -428,14 +509,6 @@ export function ChatBubble() {
                         display: "flex",
                         alignItems: "center",
                         gap: "0.4rem"
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = "var(--primary)";
-                        e.currentTarget.style.background = "var(--surface-three)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = "var(--border)";
-                        e.currentTarget.style.background = "var(--surface-two)";
                       }}
                     >
                       <Sparkles size={12} color="var(--primary)" />
@@ -480,7 +553,7 @@ export function ChatBubble() {
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Ask anything..."
+                placeholder={input.trim().length > 0 && input.trim().length < 5 ? "Too short..." : "Ask anything..."}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 style={{
@@ -496,20 +569,22 @@ export function ChatBubble() {
               />
               <button
                 type="submit"
-                disabled={!input.trim() || loading}
+                // --- 1. DISABLING BUTTON DURING LOADING OR SHORT INPUT ---
+                disabled={input.trim().length < 5 || loading}
+                title={input.trim().length < 5 ? "Minimum 5 characters" : "Send message"}
                 style={{
                   width: "36px",
                   height: "36px",
                   borderRadius: "12px",
                   border: "none",
-                  background: input.trim() && !loading
+                  background: input.trim().length >= 5 && !loading
                     ? "var(--primary)"
                     : "var(--surface-four)",
-                  color: input.trim() && !loading ? "var(--text-three)" : "var(--text-four)",
+                  color: input.trim().length >= 5 && !loading ? "var(--text-three)" : "var(--text-four)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  cursor: input.trim() && !loading ? "pointer" : "not-allowed",
+                  cursor: input.trim().length >= 5 && !loading ? "pointer" : "not-allowed",
                   transition: "all 0.2s ease",
                   flexShrink: 0,
                 }}
@@ -596,6 +671,11 @@ export function ChatBubble() {
           .chat-bubble-scrollbar::-webkit-scrollbar-thumb {
             background-color: var(--surface-four);
             border-radius: 20px;
+          }
+          .suggestion-btn:hover {
+            border-color: var(--primary) !important;
+            background: var(--surface-three) !important;
+            transform: translateY(-2px);
           }
         `}</style>
       </div>

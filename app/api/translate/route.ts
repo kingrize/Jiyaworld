@@ -1,210 +1,80 @@
 import { NextResponse } from "next/server";
 import { Groq } from "groq-sdk";
+import { executeOptimizedRequest, checkRateLimit } from "@/app/lib/api-utils";
 
-// Load all available API keys
-const API_KEYS = [
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY_1,
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY_2,
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY_3,
-    process.env.GEMINI_API_KEY,
-].filter((key): key is string => Boolean(key));
-
-let currentKeyIndex = 0;
-
-function getNextApiKey(): string | null {
-    if (API_KEYS.length === 0) return null;
-    const key = API_KEYS[currentKeyIndex];
-    currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
-    return key;
-}
-
-function delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function callGeminiAPI(
-    prompt: string,
-    maxRetries: number = API_KEYS.length * 2
-): Promise<{ success: boolean; text?: string; error?: string; status?: number }> {
-
-    let attempts = 0;
-    let lastError = "";
-    let lastStatus = 500;
-
-    while (attempts < maxRetries) {
-        const apiKey = getNextApiKey();
-        if (!apiKey) return { success: false, error: "No API keys configured", status: 500 };
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        maxOutputTokens: 1000,
-                        temperature: 0.7,
-                    },
-                }),
-            });
-
-            const rawText = await response.text();
-            let data: any;
-            try {
-                data = rawText ? JSON.parse(rawText) : {};
-            } catch {
-                attempts++;
-                continue;
-            }
-
-            if (response.ok) {
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                return { success: true, text };
-            }
-
-            if (response.status === 429) {
-                if (attempts < maxRetries - 1) await delay(300);
-                attempts++;
-                continue;
-            }
-
-            lastError = data?.error?.message || `API error: ${response.status}`;
-            lastStatus = response.status;
-            attempts++;
-
-        } catch (err: any) {
-            lastError = "Network error";
-            attempts++;
-        }
-    }
-
-    return { success: false, error: lastError, status: lastStatus };
-}
-
-// Helper to get all available keys for a provider
-const getKeys = (provider: string) => {
-    const keys: string[] = [];
-    const env = process.env;
-    const baseNames = [
-        `${provider}_API_KEY`,
-        `NEXT_PUBLIC_${provider}_API_KEY`
-    ];
-
-    baseNames.forEach(base => {
-        if (env[base]) keys.push(env[base] as string);
-        for (let i = 1; i <= 10; i++) {
-            const keyWithSuffix = `${base}_${i}`;
-            if (env[keyWithSuffix]) keys.push(env[keyWithSuffix] as string);
-        }
-    });
-
-    return Array.from(new Set(keys)).filter(Boolean);
-};
-
-// Generic rotation executor
-async function executeWithRotation<T>(
-    provider: "GEMINI" | "GROQ",
-    callback: (apiKey: string) => Promise<T>
-): Promise<T> {
-    const keys = getKeys(provider);
-
-    if (keys.length === 0) {
-        throw new Error(`No API keys found for ${provider}`);
-    }
-
-    let lastError: any;
-
-    for (const key of keys) {
-        try {
-            return await callback(key);
-        } catch (error: any) {
-            console.warn(`[${provider}] Key ...${key.slice(-4)} failed.`);
-
-            const isQuotaError =
-                error.message?.includes("429") ||
-                error.status === 429;
-
-            if (isQuotaError) {
-                lastError = error;
-                continue;
-            } else {
-                throw error;
-            }
-        }
-    }
-
-    throw new Error(`All ${provider} keys exhausted. Last error: ${lastError?.message}`);
-}
-
-async function callGroqAPI(prompt: string): Promise<{ success: boolean; text?: string; error?: string; status?: number }> {
-    try {
-        const text = await executeWithRotation("GROQ", async (apiKey) => {
-            const groq = new Groq({ apiKey });
-            const completion = await groq.chat.completions.create({
-                messages: [{ role: "user", content: prompt }],
-                model: "llama-3.3-70b-versatile",
-                temperature: 0.7,
-                max_tokens: 1000,
-            });
-            return completion.choices[0]?.message?.content || "";
-        });
-
-        return { success: true, text };
-    } catch (error: any) {
-        console.error("Groq API Error:", error);
-        return { success: false, error: error.message || "Groq request failed", status: 500 };
-    }
-}
+/**
+ * TranslateAI Route - Hardened & Optimized
+ */
 
 export async function POST(req: Request) {
-    try {
-        const { text, sourceLang, targetLang, tone, model } = await req.json();
+    const ip = req.headers.get("x-forwarded-for") || "anonymous";
 
-        if (!text || !targetLang) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    try {
+        // Abuse Protection: Max 15 translations per minute per IP
+        if (!checkRateLimit(ip, 15, 60000)) {
+            return NextResponse.json({ error: "Too many translation requests. Relax a bit!" }, { status: 429 });
+        }
+
+        const body = await req.json();
+        const { text, sourceLang, targetLang, tone, model } = body;
+        const customKey = req.headers.get("x-custom-api-key");
+
+        // Validation: Prevent empty or very short translations
+        if (!text || text.trim().length < 2 || !targetLang) {
+            return NextResponse.json({ error: "Input too short or missing fields" }, { status: 400 });
         }
 
         const toneInstructions = {
-            "Native": "Translate this to sound completely natural and fluent, like a native speaker. Avoid stiff, robotic, or overly literal phrasing. Focus on capturing the nuance and flow.",
-            "Casual": "Translate this into a relaxed, everyday conversational tone. Use common idioms or phrasings that ordinary people use in daily life. It should be easy to read and sound chill.",
-            "Close Friend": "Translate this as if texting a very close friend. It should be very informal, unpolished, and can include slang, abbreviations, or mild profanity if it fits the emphasis (but don't force it). It should basically sound like 'Bestie' or 'Bro' talk."
+            "Native": "Translate this to sound completely natural and fluent, like a native speaker. Focus on capturing nuance and flow.",
+            "Casual": "Translate this into a relaxed, everyday conversational tone. Chill and easy to read.",
+            "Close Friend": "Translate this as if texting a very close friend. Informal, unpolished, and cool."
         };
 
         const selectedTone = toneInstructions[tone as keyof typeof toneInstructions] || toneInstructions["Native"];
+        const prompt = `Role: Expert Localizer. Task: Translate from ${sourceLang || "Auto-detect"} to ${targetLang}. Tone: ${selectedTone}. Return ONLY the translated text.\nOriginal: "${text.trim()}"`;
 
-        const prompt = `
-      Role: Expert Translator/Localizer.
-      Task: Translate the following text from ${sourceLang || "Auto-detect"} to ${targetLang}.
-      
-      Tone/Style Instruction: ${selectedTone}
-      
-      Important Rules:
-      1. Do NOT explain the translation.
-      2. Do NOT add notes like "Here is the translation:".
-      3. Return ONLY the translated text.
-      4. Maintain the original meaning but prioritize the requested TONE.
-      
-      Original Text:
-      "${text}"
-    `;
+        const resultText = await executeOptimizedRequest(model === "groq" ? "GROQ" : "GEMINI", {
+            customKey,
+            onCall: async (apiKey) => {
+                // Logging
+                console.log(`[TranslateLog] [${new Date().toISOString()}] IP: ${ip.substring(0, 8)}... using Key: ...${apiKey.slice(-4)}`);
 
-        let result;
+                if (model === "groq") {
+                    const groq = new Groq({ apiKey });
+                    const completion = await groq.chat.completions.create({
+                        messages: [{ role: "user", content: prompt }],
+                        model: "llama-3.3-70b-versatile",
+                        temperature: 0.7,
+                        max_tokens: 1000,
+                    });
+                    return completion.choices[0]?.message?.content || "";
+                } else {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
+                        }),
+                    });
 
-        if (model === "groq") {
-            result = await callGroqAPI(prompt);
-        } else {
-            result = await callGeminiAPI(prompt);
-        }
+                    const data = await response.json();
+                    if (!response.ok) {
+                        const error = new Error(data?.error?.message || "Service Error");
+                        // @ts-ignore
+                        error.status = response.status;
+                        throw error;
+                    }
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                }
+            }
+        });
 
-        if (!result.success) {
-            return NextResponse.json({ error: result.error || "Translation failed" }, { status: result.status || 500 });
-        }
-
-        return NextResponse.json({ result: result.text });
+        return NextResponse.json({ result: resultText });
 
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error(`[TranslateLog] [${new Date().toISOString()}] Error for IP ${ip}: ${error.message}`);
+        return NextResponse.json({ error: error.message || "Translation failed" }, { status: error.status || 500 });
     }
 }

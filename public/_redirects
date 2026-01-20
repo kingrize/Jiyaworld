@@ -1,0 +1,2 @@
+# Force redirect from default Netlify subdomain to the custom primary domain
+https://jiyaworld.netlify.app/*  https://jiya.web.id/:splat  301!

@@ -1,143 +1,79 @@
 import { Groq } from "groq-sdk";
 import { NextResponse } from "next/server";
+import { executeOptimizedRequest, checkRateLimit } from "@/app/lib/api-utils";
 
-// --- 1. SMART KEY ROTATION LOGIC ---
+/**
+ * StudyAI Route - Hardened & Optimized
+ */
 
-const getKeys = (provider: string) => {
-  const keys: string[] = [];
-  const env = process.env;
-  
-  // Script ini akan mencari semua variasi nama variabel di .env kamu
-  // Baik yang pakai NEXT_PUBLIC_ maupun tidak.
-  const baseNames = [
-    `${provider}_API_KEY`,                // cth: GEMINI_API_KEY
-    `NEXT_PUBLIC_${provider}_API_KEY`     // cth: NEXT_PUBLIC_GEMINI_API_KEY (Format Kamu)
-  ];
+async function callGemini(prompt: string, fileBase64: string | null, mimeType: string | null, customKey?: string | null) {
+  return executeOptimizedRequest("GEMINI", {
+    customKey,
+    onCall: async (apiKey) => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const parts: any[] = [{ text: prompt }];
 
-  baseNames.forEach(base => {
-    // 1. Cek key tanpa angka (cth: NEXT_PUBLIC_GEMINI_API_KEY)
-    if (env[base]) keys.push(env[base] as string);
+      if (fileBase64 && mimeType) {
+        parts.push({
+          inline_data: { mime_type: mimeType, data: fileBase64 }
+        });
+      }
 
-    // 2. Cek key dengan angka 1 s/d 10 (cth: NEXT_PUBLIC_GEMINI_API_KEY_1)
-    for (let i = 1; i <= 10; i++) {
-      const keyWithSuffix = `${base}_${i}`;
-      if (env[keyWithSuffix]) keys.push(env[keyWithSuffix] as string);
-    }
-  });
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: { response_mime_type: "application/json", temperature: 0.7, maxOutputTokens: 2048 }
+        })
+      });
 
-  // Hapus duplikat dan nilai kosong
-  const uniqueKeys = Array.from(new Set(keys)).filter(Boolean);
-  
-  if (uniqueKeys.length === 0) {
-    console.error(`[${provider}] No API keys found! Check your .env file.`);
-  }
-
-  return uniqueKeys;
-};
-
-// Fungsi eksekutor dengan Auto-Switch Key
-async function executeWithRotation<T>(
-  provider: "GEMINI" | "GROQ",
-  callback: (apiKey: string) => Promise<T>
-): Promise<T> {
-  // Ambil key yang tersedia (Script ini sekarang bisa baca format key kamu)
-  const keys = getKeys(provider);
-  
-  if (keys.length === 0) {
-    throw new Error(`Tidak ada API Key ${provider} yang terbaca. Pastikan nama variabel di .env benar.`);
-  }
-
-  let lastError: any;
-
-  // Coba satu per satu key yang ada
-  for (const key of keys) {
-    try {
-      return await callback(key);
-    } catch (error: any) {
-      console.warn(`[${provider}] Key ...${key.slice(-4)} failed. Error: ${error.message}`);
-      
-      // Deteksi jika error karena kuota habis (429)
-      const isQuotaError = 
-        error.message?.includes("429") || 
-        error.message?.includes("Quota exceeded") || 
-        error.message?.includes("Resource has been exhausted") ||
-        error.status === 429;
-
-      if (isQuotaError) {
-        lastError = error;
-        continue; // Lanjut ke key berikutnya (Auto-Switch)
-      } else {
-        // Jika error lain (misal model tidak ditemukan), langsung stop
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.error?.message || "Gemini Error");
+        // @ts-ignore
+        error.status = response.status;
         throw error;
       }
+
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     }
-  }
-  
-  throw new Error(`Semua ${provider} API Key habis kuota (Limit). Last error: ${lastError?.message}`);
+  });
 }
 
-// --- 2. AI CLIENT WRAPPERS ---
-
-async function callGemini(prompt: string, fileBase64: string | null, mimeType: string | null) {
-  return executeWithRotation("GEMINI", async (apiKey) => {
-    // URL Endpoint Gemini 2.5 Flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-    const parts: any[] = [{ text: prompt }];
-
-    if (fileBase64 && mimeType) {
-      parts.push({
-        inline_data: {
-          mime_type: mimeType,
-          data: fileBase64
-        }
+async function callGroq(prompt: string, customKey?: string | null) {
+  return executeOptimizedRequest("GROQ", {
+    customKey,
+    onCall: async (apiKey) => {
+      const groq = new Groq({ apiKey });
+      const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" }
       });
+      return completion.choices[0]?.message?.content || "";
     }
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: parts }],
-        generationConfig: {
-            response_mime_type: "application/json" // Wajib JSON agar frontend tidak error
-        }
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errorMessage = data.error?.message || response.statusText;
-      const error: any = new Error(errorMessage);
-      error.status = response.status;
-      throw error;
-    }
-
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
   });
 }
-
-async function callGroq(prompt: string) {
-  return executeWithRotation("GROQ", async (apiKey) => {
-    const groq = new Groq({ apiKey });
-    const completion = await groq.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" }
-    });
-    return completion.choices[0]?.message?.content || "";
-  });
-}
-
-// --- 3. MAIN ROUTE HANDLER ---
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") || "anonymous";
+
   try {
+    // Abuse Protection: Max 8 study requests per minute per IP (heavy processing)
+    if (!checkRateLimit(ip, 8, 60000)) {
+      return NextResponse.json({ error: "Please slow down and focus on your study material!" }, { status: 429 });
+    }
+
     const formData = await req.formData();
-    const prompt = formData.get("prompt") as string;
-    const modelChoice = formData.get("model") as string; 
+    const prompt = (formData.get("prompt") as string || "").trim();
+    const modelChoice = formData.get("model") as string;
     const file = formData.get("file") as File | null;
+    const customKey = req.headers.get("x-custom-api-key");
+
+    if (prompt.length < 5 && !file) {
+      return NextResponse.json({ error: "Please provide a more detailed question or upload a document." }, { status: 400 });
+    }
 
     let finalResult = "";
     let fileBase64: string | null = null;
@@ -150,53 +86,31 @@ export async function POST(req: Request) {
       mimeType = file.type;
     }
 
-    // --- LOGIC ALUR (Relay vs Direct) ---
     if (modelChoice === "groq") {
       if (fileBase64) {
         // RELAY MODE: Gemini -> Groq
-        // 1. Ekstrak teks dari PDF pakai Gemini (Gratis & Vision)
-        const extractionPrompt = `
-          Extract all text and context from this document accurately. 
-          Return ONLY the raw text content. No markdown, no intro.
-        `;
-        
-        // Pakai callGemini tapi kita handle jika dia return JSON
-        const extractedRaw = await callGemini(extractionPrompt + " Output as JSON: { \"text\": \"...\" }", fileBase64, mimeType);
-        
+        const extractionPrompt = `Extract all text and context. Return ONLY as JSON: { "text": "..." }`;
+        const extractedRaw = await callGemini(extractionPrompt, fileBase64, mimeType, customKey);
+
         let extractedText = "";
         try {
-            const json = JSON.parse(extractedRaw);
-            extractedText = json.text || json.content || extractedRaw;
-        } catch (e) {
-            extractedText = extractedRaw;
-        }
+          const json = JSON.parse(extractedRaw);
+          extractedText = json.text || json.content || extractedRaw;
+        } catch { extractedText = extractedRaw; }
 
-        // 2. Analisa pakai Groq
-        const groqPrompt = `
-          CONTEXT FROM DOCUMENT: 
-          ${extractedText.substring(0, 100000)} // Limit context agar tidak overflow
-
-          USER REQUEST: 
-          ${prompt}
-        `;
-        finalResult = await callGroq(groqPrompt);
-
+        const groqPrompt = `CONTEXT: ${extractedText.substring(0, 80000)}\nREQUEST: ${prompt}`;
+        finalResult = await callGroq(groqPrompt, customKey);
       } else {
-        // DIRECT GROQ (Text Only)
-        finalResult = await callGroq(prompt);
+        finalResult = await callGroq(prompt, customKey);
       }
     } else {
-      // DIRECT GEMINI
-      finalResult = await callGemini(prompt, fileBase64, mimeType);
+      finalResult = await callGemini(prompt, fileBase64, mimeType, customKey);
     }
 
     return NextResponse.json({ result: finalResult });
 
   } catch (error: any) {
-    console.error("Backend Error:", error);
-    return NextResponse.json(
-      { error: error.message || "Something went wrong in backend" },
-      { status: 500 }
-    );
+    console.error(`[StudyLog] [${new Date().toISOString()}] Error for IP ${ip}: ${error.message}`);
+    return NextResponse.json({ error: error.message || "Study request failed" }, { status: error.status || 500 });
   }
 }
