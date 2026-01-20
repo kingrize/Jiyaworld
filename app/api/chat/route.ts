@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { JIYA_SYSTEM_PROMPT } from "@/app/lib/jiya-context";
 
 // Types
 interface ChatMessage {
@@ -67,7 +68,7 @@ async function callGeminiAPI(
           contents: contents,
           systemInstruction: {
             parts: [{
-              text: "You are J.ai, a helpful, friendly, and chill AI assistant for Jiyaworld. Be concise but helpful. Use emojis sparingly."
+              text: JIYA_SYSTEM_PROMPT
             }]
           },
           generationConfig: {
