@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FloatingSidebar } from "@/components/floating-sidebar";
 import {
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 export default function TranslateAIPage() {
+    const [mounted, setMounted] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [model, setModel] = useState<"gemini" | "groq">("gemini");
     const [text, setText] = useState("");
@@ -27,6 +28,10 @@ export default function TranslateAIPage() {
     const [result, setResult] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const languages = [
         "Indonesian", "English", "Japanese", "Korean", "German",
@@ -112,136 +117,143 @@ export default function TranslateAIPage() {
             </nav>
 
             <div className="content-wrapper">
-
-                {/* Language Bar */}
-                <div className="language-bar">
-                    <div className="select-wrapper">
-                        <select
-                            value={sourceLang}
-                            onChange={(e) => setSourceLang(e.target.value)}
-                        >
-                            <option value="">Auto-Detect</option>
-                            {languages.map(l => <option key={l} value={l}>{l}</option>)}
-                        </select>
-                        <ChevronDown size={14} className="chevron" />
+                {!mounted ? (
+                    <div className="loading-container">
+                        <Loader2 size={32} className="animate-spin" />
                     </div>
+                ) : (
+                    <>
+                        {/* Language Bar */}
+                        <div className="language-bar">
+                            <div className="select-wrapper">
+                                <select
+                                    value={sourceLang}
+                                    onChange={(e) => setSourceLang(e.target.value)}
+                                >
+                                    <option value="">Auto-Detect</option>
+                                    {languages.map(l => <option key={l} value={l}>{l}</option>)}
+                                </select>
+                                <ChevronDown size={14} className="chevron" />
+                            </div>
 
-                    <button onClick={swapLanguages} className="icon-btn swap-btn" aria-label="Swap languages">
-                        <ArrowLeftRight size={18} />
-                    </button>
+                            <button onClick={swapLanguages} className="icon-btn swap-btn" aria-label="Swap languages">
+                                <ArrowLeftRight size={18} />
+                            </button>
 
-                    <div className="select-wrapper">
-                        <select
-                            value={targetLang}
-                            onChange={(e) => setTargetLang(e.target.value)}
-                        >
-                            {languages.map(l => <option key={l} value={l}>{l}</option>)}
-                        </select>
-                        <ChevronDown size={14} className="chevron" />
-                    </div>
-                </div>
-
-                {/* Translation Area */}
-                <div className="translation-grid">
-                    {/* Input */}
-                    <div className={`panel input-panel ${text ? 'active' : ''}`}>
-                        <div className="panel-header">
-                            <span className="panel-label">Source Text</span>
-                            {text && (
-                                <button onClick={clearText} className="icon-btn clear-btn">
-                                    <X size={16} />
-                                </button>
-                            )}
+                            <div className="select-wrapper">
+                                <select
+                                    value={targetLang}
+                                    onChange={(e) => setTargetLang(e.target.value)}
+                                >
+                                    {languages.map(l => <option key={l} value={l}>{l}</option>)}
+                                </select>
+                                <ChevronDown size={14} className="chevron" />
+                            </div>
                         </div>
-                        <textarea
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder="Type or paste text here..."
-                            spellCheck={false}
-                        />
-                        <div className="panel-footer">
-                            <span className="char-count">{text.length} chars</span>
-                        </div>
-                    </div>
 
-                    {/* Output */}
-                    <div className={`panel output-panel ${result ? 'has-result' : ''}`}>
-                        <div className="panel-header">
-                            <span className="panel-label">Translation</span>
+                        {/* Translation Area */}
+                        <div className="translation-grid">
+                            {/* Input */}
+                            <div className={`panel input-panel ${text ? 'active' : ''}`}>
+                                <div className="panel-header">
+                                    <span className="panel-label">Source Text</span>
+                                    {text && (
+                                        <button onClick={clearText} className="icon-btn clear-btn">
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                                <textarea
+                                    value={text}
+                                    onChange={(e) => setText(e.target.value)}
+                                    placeholder="Type or paste text here..."
+                                    spellCheck={false}
+                                />
+                                <div className="panel-footer">
+                                    <span className="char-count">{text.length} chars</span>
+                                </div>
+                            </div>
+
+                            {/* Output */}
+                            <div className={`panel output-panel ${result ? 'has-result' : ''}`}>
+                                <div className="panel-header">
+                                    <span className="panel-label">Translation</span>
+                                    <button
+                                        onClick={copyToClipboard}
+                                        className="icon-btn copy-btn"
+                                        disabled={!result}
+                                    >
+                                        {copied ? <Check size={16} /> : <Copy size={16} />}
+                                    </button>
+                                </div>
+                                <div className="output-content">
+                                    {isLoading ? (
+                                        <div className="loading-indicator">
+                                            <Loader2 size={24} className="animate-spin" />
+                                            <span>Translating...</span>
+                                        </div>
+                                    ) : result ? (
+                                        <div className="result-text">{result}</div>
+                                    ) : (
+                                        <div className="empty-placeholder">
+                                            Translation will appear here
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Controls Bar */}
+                        <div className="controls-bar">
+                            <div className="options-group">
+                                <div className="option-section">
+                                    <span className="option-label">Tone</span>
+                                    <div className="tone-selector">
+                                        {tones.map((t) => (
+                                            <button
+                                                key={t.id}
+                                                onClick={() => setTone(t.id as any)}
+                                                className={`tone-btn ${tone === t.id ? 'selected' : ''}`}
+                                            >
+                                                <t.icon size={14} />
+                                                <span>{t.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="divider-vertical" />
+
+                                <div className="option-section">
+                                    <span className="option-label">Model</span>
+                                    <div className="model-selector">
+                                        <button
+                                            onClick={() => setModel('gemini')}
+                                            className={`model-btn ${model === 'gemini' ? 'selected' : ''}`}
+                                        >
+                                            Gemini
+                                        </button>
+                                        <button
+                                            onClick={() => setModel('groq')}
+                                            className={`model-btn ${model === 'groq' ? 'selected' : ''}`}
+                                        >
+                                            Groq
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <button
-                                onClick={copyToClipboard}
-                                className="icon-btn copy-btn"
-                                disabled={!result}
+                                onClick={handleTranslate}
+                                disabled={isLoading || !text.trim()}
+                                className="translate-btn"
                             >
-                                {copied ? <Check size={16} /> : <Copy size={16} />}
+                                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} fill="currentColor" />}
+                                <span>Translate</span>
                             </button>
                         </div>
-                        <div className="output-content">
-                            {isLoading ? (
-                                <div className="loading-indicator">
-                                    <Loader2 size={24} className="animate-spin" />
-                                    <span>Translating...</span>
-                                </div>
-                            ) : result ? (
-                                <div className="result-text">{result}</div>
-                            ) : (
-                                <div className="empty-placeholder">
-                                    Translation will appear here
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Controls Bar */}
-                <div className="controls-bar">
-                    <div className="options-group">
-                        <div className="option-section">
-                            <span className="option-label">Tone</span>
-                            <div className="tone-selector">
-                                {tones.map((t) => (
-                                    <button
-                                        key={t.id}
-                                        onClick={() => setTone(t.id as any)}
-                                        className={`tone-btn ${tone === t.id ? 'selected' : ''}`}
-                                    >
-                                        <t.icon size={14} />
-                                        <span>{t.label}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="divider-vertical" />
-
-                        <div className="option-section">
-                            <span className="option-label">Model</span>
-                            <div className="model-selector">
-                                <button
-                                    onClick={() => setModel('gemini')}
-                                    className={`model-btn ${model === 'gemini' ? 'selected' : ''}`}
-                                >
-                                    Gemini
-                                </button>
-                                <button
-                                    onClick={() => setModel('groq')}
-                                    className={`model-btn ${model === 'groq' ? 'selected' : ''}`}
-                                >
-                                    Groq
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={handleTranslate}
-                        disabled={isLoading || !text.trim()}
-                        className="translate-btn"
-                    >
-                        {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} fill="currentColor" />}
-                        <span>Translate</span>
-                    </button>
-                </div>
+                    </>
+                )}
 
             </div>
 
@@ -252,14 +264,18 @@ export default function TranslateAIPage() {
                     display: flex;
                     flex-direction: column;
                     font-family: var(--main-font), sans-serif;
+                    padding-top: 64px;
                 }
 
                 /* Navbar */
                 .app-nav {
-                    position: sticky;
+                    position: fixed;
                     top: 0;
+                    left: 0;
+                    right: 0;
                     z-index: 50;
                     background: var(--background-one);
+                    backdrop-filter: blur(8px);
                     border-bottom: 1px solid var(--border);
                     height: 64px;
                     display: flex;
@@ -636,6 +652,14 @@ export default function TranslateAIPage() {
                         justify-content: center;
                         padding: 1rem;
                     }
+                }
+
+                .loading-container {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--text-four);
                 }
             `}</style>
         </main>
