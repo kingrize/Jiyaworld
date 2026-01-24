@@ -45,7 +45,10 @@ const categories: Category[] = [
   {
     name: "GAME",
     icon: Gamepad2,
-    items: [{ name: "Check Nickname", href: "/tools/check-nickname" }],
+    items: [
+      { name: "Check Nickname", href: "/tools/check-nickname" },
+      { name: "Mods & Scripts", href: "/mods" },
+    ],
   },
 ];
 

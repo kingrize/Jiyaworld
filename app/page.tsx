@@ -51,29 +51,26 @@ export default function Home() {
   }, []);
 
   // Calculate parallax offset (subtle movement)
-  const parallaxOffset = scrollY * 0.15;
+  const parallaxOffset = scrollY * 0.12;
 
   return (
     <main>
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-
-      {/* Pasang ChatBubble disini */}
       <ChatBubble />
 
       {/* STICKY NAVBAR */}
       <nav>
-        <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "var(--text-one)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Terminal size={24} color="var(--primary)" />
-          <span>Jiya<span style={{ color: "var(--primary)" }}>World</span></span>
+        <div className="nav-brand">
+          <Terminal size={22} className="nav-brand-icon" />
+          <span>Jiya<span className="nav-brand-accent">World</span></span>
         </div>
 
-        {/* Tombol Sidebar Mobile */}
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="nav-sidebar-btn"
           aria-label="Open Menu"
         >
-          <LayoutGrid size={24} />
+          <LayoutGrid size={22} />
         </button>
       </nav>
 
@@ -86,71 +83,30 @@ export default function Home() {
             ref={avatarRef}
             className="hero-avatar-wrapper animate-float"
             style={{
-              position: "relative",
               transform: `translateY(${parallaxOffset}px)`,
-              transition: "transform 0.1s ease-out",
             }}
           >
             {/* Gradient Glow Background */}
-            <div style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "280px",
-              height: "280px",
-              background: "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
-              opacity: 0.15,
-              borderRadius: "50%",
-              filter: "blur(40px)",
-              zIndex: -1,
-              animation: "pulseGlow 4s ease-in-out infinite",
-            }} />
-
-            {/* Secondary Glow Layer */}
-            <div style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "320px",
-              height: "320px",
-              background: "radial-gradient(circle, var(--secondary) 0%, transparent 60%)",
-              opacity: 0.1,
-              borderRadius: "50%",
-              filter: "blur(60px)",
-              zIndex: -2,
-            }} />
+            <div className="hero-glow hero-glow-primary" />
+            <div className="hero-glow hero-glow-secondary" />
 
             <img
               src="/avatar.png"
               alt="Jiya"
               className="hero-avatar"
-              style={{
-                position: "relative",
-                zIndex: 1,
-              }}
             />
           </div>
 
           <div className="hero-content">
-            {/* Status */}
-            <div className="animate-slide-up" style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.75rem",
-              padding: "0.5rem 1rem",
-              backgroundColor: "var(--surface-three)",
-              borderRadius: "100px",
-              border: "1px solid var(--border)"
-            }}>
-              <span className="status-dot"></span>
-              <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-one)" }}>Online & Ready</span>
+            {/* Status Badge */}
+            <div className="status-badge animate-slide-up">
+              <span className="status-dot" />
+              <span className="status-text">Online & Ready</span>
             </div>
 
             {/* Title & Bio */}
             <h1 className="hero-title animate-slide-up" style={{ animationDelay: "0.1s" }}>
-              Hi, I'm <span style={{ color: "var(--primary)" }}>Jiya</span>
+              Hi, I'm <span className="text-primary">Jiya</span>
             </h1>
 
             <p className="hero-bio animate-slide-up" style={{ animationDelay: "0.2s" }}>
@@ -158,11 +114,10 @@ export default function Home() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="animate-slide-up" style={{ marginTop: "1rem", display: "flex", gap: "1rem", animationDelay: "0.3s", flexWrap: "wrap", justifyContent: "center" }}>
+            <div className="hero-actions animate-slide-up" style={{ animationDelay: "0.3s" }}>
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 className="btn-hero primary"
-                style={{ display: "inline-flex", alignItems: "center", gap: "0.75rem" }}
               >
                 <Compass size={20} />
                 <span>Explore Tools</span>
@@ -171,49 +126,20 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Terminal Window Decoration */}
-        <div style={{
-          width: "100%",
-          maxWidth: "800px",
-          margin: "0 auto 4rem auto",
-          borderRadius: "12px",
-          border: "1px solid var(--border)",
-          backgroundColor: "var(--surface-two)",
-          boxShadow: "var(--drop-shadow-one)",
-          overflow: "hidden"
-        }}>
-          {/* HEADER TERMINAL */}
-          <div style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.6rem",
-            padding: "0.75rem 1rem",
-            backgroundColor: "var(--surface-three)",
-            borderBottom: "1px solid var(--border)"
-          }}>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ff5f56", zIndex: 10 }}></div>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ffbd2e", zIndex: 10 }}></div>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27c93f", zIndex: 10 }}></div>
-
-            <div style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              textAlign: "center",
-              fontSize: "0.85rem",
-              color: "var(--text-four)",
-              fontFamily: "monospace",
-              opacity: 0.7,
-              pointerEvents: "none"
-            }}>
-              jiya@world:~
+        {/* Terminal Window */}
+        <div className="terminal-window">
+          <div className="terminal-header">
+            <div className="terminal-dots">
+              <span className="terminal-dot red" />
+              <span className="terminal-dot yellow" />
+              <span className="terminal-dot green" />
             </div>
+            <span className="terminal-title">jiya@world:~</span>
           </div>
 
-          <div style={{ padding: "1.5rem", fontFamily: "monospace", fontSize: "0.95rem", color: "var(--text-four)", minHeight: "100px" }}>
-            <div>
-              <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>jiya@world:~$</span>
+          <div className="terminal-body">
+            <div className="terminal-line">
+              <span className="terminal-prompt">jiya@world:~$</span>
               <Typewriter texts={["welcome to website", "kinda lazy but...", "stay tuned for more", "just a hobbyist"]} />
               <span className="cursor-blink">_</span>
             </div>
@@ -237,71 +163,16 @@ export default function Home() {
           <Link href="/contact">Contact</Link>
           <Link href="https://github.com">GitHub</Link>
         </div>
-        <div className="footer-copy" style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "0.5rem",
-          flexWrap: "wrap"
-        }}>
+        <div className="footer-made-with">
           <span>Made with</span>
-          <Heart
-            size={16}
-            fill="var(--red-one)"
-            color="var(--red-one)"
-            style={{
-              animation: "heartbeat 1.5s ease-in-out infinite",
-            }}
-          />
+          <Heart size={16} className="footer-heart" />
           <span>and</span>
-          <span style={{
-            fontWeight: 600,
-            color: "var(--text-one)",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.3rem"
-          }}>
-            Next.js
-          </span>
+          <span className="footer-tech">Next.js</span>
         </div>
-        <div style={{
-          fontSize: "0.8rem",
-          color: "var(--text-four)",
-          opacity: 0.5,
-          marginTop: "0.5rem"
-        }}>
+        <div className="footer-copyright">
           © {new Date().getFullYear()} Jiya World
         </div>
       </footer>
-
-      {/* Custom Keyframes for Glow Animation */}
-      <style jsx global>{`
-        @keyframes pulseGlow {
-          0%, 100% {
-            opacity: 0.15;
-            transform: translate(-50%, -50%) scale(1);
-          }
-          50% {
-            opacity: 0.25;
-            transform: translate(-50%, -50%) scale(1.1);
-          }
-        }
-        
-        @keyframes heartbeat {
-          0%, 100% {
-            transform: scale(1);
-          }
-          25% {
-            transform: scale(1.15);
-          }
-          50% {
-            transform: scale(1);
-          }
-          75% {
-            transform: scale(1.15);
-          }
-        }
-      `}</style>
     </main>
   );
 }

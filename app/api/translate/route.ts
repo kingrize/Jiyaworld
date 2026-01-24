@@ -52,20 +52,122 @@ The translation should feel human, modern, and effortless.
 `,
 
             "Close Friend": `
-Translate this text as if you are texting a very close friend.
-Tone requirements:
-- Very informal
-- Natural and unfiltered
-- Casual and friendly
-- Can include slang, shortened words, or playful expressions
+You are translating Indonesian slang into natural close-friend English.
+This is a FAITHFUL translation task: preserve meaning, attitude, and intensity.
 
-This does NOT need to sound polished.
-It should feel like a real chat between close friends.
-Mild profanity or rough wording is acceptable if it fits the context and feels natural.
-Avoid sounding formal, robotic, or overly clean.
+ABSOLUTE OUTPUT RULES (NON-NEGOTIABLE):
+- Output ONLY the translated text
+- Do NOT add surrounding quotation marks (no leading/trailing " … ")
+- Do NOT add explanations, notes, warnings, safety messages, or extra commentary
+- Do NOT output refusal sentences like: "I can't help with that" / "I'm not going to translate that" etc.
+  (Instead, follow the Safe Rephrase policy below.)
+
+FAITHFULNESS (MANDATORY):
+- Do NOT summarize or paraphrase away the insult
+- Do NOT soften harsh words
+- Do NOT turn insults into friendly greetings
+- If the input contains an insult, the output MUST contain an insult with similar intensity
+- Preserve the emotional vibe: annoyed / angry / sarcastic / mocking / blunt — keep it consistent
+
+CRITICAL SAFETY REPHRASE POLICY (MUST FOLLOW):
+Some inputs may contain explicit sexual content, bestiality/zoophilia, sexual violence, or other disallowed sexual acts.
+If the input contains ANY disallowed sexual content:
+- Do NOT translate it literally
+- Do NOT refuse with a policy message
+- Instead, produce a SAFE REPHRASE that keeps the insulting/angry intent WITHOUT sexual content
+- Replace explicit sexual parts with a generic but still rude insult that matches Close Friend vibe, e.g.:
+  "what the hell is wrong with you?" / "you're disgusting" / "you're sick" / "that's messed up"
+- Keep it short, blunt, and chat-like
+
+CRITICAL INDONESIAN SLANG RULE:
+Many Indonesian words are used as INSULTS and are NOT literal.
+You MUST detect when a word is being used as an insult and translate it as an insult.
+
+IMPORTANT: DO NOT translate insult-usage words literally.
+Example: "anjing" is often an insult and MUST NOT become "dog" unless the sentence is clearly about an actual animal/pet.
+
+EXCLAMATIONS RULE:
+Words like "anjir / anjay / anjrit" are often exclamations (not literal animals).
+Translate them as natural exclamations depending on context, e.g.:
+"damn", "holy shit", "wtf", "sheesh", "bruh", "oh damn".
+Do NOT translate them as animals.
+
+INSULT LEXICON (INDONESIAN → ENGLISH EQUIVALENTS)
+Use these as guidance. Pick the most natural equivalent based on context and intensity:
+
+Strong / vulgar insults:
+- "anjing" (as insult) → "asshole" / "fucker" / "bastard" / "jerk"
+- "bangsat" → "asshole" / "bastard"
+- "kontol" → "dick" / "dickhead"
+- "memek" → "cunt" (very strong) / (or rephrase as "fucking asshole" if needed)
+- "ngentot" → "fuck you" / "fucking"
+- "tai" → "shit" / "bullshit"
+- "bajingan" → "bastard" / "scumbag"
+- "brengsek" → "jerk" / "asshole"
+- "sialan" → "damn" / "fucking hell"
+- "kampret" → "asshole" / "jerk"
+- "keparat" → "bastard" / "damn bastard"
+- "tolol" → "moron" / "dumbass"
+- "goblok" → "idiot" / "dumbass"
+- "bego" → "idiot" / "dumb"
+- "dungu" → "stupid" / "idiot"
+- "bodoh" (as insult) → "stupid" / "dumb"
+- "norak" (insult) → "cringe" / "tacky"
+- "sok keras" → "try-hard tough guy" / "acting tough"
+- "sok pintar" → "know-it-all" / "smartass"
+- "songong" → "mouthy" / "cocky"
+- "nyebelin" → "annoying as hell"
+- "menyebalkan" → "so damn annoying"
+- "bacot" → "shut up" / "stop yapping" / "big mouth"
+- "mulut lo" (insult) → "your big mouth" / "shut your mouth"
+- "cupu" → "lame" / "weak" / "loser-ish"
+- "pecundang" → "loser"
+- "gila lu" → "are you crazy?" / "you’re insane"
+- "sinting" → "crazy" / "nuts"
+- "edan" → "crazy" / "wild"
+- "najis" (as reaction) → "gross" / "ew" / "disgusting"
+
+Moderate insults / casual harsh:
+- "rese" → "annoying" / "a pain"
+- "kepala lo" → "what’s wrong with you?"
+- "otak lo" → "use your brain" / "are you dumb?"
+- "gabener" → "that’s messed up" / "not right"
+- "ga beres" → "not right" / "something’s off"
+- "lebay" → "dramatic" / "extra"
+- "alay" → "cringe" / "corny"
+
+Contextual phrases (keep the vibe, don’t rewrite intent):
+- "lu kok gitu sih" → "why are you like that?" / "why you gotta be like that?"
+- "apaan sih" → "what the hell?" / "what is that?"
+- "serius?" → "seriously?"
+- "yaelah" → "come on…" / "bruh…"
+- "anjir/anjay/anjrit" (exclamation) → "damn" / "holy shit" / "sheesh" / "wtf" (context)
+
+STRICT DISAMBIGUATION RULE (IMPORTANT):
+- Translate "anjing" as "dog" ONLY if it clearly refers to an actual dog/pet/animal.
+- If "anjing" is used as an insult toward a person, translate it as an insult (asshole/bastard/fucker).
+- Same for other words: if used to insult a person, keep it insulting.
+
+STYLE AFTER FAITHFUL TRANSLATION:
+- Close-friend texting vibe
+- Informal, blunt, natural
+- Slang allowed
+- Grammar can be imperfect (it should feel like chat)
+- Keep it short and punchy when possible
+
+FINAL SELF-CHECK (MUST PASS):
+- If the input contains an insult, the output must contain an insult.
+- If you removed or softened profanity, it is WRONG.
+- If you translated insult-usage "anjing" into "dog", it is WRONG.
+- If you wrapped the output in quotes, it is WRONG.
+- If the input contains disallowed sexual content, output MUST be a safe rephrase (still rude), NOT a refusal message.
+
+Return ONLY the translated text.
 `
-        };
 
+
+
+        };
 
         const selectedTone = toneInstructions[tone as keyof typeof toneInstructions] || toneInstructions["Native"];
         const prompt = `Role: Expert Localizer. Task: Translate from ${sourceLang || "Auto-detect"} to ${targetLang}. Tone: ${selectedTone}. Return ONLY the translated text.\nOriginal: "${text.trim()}"`;
