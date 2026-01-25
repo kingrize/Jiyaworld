@@ -43,7 +43,15 @@ export function useAdminGuard(options?: {
     const skipRedirect = options?.skipRedirect ?? false;
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        const authInstance = auth;
+
+        if (!authInstance) {
+            console.warn("Firebase Auth not initialized. Check keys.");
+            setStatus({ status: "unauthorized", reason: "not-authenticated" });
+            return;
+        }
+
+        const unsubscribe = onAuthStateChanged(authInstance, async (currentUser) => {
             // Case 1: Not authenticated
             if (!currentUser) {
                 setUser(null);
@@ -61,7 +69,7 @@ export function useAdminGuard(options?: {
                 setStatus({ status: "unauthorized", reason: "not-admin" });
 
                 // Sign out the unauthorized user immediately
-                await signOut(auth);
+                await signOut(authInstance);
 
                 if (!skipRedirect) {
                     router.replace(redirectPath);

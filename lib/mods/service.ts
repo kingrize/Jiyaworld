@@ -22,7 +22,7 @@ import {
     orderBy,
     Timestamp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db as dbInstance } from "@/lib/firebase";
 import {
     ModPost,
     ModVersion,
@@ -33,6 +33,13 @@ import {
 } from "./types";
 
 const COLLECTION_NAME = "mods";
+
+function getDb() {
+    if (!dbInstance) {
+        throw new Error("Firebase not initialized. Check your environment variables.");
+    }
+    return dbInstance;
+}
 
 // Helper: Convert Firestore Timestamp to Date string
 function convertTimestamps(data: Record<string, unknown>): Record<string, unknown> {
@@ -64,7 +71,7 @@ function convertTimestamps(data: Record<string, unknown>): Record<string, unknow
  */
 export async function getPublishedMods(): Promise<ModPost[]> {
     const q = query(
-        collection(db, COLLECTION_NAME),
+        collection(getDb(), COLLECTION_NAME),
         where("published", "==", true),
         orderBy("updatedAt", "desc")
     );
@@ -81,7 +88,7 @@ export async function getPublishedMods(): Promise<ModPost[]> {
  */
 export async function getAllMods(): Promise<ModPost[]> {
     const q = query(
-        collection(db, COLLECTION_NAME),
+        collection(getDb(), COLLECTION_NAME),
         orderBy("updatedAt", "desc")
     );
 
@@ -97,7 +104,7 @@ export async function getAllMods(): Promise<ModPost[]> {
  */
 export async function getModBySlug(slug: string): Promise<ModPost | null> {
     const q = query(
-        collection(db, COLLECTION_NAME),
+        collection(getDb(), COLLECTION_NAME),
         where("slug", "==", slug),
         where("published", "==", true)
     );
@@ -114,7 +121,7 @@ export async function getModBySlug(slug: string): Promise<ModPost | null> {
  * Get a mod by ID (admin)
  */
 export async function getModById(id: string): Promise<ModPost | null> {
-    const docRef = doc(db, COLLECTION_NAME, id);
+    const docRef = doc(getDb(), COLLECTION_NAME, id);
     const snapshot = await getDoc(docRef);
 
     if (!snapshot.exists()) return null;
@@ -151,8 +158,8 @@ export function toListItems(mods: ModPost[]): ModListItem[] {
  * Create a new mod post
  */
 export async function createMod(data: ModFormData, initialVersion?: VersionFormData): Promise<string> {
-    const batch = writeBatch(db);
-    const modRef = doc(collection(db, COLLECTION_NAME));
+    const batch = writeBatch(getDb());
+    const modRef = doc(collection(getDb(), COLLECTION_NAME));
     const now = Timestamp.now();
 
     const versions: ModVersion[] = initialVersion
@@ -184,7 +191,7 @@ export async function createMod(data: ModFormData, initialVersion?: VersionFormD
 
     // Create shortlink if version details are present
     if (initialVersion && initialVersion.downloadSlug && initialVersion.downloadUrl) {
-        const shortLinkRef = doc(db, "shortlinks", initialVersion.downloadSlug);
+        const shortLinkRef = doc(getDb(), "shortlinks", initialVersion.downloadSlug);
         batch.set(shortLinkRef, {
             url: initialVersion.downloadUrl,
             name: data.name,
@@ -207,7 +214,7 @@ export async function createMod(data: ModFormData, initialVersion?: VersionFormD
  * Update a mod post
  */
 export async function updateMod(id: string, data: Partial<ModFormData>): Promise<void> {
-    const docRef = doc(db, COLLECTION_NAME, id);
+    const docRef = doc(getDb(), COLLECTION_NAME, id);
     await updateDoc(docRef, {
         ...data,
         updatedAt: Timestamp.now(),
@@ -221,8 +228,8 @@ export async function addVersion(modId: string, versionData: VersionFormData): P
     const mod = await getModById(modId);
     if (!mod) throw new Error("Mod not found");
 
-    const batch = writeBatch(db);
-    const modRef = doc(db, COLLECTION_NAME, modId);
+    const batch = writeBatch(getDb());
+    const modRef = doc(getDb(), COLLECTION_NAME, modId);
     const now = Timestamp.now();
 
     // Mark all existing versions as not latest
@@ -248,7 +255,7 @@ export async function addVersion(modId: string, versionData: VersionFormData): P
 
     // Create shortlink
     if (versionData.downloadSlug && versionData.downloadUrl) {
-        const shortLinkRef = doc(db, "shortlinks", versionData.downloadSlug);
+        const shortLinkRef = doc(getDb(), "shortlinks", versionData.downloadSlug);
         batch.set(shortLinkRef, {
             url: versionData.downloadUrl,
             name: mod.name,
@@ -270,7 +277,7 @@ export async function addVersion(modId: string, versionData: VersionFormData): P
  * Toggle published status
  */
 export async function togglePublished(id: string, published: boolean): Promise<void> {
-    const docRef = doc(db, COLLECTION_NAME, id);
+    const docRef = doc(getDb(), COLLECTION_NAME, id);
     await updateDoc(docRef, {
         published,
         updatedAt: Timestamp.now(),
@@ -281,7 +288,7 @@ export async function togglePublished(id: string, published: boolean): Promise<v
  * Delete a mod post
  */
 export async function deleteMod(id: string): Promise<void> {
-    const docRef = doc(db, COLLECTION_NAME, id);
+    const docRef = doc(getDb(), COLLECTION_NAME, id);
     await deleteDoc(docRef);
 }
 
@@ -294,7 +301,7 @@ export async function deleteMod(id: string): Promise<void> {
  */
 export async function isSlugUnique(slug: string, excludeId?: string): Promise<boolean> {
     const q = query(
-        collection(db, COLLECTION_NAME),
+        collection(getDb(), COLLECTION_NAME),
         where("slug", "==", slug)
     );
 
