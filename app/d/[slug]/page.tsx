@@ -4,6 +4,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import {
     FileCode2,
     Package,
@@ -11,7 +13,6 @@ import {
     FlaskConical,
     AlertTriangle,
     Download,
-    Clock,
     Shield,
 } from "lucide-react";
 import { getShortLink, type ShortLink, type Status } from "../shortlinks";
@@ -29,14 +30,34 @@ export default function DownloadRedirectPage() {
     const params = useParams();
     const slug = params.slug as string;
 
-    const [link, setLink] = useState<ShortLink | null | undefined>(undefined);
+    const [link, setLink] = useState<ShortLink | null | undefined>(undefined); // undefined = loading
     const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
     const [redirected, setRedirected] = useState(false);
 
-    // Load link data
+    // Load link data (Firestore -> Static Fallback)
     useEffect(() => {
-        const data = getShortLink(slug);
-        setLink(data);
+        async function fetchLink() {
+            try {
+                // 1. Try Firestore
+                const docRef = doc(db, "shortlinks", slug);
+                const snapshot = await getDoc(docRef);
+
+                if (snapshot.exists()) {
+                    setLink(snapshot.data() as ShortLink);
+                    return;
+                }
+
+                // 2. Fallback to static legacy data
+                const staticData = getShortLink(slug);
+                setLink(staticData); // might be null
+            } catch (err) {
+                console.error("Error fetching link:", err);
+                const staticData = getShortLink(slug);
+                setLink(staticData);
+            }
+        }
+
+        fetchLink();
     }, [slug]);
 
     // Countdown timer

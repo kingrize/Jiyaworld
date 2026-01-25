@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Book,
   Gamepad2,
-  Settings,
   ChevronRight,
   ChevronDown,
   LayoutGrid,
@@ -13,12 +13,17 @@ import {
   Sun,
   Monitor,
   Home,
-  User,
+  Info,
   LogIn,
+  LogOut,
   Youtube,
   Languages,
-  ArrowRight
+  Shield,
+  User,
 } from "lucide-react";
+import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { isAdminUID } from "@/lib/admin";
 
 type Category = {
   name: string;
@@ -26,7 +31,16 @@ type Category = {
   items: { name: string; href: string }[];
 };
 
+// Reordered: GAME first, then STUDY, MEDIA, TRANSLATE
 const categories: Category[] = [
+  {
+    name: "GAME",
+    icon: Gamepad2,
+    items: [
+      { name: "Check Nickname", href: "/tools/check-nickname" },
+      { name: "Mods & Scripts", href: "/mods" },
+    ],
+  },
   {
     name: "STUDY",
     icon: Book,
@@ -42,24 +56,26 @@ const categories: Category[] = [
     icon: Languages,
     items: [{ name: "TranslateAI", href: "/tools/translate-ai" }],
   },
-  {
-    name: "GAME",
-    icon: Gamepad2,
-    items: [
-      { name: "Check Nickname", href: "/tools/check-nickname" },
-      { name: "Mods & Scripts", href: "/mods" },
-    ],
-  },
 ];
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
-  const [expanded, setExpanded] = useState<string[]>(["STUDY", "MEDIA", "TRANSLATE", "GAME"]);
+  const router = useRouter();
+  const [expanded, setExpanded] = useState<string[]>(["GAME", "STUDY", "MEDIA", "TRANSLATE"]);
   const [theme, setTheme] = useState("system");
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Theme initialization
     const savedTheme = localStorage.getItem("theme") || "system";
     setTheme(savedTheme);
     applyTheme(savedTheme);
+
+    // Auth state listener
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAdmin(currentUser ? isAdminUID(currentUser.uid) : false);
+    });
 
     // Lock scroll when sidebar is open for mobile
     if (isOpen) {
@@ -70,6 +86,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
 
     return () => {
       document.body.style.overflow = "";
+      unsubscribe();
     };
   }, [isOpen]);
 
@@ -96,6 +113,21 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
     );
   };
 
+  const handleLogout = async () => {
+    await signOut(auth);
+    setIsOpen(false);
+  };
+
+  const handleLogin = () => {
+    setIsOpen(false);
+    router.push("/admin/login");
+  };
+
+  const handleAdminPanel = () => {
+    setIsOpen(false);
+    router.push("/admin");
+  };
+
   return (
     <>
       {/* Trigger Button (Desktop Only) */}
@@ -118,7 +150,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
         {/* Header */}
         <div className="sidebar-header">
           <div className="sidebar-brand">
-            <div className="sidebar-logo" style={{ background: "linear-gradient(135deg, var(--primary), var(--secondary))" }}>
+            <div className="sidebar-logo">
               <span>J</span>
             </div>
             <div className="sidebar-brand-text">
@@ -137,15 +169,16 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
 
         {/* Navigation Content */}
         <div className="sidebar-scroll-area">
+          {/* Section: Navigation */}
           <div className="sidebar-section">
             <div className="sidebar-section-title">Navigation</div>
-            <div className="sidebar-nav-grid">
+            <div className="sidebar-nav-list">
               <a href="/" className="sidebar-nav-item">
-                <Home size={18} />
+                <Home size={16} />
                 <span>Home</span>
               </a>
               <a href="/about" className="sidebar-nav-item">
-                <User size={18} />
+                <Info size={16} />
                 <span>About</span>
               </a>
             </div>
@@ -153,8 +186,9 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
 
           <div className="sidebar-divider" />
 
+          {/* Section: Tools */}
           <div className="sidebar-section">
-            <div className="sidebar-section-title">AI Tools</div>
+            <div className="sidebar-section-title">Tools</div>
             <div className="sidebar-categories">
               {categories.map((cat) => (
                 <div key={cat.name} className="sidebar-category">
@@ -163,13 +197,13 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                     className="sidebar-category-header"
                   >
                     <div className="category-label">
-                      <cat.icon size={16} />
+                      <cat.icon size={14} />
                       <span>{cat.name}</span>
                     </div>
                     {expanded.includes(cat.name) ? (
-                      <ChevronDown size={14} className="chevron" />
+                      <ChevronDown size={12} className="chevron" />
                     ) : (
-                      <ChevronRight size={14} className="chevron" />
+                      <ChevronRight size={12} className="chevron" />
                     )}
                   </button>
 
@@ -180,7 +214,6 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                         href={item.href}
                         className="sidebar-item-link"
                       >
-                        <ArrowRight size={12} className="bullet" />
                         <span>{item.name}</span>
                       </a>
                     ))}
@@ -189,43 +222,82 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="sidebar-footer">
-          <div className="sidebar-section-title" style={{ marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Settings size={14} />
-            <span>Appearance</span>
-          </div>
-          <div className="appearance-grid">
-            <button
-              className={`appearance-btn ${theme === 'light' ? 'active' : ''}`}
-              onClick={() => handleThemeChange('light')}
-            >
-              <Sun size={16} />
-              <span>Light</span>
-            </button>
-            <button
-              className={`appearance-btn ${theme === 'dark' ? 'active' : ''}`}
-              onClick={() => handleThemeChange('dark')}
-            >
-              <Moon size={16} />
-              <span>Dark</span>
-            </button>
-            <button
-              className={`appearance-btn ${theme === 'system' ? 'active' : ''}`}
-              onClick={() => handleThemeChange('system')}
-            >
-              <Monitor size={16} />
-              <span>System</span>
-            </button>
+          <div className="sidebar-divider" />
+
+          {/* Section: Account */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">Account</div>
+            <div className="sidebar-account">
+              {user ? (
+                <>
+                  {/* Logged in state */}
+                  <div className="sidebar-user-info">
+                    <User size={14} />
+                    <span className="sidebar-user-email">
+                      {user.displayName || user.email || "User"}
+                    </span>
+                  </div>
+
+                  {isAdmin && (
+                    <button
+                      onClick={handleAdminPanel}
+                      className="sidebar-account-btn sidebar-account-btn--admin"
+                    >
+                      <Shield size={14} />
+                      <span>Admin Panel</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    className="sidebar-account-btn sidebar-account-btn--logout"
+                  >
+                    <LogOut size={14} />
+                    <span>Sign out</span>
+                  </button>
+                </>
+              ) : (
+                /* Not logged in state */
+                <button
+                  onClick={handleLogin}
+                  className="sidebar-account-btn sidebar-account-btn--login"
+                >
+                  <LogIn size={14} />
+                  <span>Login to Account</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="sidebar-auth">
-            <button className="btn-login">
-              <LogIn size={18} />
-              <span>Login to Account</span>
-            </button>
+          <div className="sidebar-divider" />
+
+          {/* Section: Appearance */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">Appearance</div>
+            <div className="sidebar-appearance">
+              <button
+                className={`sidebar-theme-btn ${theme === 'light' ? 'active' : ''}`}
+                onClick={() => handleThemeChange('light')}
+              >
+                <Sun size={14} />
+                <span>Light</span>
+              </button>
+              <button
+                className={`sidebar-theme-btn ${theme === 'dark' ? 'active' : ''}`}
+                onClick={() => handleThemeChange('dark')}
+              >
+                <Moon size={14} />
+                <span>Dark</span>
+              </button>
+              <button
+                className={`sidebar-theme-btn ${theme === 'system' ? 'active' : ''}`}
+                onClick={() => handleThemeChange('system')}
+              >
+                <Monitor size={14} />
+                <span>System</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

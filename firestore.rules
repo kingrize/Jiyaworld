@@ -1,0 +1,94 @@
+// Firestore Security Rules
+// Deploy these rules in your Firebase Console > Firestore Database > Rules
+//
+// These rules enforce admin-only write access using a UID whitelist.
+// Only users with UIDs in the adminUIDs list can write data.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Admin UID whitelist
+    // Add authorized admin UIDs here
+    function isAdmin() {
+      return request.auth != null && request.auth.uid in [
+        "1SBSUf8K2AUvJs4rAFTZsFNh1mU2"  // Primary admin
+        // Add more admin UIDs as needed
+      ];
+    }
+    
+    // Helper: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // ============================================
+    // MODS COLLECTION
+    // Public read (published only), admin-only write
+    // ============================================
+    
+    match /mods/{modId} {
+      // Allow read only if published or user is admin
+      allow read: if resource.data.published == true || isAdmin();
+      
+      // Only admins can write
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ============================================
+    // SHORTLINKS (Downloads)
+    // Public read, admin-only write
+    // ============================================
+    
+    match /shortlinks/{slug} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ============================================
+    // ADMIN-ONLY COLLECTIONS
+    // Only admins can read and write
+    // ============================================
+    
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /settings/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // ============================================
+    // USER DATA
+    // Users can read/write their own data only
+    // Admins can read all user data
+    // ============================================
+    
+    match /users/{userId} {
+      allow read: if isAdmin() || request.auth.uid == userId;
+      allow write: if request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // ANALYTICS / LOGS
+    // Public write (anonymous), admin-only read
+    // ============================================
+    
+    match /analytics/{document=**} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+    
+    // ============================================
+    // DEFAULT DENY
+    // Deny all other access
+    // ============================================
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
