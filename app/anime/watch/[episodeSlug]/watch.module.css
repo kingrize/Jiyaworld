@@ -1,0 +1,430 @@
+/* ============================================================
+   WATCH PAGE - Cinematic Dark Theme
+   ============================================================ */
+
+.watchPage {
+    min-height: 100vh;
+    background: hsl(0, 0%, 5%);
+    color: white;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-4) var(--space-8);
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding: var(--space-6) var(--space-6) var(--space-12);
+    }
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.backBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    background: hsla(0, 0%, 100%, 0.08);
+    border: 1px solid hsla(0, 0%, 100%, 0.1);
+    color: hsla(0, 0%, 100%, 0.7);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    max-width: 70%;
+}
+
+.backBtn:hover {
+    background: hsla(0, 0%, 100%, 0.12);
+    color: white;
+}
+
+.backText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.detailLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: hsla(0, 0%, 100%, 0.08);
+    border: 1px solid hsla(0, 0%, 100%, 0.1);
+    color: hsla(0, 0%, 100%, 0.7);
+    transition: all 0.2s ease;
+}
+
+.detailLink:hover {
+    background: hsla(0, 0%, 100%, 0.12);
+    color: white;
+}
+
+/* ============================================================
+   PLAYER SECTION
+   ============================================================ */
+.playerSection {
+    margin-bottom: var(--space-5);
+}
+
+.playerWrapper {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: hsl(0, 0%, 8%);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 0 1px hsla(0, 0%, 100%, 0.05);
+}
+
+.playerIframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.playerLoading,
+.playerError {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    color: hsla(0, 0%, 100%, 0.5);
+    background: hsl(0, 0%, 8%);
+}
+
+.playerLoading svg,
+.playerError svg {
+    color: var(--primary);
+}
+
+.spinIcon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================
+   EPISODE HEADER
+   ============================================================ */
+.episodeHeader {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: hsla(0, 0%, 100%, 0.03);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-5);
+}
+
+@media (min-width: 640px) {
+    .episodeHeader {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.episodeTitleWrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.episodeIcon {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.episodeTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+    .episodeTitle {
+        font-size: 1.5rem;
+    }
+}
+
+.episodeNav {
+    display: flex;
+    gap: var(--space-3);
+    flex-shrink: 0;
+}
+
+.navBtn,
+.navBtnPrimary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.navBtn {
+    background: hsla(0, 0%, 100%, 0.08);
+    border: 1px solid hsla(0, 0%, 100%, 0.1);
+    color: hsla(0, 0%, 100%, 0.8);
+}
+
+.navBtn:hover {
+    background: hsla(0, 0%, 100%, 0.12);
+    color: white;
+}
+
+.navBtnPrimary {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+
+.navBtnPrimary:hover {
+    filter: brightness(1.1);
+}
+
+/* ============================================================
+   SERVER SECTION
+   ============================================================ */
+.serverSection {
+    padding: var(--space-5);
+    background: hsla(0, 0%, 100%, 0.03);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+    border-radius: var(--radius-xl);
+}
+
+.serverHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.serverHeader h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.serverIcon {
+    color: var(--primary);
+}
+
+.serverHint {
+    color: hsla(0, 0%, 100%, 0.5);
+    font-size: 0.8125rem;
+    margin: 0 0 var(--space-4);
+}
+
+.serverGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+}
+
+@media (min-width: 480px) {
+    .serverGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .serverGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.serverBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    background: hsla(0, 0%, 100%, 0.06);
+    border: 1px solid hsla(0, 0%, 100%, 0.1);
+    color: hsla(0, 0%, 100%, 0.8);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.serverBtn:hover:not(:disabled) {
+    background: hsla(0, 0%, 100%, 0.1);
+    border-color: hsla(0, 0%, 100%, 0.2);
+    color: white;
+}
+
+.serverBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.serverActive {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: var(--on-primary) !important;
+    box-shadow: 0 4px 16px hsla(var(--hue), 60%, 50%, 0.3);
+}
+
+.serverNumber {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    background: hsla(0, 0%, 100%, 0.1);
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.serverActive .serverNumber {
+    background: hsla(0, 0%, 0%, 0.15);
+}
+
+.serverName {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================================
+   SKELETON LOADING
+   ============================================================ */
+.skeletonNav {
+    height: 40px;
+    width: 200px;
+    background: hsla(0, 0%, 100%, 0.08);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-4);
+}
+
+.skeletonPlayer {
+    aspect-ratio: 16 / 9;
+    background: hsla(0, 0%, 100%, 0.05);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-5);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonServers {
+    height: 160px;
+    background: hsla(0, 0%, 100%, 0.03);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-5);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonInfo {
+    height: 100px;
+    background: hsla(0, 0%, 100%, 0.03);
+    border-radius: var(--radius-xl);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ============================================================
+   ERROR PAGE
+   ============================================================ */
+.errorPage {
+    min-height: 100vh;
+    background: hsl(0, 0%, 5%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+}
+
+.errorContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    text-align: center;
+    max-width: 400px;
+}
+
+.errorIcon {
+    color: hsl(0, 70%, 55%);
+}
+
+.errorContent h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.errorContent p {
+    color: hsla(0, 0%, 100%, 0.6);
+    margin: 0;
+}
+
+.errorBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-xl);
+    background: var(--primary);
+    color: var(--on-primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-top: var(--space-4);
+}
+
+.errorBtn:hover {
+    filter: brightness(1.1);
+}

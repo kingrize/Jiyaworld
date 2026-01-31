@@ -13,7 +13,9 @@ export default function AdminPage() {
     const { status, user } = useAdminGuard();
 
     const handleSignOut = async () => {
-        await signOut(auth);
+        if (auth) {
+            await signOut(auth);
+        }
         router.replace("/admin/login");
     };
 
@@ -44,29 +46,15 @@ export default function AdminPage() {
 
                 {/* Quick actions */}
                 <div className="admin-dashboard-grid">
-                    <Link href="/admin/mods" className="admin-dashboard-card">
-                        <div className="admin-dashboard-card-icon">
-                            <Package size={24} />
-                        </div>
+                    {/* No actions available */}
+                    <div className="admin-dashboard-card disabled">
                         <div className="admin-dashboard-card-content">
-                            <h2 className="admin-dashboard-card-title">Manage Mods</h2>
+                            <h2 className="admin-dashboard-card-title">No Actions</h2>
                             <p className="admin-dashboard-card-desc">
-                                Create, edit, and manage mod posts
+                                All features have been removed.
                             </p>
                         </div>
-                    </Link>
-
-                    <Link href="/mods" className="admin-dashboard-card" target="_blank">
-                        <div className="admin-dashboard-card-icon">
-                            <ExternalLink size={24} />
-                        </div>
-                        <div className="admin-dashboard-card-content">
-                            <h2 className="admin-dashboard-card-title">View Public Page</h2>
-                            <p className="admin-dashboard-card-desc">
-                                Open the public mods repository
-                            </p>
-                        </div>
-                    </Link>
+                    </div>
                 </div>
 
                 {/* Account info */}

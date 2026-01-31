@@ -51,6 +51,10 @@ export default function AdminLoginPage() {
 
     // Redirect if already authenticated
     useEffect(() => {
+        if (!auth) {
+            setCheckingAuth(false);
+            return;
+        }
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 router.replace("/admin");
@@ -77,6 +81,10 @@ export default function AdminLoginPage() {
     };
 
     const signInWithGitHub = async () => {
+        if (!auth) {
+            setError("Authentication is not available.");
+            return;
+        }
         setLoading(true);
         setError(null);
         try {
@@ -91,6 +99,10 @@ export default function AdminLoginPage() {
     };
 
     const signInWithGoogle = async () => {
+        if (!auth) {
+            setError("Authentication is not available.");
+            return;
+        }
         setLoading(true);
         setError(null);
         try {
@@ -106,6 +118,10 @@ export default function AdminLoginPage() {
 
     const signInWithEmail = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!auth) {
+            setError("Authentication is not available.");
+            return;
+        }
         if (!email || !password) {
             setError("Please enter both email and password.");
             return;

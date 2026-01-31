@@ -7,7 +7,6 @@ import {
   Gamepad2,
   ChevronRight,
   ChevronDown,
-  LayoutGrid,
   X,
   Moon,
   Sun,
@@ -38,7 +37,6 @@ const categories: Category[] = [
     icon: Gamepad2,
     items: [
       { name: "Check Nickname", href: "/tools/check-nickname" },
-      { name: "Mods & Scripts", href: "/mods" },
     ],
   },
   {
@@ -71,11 +69,14 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
     setTheme(savedTheme);
     applyTheme(savedTheme);
 
-    // Auth state listener
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsAdmin(currentUser ? isAdminUID(currentUser.uid) : false);
-    });
+    // Auth state listener - only subscribe if auth is available
+    let unsubscribe: (() => void) | undefined;
+    if (auth) {
+      unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        setIsAdmin(currentUser ? isAdminUID(currentUser.uid) : false);
+      });
+    }
 
     // Lock scroll when sidebar is open for mobile
     if (isOpen) {
@@ -86,7 +87,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
 
     return () => {
       document.body.style.overflow = "";
-      unsubscribe();
+      unsubscribe?.();
     };
   }, [isOpen]);
 
@@ -114,7 +115,9 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
+    if (auth) {
+      await signOut(auth);
+    }
     setIsOpen(false);
   };
 
@@ -130,15 +133,6 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
 
   return (
     <>
-      {/* Trigger Button (Desktop Only) */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`sidebar-trigger ${isOpen ? "hidden" : ""}`}
-        aria-label="Open Menu"
-      >
-        <LayoutGrid size={20} />
-      </button>
-
       {/* Sidebar Overlay */}
       <div
         className={`sidebar-overlay ${isOpen ? "open" : ""}`}

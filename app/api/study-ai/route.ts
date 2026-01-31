@@ -1,5 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * StudyAI API Route
+ * 
+ * Analyzes study materials (PDF or text) and generates summaries + practice questions.
+ * 
+ * Required Environment Variables:
+ * - GEMINI_API_KEY: Google Gemini API key (primary for PDF analysis)
+ * - GROQ_API_KEY: Groq API key (for text-only mode or relay reasoning)
+ * 
+ * Supports multiple keys with rotation:
+ * - GEMINI_API_KEY, GEMINI_API_KEY_1, GEMINI_API_KEY_2, etc.
+ * - GROQ_API_KEY, GROQ_API_KEY_1, GROQ_API_KEY_2, etc.
+ * 
+ * Flow Modes:
+ * 1. GEMINI DIRECT: PDF/Text → Gemini (default for PDF)
+ * 2. GROQ DIRECT: Text → Groq (if model=groq and no file)
+ * 3. RELAY MODE: PDF → Gemini (extract) → Groq (reason) (if model=groq with file)
+ */
+
 /* ======================================================
    CONFIG & KEY LOADING
 ====================================================== */
@@ -7,31 +26,49 @@ import { NextRequest, NextResponse } from "next/server";
 const GEMINI_MODEL = "gemini-2.5-flash";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
+// Groq token limits (llama-3.3-70b-versatile has ~128k context)
+// We limit extracted text to prevent exceeding input limits
+const MAX_EXTRACTED_TEXT_CHARS = 60000; // ~15k tokens, safe margin
+
+/**
+ * Load all GEMINI_API_KEY variants from environment.
+ * Supports: GEMINI_API_KEY, GEMINI_API_KEY_1 through GEMINI_API_KEY_20
+ * 
+ * SECURITY: Do NOT use NEXT_PUBLIC_ prefix for these keys!
+ * They should remain server-side only.
+ */
 function loadGeminiKeys(): string[] {
   const keys: string[] = [];
   const env = process.env;
-  const patterns = ["GEMINI_API_KEY", "NEXT_PUBLIC_GEMINI_API_KEY"];
-  patterns.forEach(base => {
-    if (env[base]) keys.push(env[base] as string);
-    for (let i = 1; i <= 20; i++) {
-      const indexed = `${base}_${i}`;
-      if (env[indexed]) keys.push(env[indexed] as string);
-    }
-  });
+  const base = "GEMINI_API_KEY";
+
+  if (env[base]) keys.push(env[base] as string);
+  for (let i = 1; i <= 20; i++) {
+    const indexed = `${base}_${i}`;
+    if (env[indexed]) keys.push(env[indexed] as string);
+  }
+
   return Array.from(new Set(keys)).filter(Boolean);
 }
 
+/**
+ * Load all GROQ_API_KEY variants from environment.
+ * Supports: GROQ_API_KEY, GROQ_API_KEY_1 through GROQ_API_KEY_20
+ * 
+ * SECURITY: Do NOT use NEXT_PUBLIC_ prefix for these keys!
+ * They should remain server-side only.
+ */
 function loadGroqKeys(): string[] {
   const keys: string[] = [];
   const env = process.env;
-  const patterns = ["GROQ_API_KEY", "NEXT_PUBLIC_GROQ_API_KEY"];
-  patterns.forEach(base => {
-    if (env[base]) keys.push(env[base] as string);
-    for (let i = 1; i <= 20; i++) {
-      const indexed = `${base}_${i}`;
-      if (env[indexed]) keys.push(env[indexed] as string);
-    }
-  });
+  const base = "GROQ_API_KEY";
+
+  if (env[base]) keys.push(env[base] as string);
+  for (let i = 1; i <= 20; i++) {
+    const indexed = `${base}_${i}`;
+    if (env[indexed]) keys.push(env[indexed] as string);
+  }
+
   return Array.from(new Set(keys)).filter(Boolean);
 }
 
@@ -89,39 +126,76 @@ async function callGemini(prompt: string, fileBuffer: Buffer | null, mimeType: s
     fileUri = await uploadToGeminiFilesAPI(fileBuffer, "study_doc.pdf", mimeType, apiKey);
   }
 
-  const generationConfig = { responseMimeType: "application/json", temperature: 0.7, maxOutputTokens: 2048 };
-  const contentsPart: any[] = [{ text: prompt }];
+  // Build the parts array for the request
+  const parts: any[] = [{ text: prompt }];
 
   if (fileUri) {
-    contentsPart.push({ fileData: { mimeType: "application/pdf", fileUri } });
-  } else if (fileBuffer && mimeType !== "application/pdf") {
-    contentsPart.push({ inlineData: { mimeType, data: fileBuffer.toString("base64") } });
+    // For PDF files uploaded via Files API, reference by URI
+    parts.push({ fileData: { mimeType: "application/pdf", fileUri } });
+  } else if (fileBuffer && mimeType && mimeType !== "application/pdf") {
+    // For other file types (images, etc.), use inline base64
+    parts.push({ inlineData: { mimeType, data: fileBuffer.toString("base64") } });
   }
 
+  // Generation config - removed responseMimeType to avoid "invalid argument" errors
+  // JSON formatting is enforced via the prompt instead
+  const generationConfig = {
+    temperature: 0.7,
+    maxOutputTokens: 4096  // Increased for detailed study material analysis
+  };
+
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+
+  const requestBody = {
+    contents: [{ parts }],  // Simplified structure matching /translate-ai
+    generationConfig
+  };
+
+  console.log("[StudyAI-Gemini] Request structure:", {
+    model: GEMINI_MODEL,
+    partsCount: parts.length,
+    hasFileData: !!fileUri,
+    hasInlineData: !!(!fileUri && fileBuffer),
+    promptLength: prompt.length
+  });
+
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ role: "user", parts: contentsPart }], generationConfig })
+    body: JSON.stringify(requestBody)
   });
 
   const data = await response.json();
-  if (!response.ok) throw { status: response.status, message: data.error?.message || "Gemini Failed" };
+
+  if (!response.ok) {
+    console.error("[StudyAI-Gemini] API Error:", data.error);
+    throw { status: response.status, message: data.error?.message || "Gemini Failed" };
+  }
+
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
 async function callGroq(prompt: string, apiKey: string) {
+  console.log("[StudyAI-Groq] Sending request, prompt length:", prompt.length);
+
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: GROQ_MODEL,
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.7
+      temperature: 0.7,
+      max_tokens: 4096  // Explicit limit for response
     })
   });
+
   const data = await response.json();
-  if (!response.ok) throw { status: response.status, message: data.error?.message || "Groq Failed" };
+
+  if (!response.ok) {
+    console.error("[StudyAI-Groq] API Error:", data.error);
+    throw { status: response.status, message: data.error?.message || "Groq Failed" };
+  }
+
   return data.choices?.[0]?.message?.content || "";
 }
 
@@ -198,12 +272,39 @@ export async function POST(req: NextRequest) {
       const mimeType = file?.type || null;
 
       if (fileBuffer) {
-        const extractionPrompt = "Extract all text and context from this document accurately. Return only the raw text.";
-        const extractedText = await executeWithRotation("GEMINI", customKey, k => callGemini(extractionPrompt, fileBuffer, mimeType, k));
-        const groqPrompt = `MATERIAL:\n${extractedText}\n\nUSER QUESTION:\n${prompt}`;
+        // Step 1: Extract text from PDF using Gemini Vision
+        const extractionPrompt = "Extract all text and context from this document accurately. Return only the raw text content, no formatting or markdown.";
+        let extractedText = await executeWithRotation("GEMINI", customKey, k => callGemini(extractionPrompt, fileBuffer, mimeType, k));
+
+        // Validate and sanitize Gemini output
+        if (!extractedText || typeof extractedText !== 'string') {
+          console.error("[StudyAI-Relay] Gemini returned empty or invalid response");
+          throw new Error("Failed to extract text from document. Please try again.");
+        }
+
+        // Trim whitespace and normalize
+        extractedText = extractedText.trim();
+
+        if (extractedText.length === 0) {
+          throw new Error("Document appears to be empty or unreadable.");
+        }
+
+        console.log("[StudyAI-Relay] Gemini extracted text length:", extractedText.length);
+
+        // Truncate if exceeds Groq's safe input limit
+        if (extractedText.length > MAX_EXTRACTED_TEXT_CHARS) {
+          console.warn(`[StudyAI-Relay] Truncating extracted text from ${extractedText.length} to ${MAX_EXTRACTED_TEXT_CHARS} chars`);
+          extractedText = extractedText.substring(0, MAX_EXTRACTED_TEXT_CHARS) + "\n\n[Content truncated due to length...]";
+        }
+
+        // Step 2: Pass cleaned text to Groq for reasoning
+        const groqPrompt = `STUDY MATERIAL:\n${extractedText}\n\n---\n\nUSER REQUEST:\n${prompt}`;
+        console.log("[StudyAI-Relay] Sending to Groq, total prompt length:", groqPrompt.length);
+
         result = await executeWithRotation("GROQ", customKey, k => callGroq(groqPrompt, k));
       } else {
         // No file provided, but relay selected? Fallback to Groq direct
+        console.log("[StudyAI-Relay] No file, falling back to direct Groq");
         result = await executeWithRotation("GROQ", customKey, k => callGroq(prompt, k));
       }
     } else if (isGroqDirect) {

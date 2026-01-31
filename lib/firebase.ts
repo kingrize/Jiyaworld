@@ -11,19 +11,39 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app: FirebaseApp | undefined;
-let auth: Auth | undefined;
-let db: Firestore | undefined;
-
-// Initializes Firebase only on the client side and if config is present
-if (typeof window !== "undefined" && firebaseConfig.apiKey) {
+// Initialize Firebase - handles both client and server contexts
+function getFirebaseApp(): FirebaseApp | null {
+    if (typeof window === "undefined" || !firebaseConfig.apiKey) {
+        return null;
+    }
     try {
-        app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-        auth = getAuth(app);
-        db = getFirestore(app);
+        return getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     } catch (error) {
         console.error("Firebase initialization failed:", error);
+        return null;
     }
+}
+
+const app = getFirebaseApp();
+
+// Create auth and db instances - these may be null on server-side
+const auth: Auth | null = app ? getAuth(app) : null;
+const db: Firestore | null = app ? getFirestore(app) : null;
+
+// Helper to get auth with null check (for components that need auth)
+export function getAuthInstance(): Auth {
+    if (!auth) {
+        throw new Error("Firebase Auth is not initialized. Ensure you're running on the client side.");
+    }
+    return auth;
+}
+
+// Helper to get db with null check
+export function getDbInstance(): Firestore {
+    if (!db) {
+        throw new Error("Firebase Firestore is not initialized. Ensure you're running on the client side.");
+    }
+    return db;
 }
 
 export { app, auth, db };

@@ -5,9 +5,10 @@ import Link from "next/link";
 import { FloatingSidebar } from "@/components/floating-sidebar";
 import {
   Upload, FileText, Brain, Zap, Check, AlertCircle,
-  ChevronRight, Loader2, Terminal, ArrowLeft, FileType,
-  Sparkles, Shield, Search, Eye, EyeOff, HelpCircle
+  Loader2, ArrowLeft, FileType, Sparkles, Shield,
+  Search, Eye, EyeOff, LayoutGrid
 } from "lucide-react";
+import styles from "./study-ai.module.css";
 
 type AnalysisResult = {
   title: string;
@@ -133,101 +134,116 @@ export default function StudyAIPage() {
     }
   };
 
+  const getLevelClass = (level: string) => {
+    switch (level) {
+      case "Dasar": return styles.levelBasic;
+      case "Menengah": return styles.levelMedium;
+      case "Sulit": return styles.levelHard;
+      default: return styles.levelBasic;
+    }
+  };
+
   return (
-    <main>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .sidebar-trigger { display: none !important; }
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-          -webkit-appearance: none; 
-          margin: 0; 
-        }
-        input[type=number] {
-          -moz-appearance: textfield;
-        }
-        @media (max-width: 768px) {
-          .result-card { padding: 1rem !important; }
-          .question-card { padding: 1rem !important; }
-          .study-container { padding-left: 1rem; padding-right: 1rem; }
-        }
-      `}} />
+    <main className={styles.studyPage}>
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-      {/* Simple Nav for Tool Page */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid var(--border)", background: "var(--background-one)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-four)", padding: "0.5rem", borderRadius: "8px", transition: "all 0.2s" }} className="hover:bg-[var(--surface-three)] hover:text-[var(--text-one)]">
-            <ArrowLeft size={20} />
-            <span style={{ fontWeight: 600 }}>Back</span>
+      {/* Navbar */}
+      <nav className={styles.navbar}>
+        <div className={styles.navLeft}>
+          <Link href="/" className={styles.backButton}>
+            <ArrowLeft size={18} />
+            <span>Back</span>
           </Link>
-          <div style={{ height: "24px", width: "1px", background: "var(--border)" }}></div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "bold", fontSize: "1.1rem" }}>
-            <Brain size={20} color="var(--primary)" />
+          <div className={styles.navDivider} />
+          <div className={styles.navBrand}>
+            <Brain size={20} className={styles.navBrandIcon} />
             <span>StudyAI</span>
           </div>
         </div>
-        <button onClick={() => setIsSidebarOpen(true)} style={{ background: "transparent", border: "none", color: "var(--text-four)", cursor: "pointer" }}>
-          <Terminal size={20} />
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className={styles.menuButton}
+          aria-label="Open Menu"
+        >
+          <LayoutGrid size={20} />
         </button>
       </nav>
 
-      <div className="wrapper study-container" style={{ marginTop: "4rem" }}>
-        <div className="study-grid">
-          {/* LEFT COLUMN: Controls & Input */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div style={{ marginBottom: "1rem" }}>
-              <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>StudyAI</h1>
-              <p style={{ color: "var(--text-four)" }}>Upload materi, dapatkan ringkasan & soal latihan.</p>
-            </div>
+      {/* Main Content */}
+      <div className={styles.container}>
+        {/* Page Header */}
+        <header className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>StudyAI</h1>
+          <p className={styles.pageSubtitle}>
+            Upload materi, dapatkan ringkasan & soal latihan dengan AI.
+          </p>
+        </header>
 
-            {/* Mode Selector */}
-            <div className="result-card" style={{ padding: "1.5rem" }}>
-              <h3 style={{ fontSize: "1rem", marginBottom: "1rem", color: "var(--text-one)" }}>Analysis Mode</h3>
-              <div className="mode-selector" style={{ width: "100%", display: "flex", marginBottom: "1rem" }}>
+        {/* Main Grid */}
+        <div className={styles.mainGrid}>
+          {/* Left Column: Controls */}
+          <div className={styles.controlsColumn}>
+            {/* Mode Card */}
+            <div className={styles.cardPadded}>
+              <div className={styles.cardHeader}>
+                <div className={styles.cardIcon}>
+                  <Shield size={18} />
+                </div>
+                <span className={styles.cardTitle}>Analysis Mode</span>
+              </div>
+
+              <div className={styles.modeSelector}>
                 <button
-                  className={`mode-btn ${mode === "STRICT" ? "active" : ""}`}
+                  className={mode === "STRICT" ? styles.modeButtonActive : styles.modeButton}
                   onClick={() => setMode("STRICT")}
-                  style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                 >
-                  <Shield size={16} /> STRICT
+                  <Shield size={14} />
+                  STRICT
                 </button>
                 <button
-                  className={`mode-btn ${mode === "SMART" ? "active" : ""}`}
+                  className={mode === "SMART" ? styles.modeButtonActive : styles.modeButton}
                   onClick={() => setMode("SMART")}
-                  style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                 >
-                  <Sparkles size={16} /> SMART
+                  <Sparkles size={14} />
+                  SMART
                 </button>
               </div>
-              <div style={{ fontSize: "0.8rem", color: "var(--text-four)", display: "flex", gap: "0.5rem", lineHeight: "1.4" }}>
-                <AlertCircle size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
-                {mode === "STRICT"
-                  ? "Hanya menggunakan fakta dari materi. Tidak ada halusinasi."
-                  : "Menambahkan konteks eksternal yang relevan untuk memperjelas."}
+
+              <div className={styles.modeHint}>
+                <AlertCircle size={14} className={styles.modeHintIcon} />
+                <span>
+                  {mode === "STRICT"
+                    ? "Hanya menggunakan fakta dari materi. Tidak ada halusinasi."
+                    : "Menambahkan konteks eksternal yang relevan untuk memperjelas."}
+                </span>
               </div>
             </div>
 
-            {/* Input Section */}
-            <div className="result-card" style={{ padding: "0", overflow: "hidden" }}>
-              <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
+            {/* Input Card */}
+            <div className={styles.card}>
+              <div className={styles.inputTabs}>
                 <button
+                  className={inputType === "PDF" ? styles.inputTabActive : styles.inputTab}
                   onClick={() => setInputType("PDF")}
-                  style={{ flex: 1, padding: "1rem", background: inputType === "PDF" ? "var(--surface-three)" : "transparent", border: "none", color: inputType === "PDF" ? "var(--text-one)" : "var(--text-four)", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                 >
-                  <FileType size={18} /> PDF
+                  <FileType size={16} />
+                  PDF
                 </button>
                 <button
+                  className={inputType === "TEXT" ? styles.inputTabActive : styles.inputTab}
                   onClick={() => setInputType("TEXT")}
-                  style={{ flex: 1, padding: "1rem", background: inputType === "TEXT" ? "var(--surface-three)" : "transparent", border: "none", color: inputType === "TEXT" ? "var(--text-one)" : "var(--text-four)", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                 >
-                  <FileText size={18} /> Text
+                  <FileText size={16} />
+                  Text
                 </button>
               </div>
 
-              <div style={{ padding: "1.5rem" }}>
+              <div className={styles.inputContent}>
                 {inputType === "PDF" ? (
-                  <div className="upload-area" style={{ padding: "2rem 1rem" }} onClick={() => document.getElementById("file-upload")?.click()}>
+                  <div
+                    className={styles.uploadArea}
+                    onClick={() => document.getElementById("file-upload")?.click()}
+                  >
                     <input
                       id="file-upload"
                       type="file"
@@ -235,179 +251,178 @@ export default function StudyAIPage() {
                       onChange={handleFileChange}
                       style={{ display: "none" }}
                     />
-                    <div style={{ width: "50px", height: "50px", borderRadius: "50%", background: "var(--surface-four)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                      <Upload size={24} />
+                    <div className={styles.uploadIcon}>
+                      <Upload size={22} />
                     </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: "1rem", marginBottom: "0.25rem" }}>
-                        {file ? file.name : "Upload PDF"}
-                      </div>
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-four)" }}>
-                        Max 10MB. {fileSizeWarning && <span style={{ color: "var(--red-two)" }}>File terlalu besar!</span>}
-                      </div>
+                    <div className={styles.uploadLabel}>
+                      {file ? file.name : "Upload PDF"}
+                    </div>
+                    <div className={styles.uploadHint}>
+                      Max 10MB
+                      {fileSizeWarning && (
+                        <span className={styles.uploadWarning}> — File terlalu besar!</span>
+                      )}
                     </div>
                   </div>
                 ) : (
                   <textarea
-                    placeholder="Paste text here..."
+                    className={styles.textInput}
+                    placeholder="Paste or type your study material here..."
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}
-                    style={{ minHeight: "150px", resize: "vertical", fontFamily: "var(--mono-font)", fontSize: "0.85rem" }}
                   />
                 )}
 
-                <div style={{ marginTop: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  <div style={{ display: "flex", gap: "1rem" }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: "0.85rem", color: "var(--text-four)", fontWeight: 600, display: "block", marginBottom: "0.5rem" }}>Model</label>
-                      <select
-                        value={model}
-                        onChange={(e) => setModel(e.target.value)}
-                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--surface-two)", color: "var(--text-one)", cursor: "pointer", fontSize: "0.9rem" }}
-                      >
-                        <option value="gemini">Gemini 2.5 Flash</option>
-                        <option value="groq">Groq (Llama 3.3)</option>
-                      </select>
-                    </div>
-                    <div style={{ width: "80px" }}>
-                      <label style={{ fontSize: "0.85rem", color: "var(--text-four)", fontWeight: 600, display: "block", marginBottom: "0.5rem" }}>Soal</label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={questionCount}
-                        onChange={(e) => setQuestionCount(Number(e.target.value))}
-                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--surface-two)", color: "var(--text-one)", fontSize: "0.9rem" }}
-                      />
-                    </div>
+                {/* Settings */}
+                <div className={styles.settingsRow}>
+                  <div className={styles.settingField}>
+                    <label className={styles.settingLabel}>Model</label>
+                    <select
+                      className={styles.settingSelect}
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                    >
+                      <option value="gemini">Gemini 2.5 Flash</option>
+                      <option value="groq">Groq (Llama 3.3)</option>
+                    </select>
                   </div>
-
-                  <button
-                    onClick={handleAnalyze}
-                    disabled={isAnalyzing || (inputType === "PDF" && !file) || (inputType === "TEXT" && !textInput)}
-                    className="btn-hero primary"
-                    style={{ width: "100%", padding: "0.75rem", opacity: (isAnalyzing || (inputType === "PDF" && !file) || (inputType === "TEXT" && !textInput)) ? 0.5 : 1 }}
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 size={20} className="animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Zap size={20} />
-                        Start Analysis
-                      </>
-                    )}
-                  </button>
+                  <div className={styles.settingFieldSmall}>
+                    <label className={styles.settingLabel}>Soal</label>
+                    <input
+                      type="number"
+                      className={styles.settingInput}
+                      min={1}
+                      max={20}
+                      value={questionCount}
+                      onChange={(e) => setQuestionCount(Number(e.target.value))}
+                    />
+                  </div>
                 </div>
+
+                {/* Analyze Button */}
+                <button
+                  className={styles.analyzeButton}
+                  onClick={handleAnalyze}
+                  disabled={isAnalyzing || (inputType === "PDF" && !file) || (inputType === "TEXT" && !textInput)}
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Zap size={18} />
+                      Start Analysis
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Output */}
-          <div>
-            {/* Progress Indicator */}
+          {/* Right Column: Results */}
+          <div className={styles.resultsColumn}>
+            {/* Loading State */}
             {isAnalyzing && (
-              <div className="animate-slide-up" style={{ textAlign: "center", margin: "4rem 0", color: "var(--text-four)", fontFamily: "monospace" }}>
-                <div style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>&gt;_ {progressStep}</div>
-                <div style={{ width: "100%", height: "4px", background: "var(--surface-three)", borderRadius: "2px", overflow: "hidden", maxWidth: "300px", margin: "0 auto" }}>
-                  <div style={{ width: "60%", height: "100%", background: "var(--primary)", borderRadius: "2px", animation: "pulse 1s infinite" }}></div>
+              <div className={styles.loadingState}>
+                <div className={styles.loadingText}>
+                  &gt;_ {progressStep}
+                </div>
+                <div className={styles.loadingBar}>
+                  <div className={styles.loadingProgress} />
                 </div>
               </div>
             )}
 
             {/* Empty State */}
             {!result && !isAnalyzing && (
-              <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--text-four)", opacity: 0.5, minHeight: "400px", border: "2px dashed var(--border)", borderRadius: "16px" }}>
-                <Brain size={48} style={{ marginBottom: "1rem" }} />
-                <p>Hasil analisis akan muncul di sini</p>
+              <div className={styles.emptyState}>
+                <Brain size={48} className={styles.emptyIcon} />
+                <p className={styles.emptyText}>Hasil analisis akan muncul di sini</p>
               </div>
             )}
 
-            {/* Result Section */}
+            {/* Results */}
             {result && !isAnalyzing && (
-              <div className="result-section animate-slide-up">
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "var(--surface-three)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                    <Check size={24} />
+              <div className={styles.resultsSection}>
+                {/* Header */}
+                <div className={styles.resultsHeader}>
+                  <div className={styles.resultsHeaderIcon}>
+                    <Check size={22} />
                   </div>
-                  <div>
-                    <h2 style={{ fontSize: "1.5rem", margin: 0, lineHeight: 1.2 }}>Hasil Analisis</h2>
-                    <div style={{ fontSize: "0.9rem", color: "var(--text-four)" }}>{result.title} • {mode} Mode</div>
+                  <div className={styles.resultsHeaderText}>
+                    <h2>Hasil Analisis</h2>
+                    <div className={styles.resultsHeaderMeta}>
+                      {result.title}
+                      <span className={styles.resultsHeaderBadge}>
+                        {mode === "STRICT" ? <Shield size={10} /> : <Sparkles size={10} />}
+                        {mode}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* A. Ringkasan Cepat */}
-                <div className="result-card">
-                  <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Zap size={20} /> Ringkasan Cepat
-                  </h3>
-                  <p>{result.quickSummary}</p>
+                {/* Quick Summary */}
+                <div className={styles.resultCard}>
+                  <div className={styles.resultCardHeader}>
+                    <Zap size={18} className={styles.resultCardIcon} />
+                    <h3 className={styles.resultCardTitle}>Ringkasan Cepat</h3>
+                  </div>
+                  <p className={styles.resultCardContent}>{result.quickSummary}</p>
                 </div>
 
-                {/* B. Ringkasan Detail */}
-                <div className="result-card">
-                  <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <FileText size={20} /> Poin Utama
-                  </h3>
-                  <ul style={{ paddingLeft: "1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {/* Detailed Summary */}
+                <div className={styles.resultCard}>
+                  <div className={styles.resultCardHeader}>
+                    <FileText size={18} className={styles.resultCardIcon} />
+                    <h3 className={styles.resultCardTitle}>Poin Utama</h3>
+                  </div>
+                  <ul className={styles.summaryList}>
                     {result.detailedSummary.map((point, idx) => (
-                      <li key={idx} style={{ color: "var(--text-four)" }}>
-                        {point.includes("[Eksternal]") ? (
-                          <span>
-                            {point.replace("[Eksternal]", "")}
-                            <span style={{ fontSize: "0.75rem", background: "var(--surface-four)", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px", color: "var(--primary)" }}>Eksternal</span>
-                          </span>
-                        ) : point}
+                      <li key={idx} className={styles.summaryItem}>
+                        <span className={styles.summaryBullet} />
+                        <span>
+                          {point.includes("[Eksternal]") ? (
+                            <>
+                              {point.replace("[Eksternal]", "")}
+                              <span className={styles.externalBadge}>Eksternal</span>
+                            </>
+                          ) : point}
+                        </span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* C. Pertanyaan */}
-                <div className="result-card">
-                  <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Brain size={20} /> Pertanyaan Latihan
-                  </h3>
-                  <div style={{ display: "grid", gap: "1rem" }}>
+                {/* Questions */}
+                <div className={styles.resultCard}>
+                  <div className={styles.resultCardHeader}>
+                    <Brain size={18} className={styles.resultCardIcon} />
+                    <h3 className={styles.resultCardTitle}>Pertanyaan Latihan</h3>
+                  </div>
+                  <div>
                     {result.questions.map((q, idx) => (
-                      <div key={idx} className="question-card" style={{ padding: "1.5rem", background: "var(--surface-three)", borderRadius: "12px", border: "1px solid var(--border)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                          <span style={{ fontWeight: 600, color: "var(--text-one)" }}>Soal {idx + 1}</span>
-                          <span style={{
-                            fontSize: "0.75rem",
-                            padding: "2px 8px",
-                            borderRadius: "100px",
-                            background: q.level === "Dasar" ? "var(--surface-four)" : q.level === "Menengah" ? "var(--tertiary)" : "var(--red-three)",
-                            color: q.level === "Sulit" ? "#601410" : "var(--text-one)"
-                          }}>
+                      <div key={idx} className={styles.questionCard}>
+                        <div className={styles.questionHeader}>
+                          <span className={styles.questionNumber}>Soal {idx + 1}</span>
+                          <span className={`${styles.questionLevel} ${getLevelClass(q.level)}`}>
                             {q.level}
                           </span>
                         </div>
-                        <p style={{ margin: "0 0 1rem 0", color: "var(--text-one)" }}>{q.text}</p>
+                        <p className={styles.questionText}>{q.text}</p>
 
-                        <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
+                        <div className={styles.answerSection}>
                           <button
+                            className={styles.answerToggle}
                             onClick={() => toggleAnswer(idx)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              color: "var(--primary)",
-                              fontSize: "0.85rem",
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.5rem"
-                            }}
                           >
-                            {visibleAnswers.includes(idx) ? <EyeOff size={16} /> : <Eye size={16} />}
+                            {visibleAnswers.includes(idx) ? <EyeOff size={14} /> : <Eye size={14} />}
                             {visibleAnswers.includes(idx) ? "Sembunyikan Jawaban" : "Lihat Jawaban"}
                           </button>
 
                           {visibleAnswers.includes(idx) && (
-                            <div className="animate-slide-up" style={{ marginTop: "0.75rem", fontSize: "0.9rem", color: "var(--text-four)", background: "var(--surface-two)", padding: "0.75rem", borderRadius: "8px" }}>
+                            <div className={styles.answerContent}>
                               {q.answer}
                             </div>
                           )}
@@ -417,26 +432,26 @@ export default function StudyAIPage() {
                   </div>
                 </div>
 
-                {/* D. Keywords & Unclear */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
-                  <div className="result-card">
-                    <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <Search size={20} /> Kata Kunci
-                    </h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                {/* Keywords & Unclear */}
+                <div className={styles.infoGrid}>
+                  <div className={styles.resultCard}>
+                    <div className={styles.resultCardHeader}>
+                      <Search size={18} className={styles.resultCardIcon} />
+                      <h3 className={styles.resultCardTitle}>Kata Kunci</h3>
+                    </div>
+                    <div className={styles.keywordsList}>
                       {result.keywords.map((k, idx) => (
-                        <span key={idx} style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem", background: "var(--surface-three)", borderRadius: "8px", color: "var(--text-one)" }}>
-                          #{k}
-                        </span>
+                        <span key={idx} className={styles.keyword}>#{k}</span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="result-card" style={{ borderColor: "var(--red-three)" }}>
-                    <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--red-two)" }}>
-                      <AlertCircle size={20} /> Bagian Kurang Jelas
-                    </h3>
-                    <p style={{ color: "var(--text-four)" }}>{result.unclear}</p>
+                  <div className={styles.unclearCard}>
+                    <div className={styles.unclearHeader}>
+                      <AlertCircle size={18} />
+                      <h3 className={styles.resultCardTitle}>Bagian Kurang Jelas</h3>
+                    </div>
+                    <p className={styles.resultCardContent}>{result.unclear}</p>
                   </div>
                 </div>
               </div>

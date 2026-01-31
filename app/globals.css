@@ -307,20 +307,35 @@ nav {
   height: 4rem;
   /* 64px - Material 3 standard */
   padding: 0 var(--space-6);
-  background-color: var(--surface-container);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--outline-variant);
-  transition: background-color var(--transition-base);
+  background-color: transparent;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: none;
+  transition: background-color var(--transition-base), box-shadow var(--transition-base);
 }
 
-@supports (backdrop-filter: blur(12px)) {
+/* Glassmorphism effect with subtle tint */
+@supports (backdrop-filter: blur(20px)) {
   nav {
-    background-color: hsla(var(--hue), 10%, 11%, 0.85);
+    background-color: hsla(var(--hue), 8%, 11%, 0.6);
+  }
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(20px)) {
+  nav {
+    background-color: var(--surface-container);
   }
 }
 
 [data-theme="light"] nav {
-  background-color: hsla(calc(var(--hue) + 10), 20%, 98%, 0.9);
+  background-color: hsla(calc(var(--hue) + 10), 25%, 99%, 0.7);
+}
+
+@supports not (backdrop-filter: blur(20px)) {
+  [data-theme="light"] nav {
+    background-color: var(--surface-container);
+  }
 }
 
 .nav-buttons {
@@ -349,52 +364,39 @@ nav {
   color: var(--on-surface);
 }
 
-/* Mobile Nav Sidebar Button */
+/* Nav Sidebar Button - visible on all viewports */
 .nav-sidebar-btn {
-  display: none;
+  display: flex;
   background: transparent;
   border: none;
   color: var(--on-surface-variant);
   cursor: pointer;
-  padding: var(--space-3);
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: var(--radius-full);
   transition: all var(--transition-base);
   align-items: center;
   justify-content: center;
 }
 
 .nav-sidebar-btn:hover {
-  background-color: var(--surface-container-high);
+  background-color: hsla(var(--hue), 20%, 50%, 0.12);
   color: var(--primary);
 }
 
-/* Sidebar Trigger (Floating Button) */
-.sidebar-trigger {
-  position: fixed;
-  left: var(--space-4);
-  top: var(--space-24);
-  z-index: 40;
-  display: flex;
-  height: 44px;
-  width: 44px;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--outline);
-  background-color: var(--surface-container-high);
-  color: var(--on-surface);
-  backdrop-filter: blur(8px);
-  cursor: pointer;
-  box-shadow: var(--elevation-2);
-  transition: all var(--transition-base);
+.nav-sidebar-btn:active {
+  transform: scale(0.95);
 }
 
-.sidebar-trigger:hover {
-  background-color: var(--surface-container-highest);
-  box-shadow: var(--elevation-3);
-  transform: translateY(-2px);
+[data-theme="light"] .nav-sidebar-btn:hover {
+  background-color: hsla(var(--hue), 40%, 50%, 0.1);
+}
+
+/* Sidebar Trigger (Floating Button) - HIDDEN on desktop, shown only on mobile */
+.sidebar-trigger {
+  display: none;
+  /* Hidden by default - we use nav-sidebar-btn instead */
 }
 
 .sidebar-trigger.hidden {
@@ -5131,4 +5133,2495 @@ footer a:hover {
 
 .doc-error-link:hover {
   filter: brightness(0.95);
+}
+
+/* ==============================================
+   REPOSITORY / MODS PAGE STYLES
+   GitHub/GitLab-inspired documentation interface
+   ============================================== */
+
+/* Base page layout */
+.repo-page {
+  min-height: 100vh;
+  padding: var(--space-6) var(--space-4);
+  background-color: var(--surface);
+}
+
+.repo-container {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Header section */
+.repo-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.repo-header-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.repo-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.repo-subtitle {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+  max-width: 640px;
+}
+
+/* Back button */
+.repo-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background-color: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.repo-back-btn:hover {
+  background-color: var(--surface-container);
+  border-color: var(--outline);
+  color: var(--on-surface);
+}
+
+/* Dividers */
+.repo-divider {
+  height: 1px;
+  background-color: var(--outline-variant);
+  margin: var(--space-2) 0;
+}
+
+/* Toolbar (Search & Filter) */
+.repo-toolbar {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.repo-search {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.repo-search-icon {
+  position: absolute;
+  left: var(--space-4);
+  color: var(--on-surface-muted);
+  pointer-events: none;
+}
+
+.repo-search-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  padding-left: calc(var(--space-4) + 24px);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--on-surface);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+}
+
+.repo-search-input::placeholder {
+  color: var(--on-surface-muted);
+}
+
+.repo-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: var(--surface);
+}
+
+.repo-filter {
+  min-width: 160px;
+}
+
+/* Table wrapper - shown on desktop */
+.repo-table-wrapper {
+  display: block;
+}
+
+/* Table Header */
+.repo-table-header {
+  display: grid;
+  grid-template-columns: 1fr 100px 80px 120px 100px 24px;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--on-surface-muted);
+}
+
+.repo-col {
+  display: flex;
+  align-items: center;
+}
+
+.repo-col--name {
+  gap: var(--space-3);
+}
+
+.repo-col--type,
+.repo-col--version,
+.repo-col--updated,
+.repo-col--status {
+  justify-content: flex-start;
+}
+
+/* Table Body */
+.repo-table-body {
+  border: 1px solid var(--outline-variant);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  overflow: hidden;
+}
+
+/* Table Row */
+.repo-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 80px 120px 100px 24px;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: none;
+  border-bottom: 1px solid var(--outline-variant);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--on-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  width: 100%;
+  text-decoration: none;
+}
+
+.repo-row:last-child {
+  border-bottom: none;
+}
+
+.repo-row:hover {
+  background-color: var(--surface-container);
+}
+
+.repo-row:hover .repo-row-chevron {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.repo-row-chevron {
+  color: var(--on-surface-muted);
+  opacity: 0.4;
+  transition: all var(--transition-base);
+}
+
+/* File icon & name */
+.repo-file-icon {
+  color: var(--on-surface-muted);
+  flex-shrink: 0;
+}
+
+.repo-file-name {
+  font-weight: 500;
+  color: var(--on-surface);
+}
+
+.repo-file-game {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+  margin-left: auto;
+  padding-left: var(--space-2);
+}
+
+/* Version column */
+.repo-row code {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  background-color: var(--surface-container);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+}
+
+/* Badges */
+.repo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.repo-badge--md {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
+.repo-badge--stable {
+  color: hsl(145, 65%, 40%);
+  background-color: hsla(145, 65%, 45%, 0.12);
+}
+
+.repo-badge--beta {
+  color: hsl(40, 80%, 45%);
+  background-color: hsla(40, 80%, 55%, 0.12);
+}
+
+.repo-badge--experimental {
+  color: hsl(0, 70%, 55%);
+  background-color: hsla(0, 70%, 60%, 0.12);
+}
+
+.repo-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background-color: var(--surface-container-high);
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+}
+
+.repo-type-badge--md {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
+.repo-type-badge--script {
+  color: hsl(200, 70%, 50%);
+  background-color: hsla(200, 70%, 50%, 0.12);
+}
+
+.repo-type-badge--mod {
+  color: hsl(280, 60%, 55%);
+  background-color: hsla(280, 60%, 55%, 0.12);
+}
+
+/* Card List - shown on mobile */
+.repo-card-list {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.repo-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-family: inherit;
+}
+
+.repo-card:hover {
+  border-color: var(--outline);
+  background-color: var(--surface-container-high);
+  transform: translateY(-1px);
+}
+
+.repo-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.repo-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--surface);
+  border-radius: var(--radius-sm);
+  color: var(--on-surface-muted);
+  flex-shrink: 0;
+}
+
+.repo-card-title-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.repo-card-name {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.repo-card-game {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+}
+
+.repo-card-chevron {
+  color: var(--on-surface-muted);
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: all var(--transition-base);
+}
+
+.repo-card:hover .repo-card-chevron {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.repo-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.repo-card-version {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+  background-color: var(--surface);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+}
+
+.repo-card-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--outline-variant);
+}
+
+/* Empty & Error states */
+.repo-empty {
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+  color: var(--on-surface-muted);
+  font-size: 0.9375rem;
+}
+
+.repo-empty-icon {
+  margin-bottom: var(--space-4);
+  opacity: 0.4;
+}
+
+.repo-empty h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin-bottom: var(--space-2);
+}
+
+.repo-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 40vh;
+  color: var(--on-surface-muted);
+  font-size: 0.875rem;
+}
+
+.repo-loading-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.repo-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.repo-error-icon {
+  color: var(--on-surface-muted);
+  opacity: 0.5;
+}
+
+.repo-error h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.repo-error p {
+  color: var(--on-surface-muted);
+}
+
+.repo-error-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.repo-error-link:hover {
+  filter: brightness(0.95);
+}
+
+/* Footer note */
+.repo-footer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--on-surface-muted);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-4);
+}
+
+.repo-footer-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: hsl(40, 80%, 55%);
+}
+
+/* ============================================
+   DETAIL PAGE STYLES
+   ============================================ */
+
+/* Detail Header */
+.repo-detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+}
+
+.repo-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.repo-detail-title {
+  font-size: clamp(1.375rem, 3.5vw, 1.75rem);
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.repo-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.repo-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.repo-meta-item svg {
+  opacity: 0.6;
+}
+
+/* Sections */
+.repo-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.repo-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.01em;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.repo-section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: var(--surface-container);
+  border-radius: var(--radius-sm);
+  color: var(--on-surface-muted);
+}
+
+.repo-section-title--warning {
+  color: hsl(40, 80%, 50%);
+}
+
+.repo-section-title--warning .repo-section-icon {
+  color: hsl(40, 80%, 50%);
+  background-color: hsla(40, 80%, 55%, 0.12);
+}
+
+/* Description / README */
+.repo-description {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--on-surface-variant);
+  white-space: pre-wrap;
+}
+
+/* Info Grid (Version, Size, Status) */
+.repo-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.repo-info-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-muted);
+}
+
+.repo-info-value {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--on-surface);
+  background: transparent;
+  padding: 0;
+}
+
+/* Lists */
+.repo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.repo-list--boxed {
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+}
+
+.repo-list-text {
+  flex: 1;
+}
+
+.repo-list-bullet {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--on-surface-muted);
+  margin-top: 2px;
+}
+
+.repo-list-item--risky {
+  padding: var(--space-3);
+  background-color: hsla(40, 80%, 55%, 0.08);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid hsl(40, 80%, 55%);
+}
+
+.repo-list-item--risky .repo-list-bullet {
+  color: hsl(40, 80%, 55%);
+}
+
+.repo-list-item--warning {
+  color: hsl(0, 65%, 55%);
+}
+
+.repo-list-item--warning .repo-list-bullet {
+  color: hsl(0, 65%, 55%);
+}
+
+.repo-risk-note {
+  font-size: 0.8125rem;
+  color: hsl(40, 80%, 55%);
+  font-style: italic;
+}
+
+/* Ordered list (Installation steps) */
+.repo-ordered-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.repo-ordered-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Warning box */
+.repo-warning-box {
+  padding: var(--space-4);
+  background-color: hsla(0, 70%, 55%, 0.06);
+  border: 1px solid hsla(0, 70%, 55%, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+/* Features container */
+.features-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.repo-expand-btn:hover {
+  filter: brightness(0.95);
+}
+
+/* Download Actions */
+.repo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--on-primary);
+  background-color: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.repo-download-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.repo-download-size {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  opacity: 0.8;
+  padding-left: var(--space-2);
+  border-left: 1px solid hsla(0, 0%, 100%, 0.3);
+}
+
+.repo-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.repo-copy-btn:hover {
+  background-color: var(--surface-container-high);
+  border-color: var(--outline);
+}
+
+/* Version History */
+.repo-version-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.repo-version-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-muted);
+  background-color: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.repo-version-toggle:hover {
+  background-color: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.repo-version-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-version-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-version-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.repo-version-number {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.repo-version-date {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+}
+
+.repo-version-size {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+}
+
+.repo-version-changelog {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--outline-variant);
+}
+
+.repo-version-changelog li {
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+}
+
+.repo-version-download {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.repo-version-download:hover {
+  filter: brightness(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+
+  /* Hide desktop table, show mobile cards */
+  .repo-table-wrapper {
+    display: none;
+  }
+
+  .repo-card-list {
+    display: flex;
+  }
+
+  .repo-toolbar {
+    flex-direction: column;
+  }
+
+  .repo-filter {
+    width: 100%;
+  }
+
+  .repo-info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .repo-detail-header {
+    padding: var(--space-4);
+  }
+
+  .repo-actions {
+    padding: var(--space-4);
+  }
+
+  .repo-ordered-item {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .repo-step-number {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .repo-detail-meta {
+    gap: var(--space-3);
+  }
+
+  .repo-meta-item {
+    font-size: 0.75rem;
+  }
+}
+
+.repo-back-btn:hover {
+  background-color: var(--surface-container);
+  border-color: var(--outline);
+  color: var(--on-surface);
+}
+
+/* Dividers */
+.repo-divider {
+  height: 1px;
+  background-color: var(--outline-variant);
+  margin: var(--space-2) 0;
+}
+
+/* Toolbar (Search & Filter) */
+.repo-toolbar {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.repo-search {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.repo-search-icon {
+  position: absolute;
+  left: var(--space-4);
+  color: var(--on-surface-muted);
+  pointer-events: none;
+}
+
+.repo-search-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  padding-left: calc(var(--space-4) + 24px);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--on-surface);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+}
+
+.repo-search-input::placeholder {
+  color: var(--on-surface-muted);
+}
+
+.repo-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: var(--surface);
+}
+
+.repo-filter {
+  min-width: 160px;
+}
+
+/* Table Header */
+.repo-table-header {
+  display: grid;
+  grid-template-columns: 1fr 100px 80px 120px 100px 24px;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--on-surface-muted);
+}
+
+.repo-col {
+  display: flex;
+  align-items: center;
+}
+
+.repo-col--name {
+  gap: var(--space-3);
+}
+
+.repo-col--type,
+.repo-col--version,
+.repo-col--updated,
+.repo-col--status {
+  justify-content: flex-start;
+}
+
+/* Table Body */
+.repo-table-body {
+  border: 1px solid var(--outline-variant);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  overflow: hidden;
+}
+
+/* Table Row */
+.repo-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 80px 120px 100px 24px;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: none;
+  border-bottom: 1px solid var(--outline-variant);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--on-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  width: 100%;
+  text-decoration: none;
+}
+
+.repo-row:last-child {
+  border-bottom: none;
+}
+
+.repo-row:hover {
+  background-color: var(--surface-container);
+}
+
+.repo-row:hover .repo-row-chevron {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.repo-row-chevron {
+  color: var(--on-surface-muted);
+  opacity: 0.5;
+  transition: all var(--transition-base);
+}
+
+/* File icon & name */
+.repo-file-icon {
+  color: var(--on-surface-muted);
+  flex-shrink: 0;
+}
+
+.repo-file-name {
+  font-weight: 500;
+  color: var(--on-surface);
+}
+
+.repo-file-game {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+  margin-left: auto;
+  padding-left: var(--space-2);
+}
+
+/* Version column */
+.repo-row code {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  background-color: var(--surface-container);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+}
+
+/* Badges */
+.repo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.repo-badge--stable {
+  color: hsl(145, 65%, 45%);
+  background-color: hsla(145, 65%, 45%, 0.12);
+}
+
+.repo-badge--beta {
+  color: hsl(40, 80%, 55%);
+  background-color: hsla(40, 80%, 55%, 0.12);
+}
+
+.repo-badge--experimental {
+  color: hsl(0, 70%, 60%);
+  background-color: hsla(0, 70%, 60%, 0.12);
+}
+
+.repo-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background-color: var(--surface-container-high);
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+}
+
+/* Empty & Error states */
+.repo-empty {
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+  color: var(--on-surface-muted);
+  font-size: 0.9375rem;
+}
+
+.repo-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 40vh;
+  color: var(--on-surface-muted);
+  font-size: 0.875rem;
+}
+
+.repo-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+  color: var(--on-surface-muted);
+}
+
+.repo-error h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+/* Footer note */
+.repo-footer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--on-surface-muted);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-4);
+}
+
+.repo-footer-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: hsl(40, 80%, 55%);
+}
+
+/* ============================================
+   DETAIL PAGE STYLES
+   ============================================ */
+
+/* Detail Header */
+.repo-detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+}
+
+.repo-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.repo-detail-title {
+  font-size: clamp(1.375rem, 3.5vw, 1.75rem);
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.repo-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.repo-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.repo-meta-item svg {
+  opacity: 0.6;
+}
+
+/* Sections */
+.repo-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.repo-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.01em;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.repo-section-title--warning {
+  color: hsl(40, 80%, 55%);
+}
+
+/* Description / README */
+.repo-description {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--on-surface-variant);
+  white-space: pre-wrap;
+}
+
+/* Info Grid (Version, Size, Status) */
+.repo-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.repo-info-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-muted);
+}
+
+.repo-info-value {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--on-surface);
+  background: transparent;
+  padding: 0;
+}
+
+/* Lists */
+.repo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.repo-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+}
+
+.repo-list-bullet {
+  flex-shrink: 0;
+  width: 16px;
+  color: var(--on-surface-muted);
+  text-align: center;
+}
+
+.repo-list-item--risky {
+  padding: var(--space-2) var(--space-3);
+  background-color: hsla(40, 80%, 55%, 0.08);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid hsl(40, 80%, 55%);
+}
+
+.repo-list-item--risky .repo-list-bullet {
+  color: hsl(40, 80%, 55%);
+}
+
+.repo-list-item--warning {
+  color: hsl(40, 80%, 55%);
+}
+
+.repo-risk-note {
+  font-size: 0.8125rem;
+  color: hsl(40, 80%, 60%);
+  font-style: italic;
+}
+
+/* Ordered list (Installation steps) */
+.repo-ordered-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  counter-reset: step-counter;
+}
+
+.repo-ordered-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+  position: relative;
+  padding-left: calc(var(--space-8) + var(--space-2));
+}
+
+.repo-step-number {
+  position: absolute;
+  left: 0;
+  width: var(--space-8);
+  height: var(--space-8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-full);
+}
+
+/* Warning box */
+.repo-warning-box {
+  padding: var(--space-4);
+  background-color: hsla(0, 70%, 55%, 0.08);
+  border: 1px solid hsla(0, 70%, 55%, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.repo-warning-box .repo-list-item {
+  color: hsl(0, 70%, 60%);
+}
+
+.repo-warning-box .repo-list-bullet {
+  color: hsl(0, 70%, 55%);
+}
+
+/* Features container */
+.features-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.repo-expand-btn:hover {
+  filter: brightness(0.95);
+}
+
+/* Download Actions */
+.repo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--on-primary);
+  background-color: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.repo-download-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.repo-download-size {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  opacity: 0.8;
+  padding-left: var(--space-2);
+  border-left: 1px solid hsla(0, 0%, 100%, 0.3);
+}
+
+.repo-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.repo-copy-btn:hover {
+  background-color: var(--surface-container-high);
+  border-color: var(--outline);
+}
+
+/* Version History */
+.repo-version-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.repo-version-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-muted);
+  background-color: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.repo-version-toggle:hover {
+  background-color: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.repo-version-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-version-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.repo-version-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.repo-version-number {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.repo-version-date {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+}
+
+.repo-version-size {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+}
+
+.repo-version-changelog {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--outline-variant);
+}
+
+.repo-version-changelog li {
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+}
+
+.repo-version-download {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.repo-version-download:hover {
+  filter: brightness(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .repo-table-header {
+    display: none;
+  }
+
+  .repo-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .repo-col--name {
+    order: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .repo-file-game {
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .repo-col--type,
+  .repo-col--version,
+  .repo-col--updated,
+  .repo-col--status {
+    order: 2;
+  }
+
+  .repo-row>.repo-col--type,
+  .repo-row>.repo-col--version,
+  .repo-row>.repo-col--updated,
+  .repo-row>.repo-col--status {
+    display: none;
+  }
+
+  .repo-row-chevron {
+    position: absolute;
+    right: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .repo-row {
+    position: relative;
+    padding-right: calc(var(--space-4) + 24px);
+  }
+
+  /* Show mobile meta row */
+  .repo-col--name::after {
+    content: attr(data-meta);
+    font-size: 0.75rem;
+    color: var(--on-surface-muted);
+  }
+
+  .repo-toolbar {
+    flex-direction: column;
+  }
+
+  .repo-filter {
+    width: 100%;
+  }
+
+  .repo-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .repo-detail-header {
+    padding: var(--space-4);
+  }
+
+  .repo-actions {
+    padding: var(--space-4);
+  }
+
+  .repo-ordered-item {
+    padding-left: calc(var(--space-6) + var(--space-2));
+  }
+
+  .repo-step-number {
+    width: var(--space-6);
+    height: var(--space-6);
+    font-size: 0.6875rem;
+  }
+}
+
+/* ==============================================
+   MOD DETAIL VIEW STYLES
+   README-inspired documentation layout
+   ============================================== */
+
+/* Content wrapper */
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Back navigation */
+.detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.detail-back:hover {
+  background-color: var(--surface-container);
+  border-color: var(--outline);
+  color: var(--on-surface);
+}
+
+/* Header section */
+.detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.detail-header-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.detail-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.detail-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+}
+
+.detail-meta-item svg {
+  opacity: 0.6;
+}
+
+.detail-meta-divider {
+  color: var(--outline-variant);
+}
+
+/* Badges */
+.detail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.detail-badge--md {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
+.detail-badge--stable {
+  color: hsl(145, 60%, 38%);
+  background-color: hsla(145, 60%, 45%, 0.12);
+}
+
+.detail-badge--beta {
+  color: hsl(40, 75%, 42%);
+  background-color: hsla(40, 80%, 50%, 0.12);
+}
+
+.detail-badge--experimental {
+  color: hsl(0, 65%, 52%);
+  background-color: hsla(0, 70%, 55%, 0.1);
+}
+
+.detail-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.detail-type--md {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
+.detail-type--script {
+  color: hsl(200, 70%, 45%);
+  background-color: hsla(200, 70%, 50%, 0.1);
+}
+
+.detail-type--mod {
+  color: hsl(280, 55%, 50%);
+  background-color: hsla(280, 60%, 55%, 0.1);
+}
+
+/* Sections */
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.detail-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.detail-section-header--warning {
+  border-color: hsla(40, 80%, 50%, 0.3);
+}
+
+.detail-section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: var(--surface-container);
+  border-radius: var(--radius-sm);
+  color: var(--on-surface-muted);
+}
+
+.detail-section-header--warning .detail-section-icon {
+  color: hsl(40, 80%, 48%);
+  background-color: hsla(40, 80%, 50%, 0.12);
+}
+
+.detail-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.detail-section-header--warning .detail-section-title {
+  color: hsl(40, 75%, 45%);
+}
+
+/* README / Description */
+.detail-readme {
+  max-width: 680px;
+}
+
+.detail-readme p {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--on-surface-variant);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Info table */
+.detail-info-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background-color: var(--outline-variant);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.detail-info-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+}
+
+.detail-info-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-muted);
+}
+
+.detail-info-value {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--on-surface);
+  background: transparent;
+  padding: 0;
+}
+
+/* Features */
+.detail-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.detail-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.detail-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--surface-container);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-base);
+}
+
+.detail-feature:hover {
+  background-color: var(--surface-container-high);
+}
+
+.detail-feature--risky {
+  background-color: hsla(40, 80%, 50%, 0.06);
+  border-left: 3px solid hsl(40, 80%, 50%);
+}
+
+.detail-feature--risky:hover {
+  background-color: hsla(40, 80%, 50%, 0.1);
+}
+
+.detail-feature-bullet {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  color: hsl(145, 55%, 45%);
+}
+
+.detail-feature--risky .detail-feature-bullet {
+  color: hsl(40, 80%, 48%);
+}
+
+.detail-feature-text {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+}
+
+.detail-feature-risk {
+  font-size: 0.8125rem;
+  color: hsl(40, 75%, 48%);
+  font-style: italic;
+}
+
+.detail-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.detail-expand-btn:hover {
+  background-color: var(--surface-container);
+  border-color: var(--outline);
+  color: var(--on-surface);
+}
+
+/* Requirements */
+.detail-requirements {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border-radius: var(--radius-sm);
+}
+
+.detail-requirement {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+}
+
+.detail-requirement-bullet {
+  color: var(--on-surface-muted);
+  flex-shrink: 0;
+}
+
+/* Installation steps */
+.detail-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.detail-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border-radius: var(--radius-sm);
+}
+
+.detail-step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.detail-step-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+  padding-top: 4px;
+}
+
+/* Warnings */
+.detail-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.detail-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: hsla(0, 70%, 55%, 0.06);
+  border-left: 3px solid hsl(0, 65%, 50%);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.detail-warning svg {
+  flex-shrink: 0;
+  color: hsl(0, 65%, 50%);
+  margin-top: 2px;
+}
+
+.detail-warning span {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: hsl(0, 60%, 45%);
+}
+
+/* Download section */
+.detail-section--actions {
+  gap: var(--space-5);
+}
+
+.detail-download-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+}
+
+.detail-download-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.detail-download-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-muted);
+}
+
+.detail-download-version {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.detail-download-version code {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.detail-download-size {
+  font-size: 0.8125rem;
+  color: var(--on-surface-muted);
+}
+
+.detail-download-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.detail-btn--primary {
+  color: var(--on-primary);
+  background-color: var(--primary);
+}
+
+.detail-btn--primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.detail-btn--secondary {
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  padding: var(--space-3);
+  font-weight: 500;
+}
+
+.detail-btn--secondary:hover {
+  background-color: var(--surface-container-high);
+  border-color: var(--outline);
+}
+
+/* Version history */
+.detail-version-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.detail-version-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-muted);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.detail-version-toggle:hover {
+  background-color: var(--surface-container);
+  color: var(--on-surface);
+}
+
+.detail-version-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.detail-version-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.detail-version-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.detail-version-tag {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.detail-version-meta {
+  font-size: 0.75rem;
+  color: var(--on-surface-muted);
+}
+
+.detail-version-changelog {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--outline-variant);
+}
+
+.detail-version-changelog li {
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+}
+
+.detail-version-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition-base);
+  align-self: flex-start;
+}
+
+.detail-version-dl:hover {
+  filter: brightness(0.95);
+}
+
+/* Loading state */
+.detail-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 40vh;
+  color: var(--on-surface-muted);
+  font-size: 0.875rem;
+}
+
+/* Error state */
+.detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.detail-error svg {
+  color: var(--on-surface-muted);
+  opacity: 0.5;
+}
+
+.detail-error h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 0;
+}
+
+.detail-error p {
+  color: var(--on-surface-muted);
+  margin: 0;
+}
+
+.detail-error-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--primary-container);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.detail-error-link:hover {
+  filter: brightness(0.95);
+}
+
+/* Detail view responsive */
+@media (max-width: 768px) {
+  .detail-content {
+    gap: var(--space-6);
+  }
+
+  .detail-header {
+    padding-bottom: var(--space-4);
+  }
+
+  .detail-title {
+    font-size: 1.375rem;
+  }
+
+  .detail-info-table {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detail-download-box {
+    padding: var(--space-4);
+  }
+
+  .detail-step {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .detail-step-num {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
 }

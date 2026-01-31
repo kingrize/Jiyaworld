@@ -1,5 +1,19 @@
 /**
  * Advanced API Key Management & Optimization System
+ * 
+ * This module provides:
+ * 1. Dynamic multi-key loading from environment variables
+ * 2. Automatic key rotation on failure (rate limits, quota exhaustion)
+ * 3. In-memory health tracking with cooldown periods
+ * 4. Simple IP-based rate limiting for abuse protection
+ * 
+ * Supported Environment Variable Patterns:
+ * - ${PROVIDER}_API_KEY (e.g., GEMINI_API_KEY, GROQ_API_KEY)
+ * - ${PROVIDER}_API_KEY_1 through ${PROVIDER}_API_KEY_20
+ * 
+ * SECURITY NOTE: 
+ * Do NOT use NEXT_PUBLIC_ prefix for API keys! These are server-side
+ * secrets that should never be exposed to the client bundle.
  */
 
 // Types for Key Monitoring
@@ -20,22 +34,30 @@ const keyRegistry: Record<string, KeyMetadata> = {};
 
 /**
  * Dynamically retrieves all available API keys for a given provider.
+ * 
+ * @param provider - The provider name (e.g., "GEMINI", "GROQ")
+ * @returns Array of unique API keys found in environment variables
+ * 
+ * Searches for keys:
+ * 1. ${PROVIDER}_API_KEY (primary key)
+ * 2. ${PROVIDER}_API_KEY_1 through ${PROVIDER}_API_KEY_20 (additional keys)
+ * 
+ * SECURITY: This function intentionally does NOT check NEXT_PUBLIC_ prefixed
+ * variables to prevent accidental client-side exposure.
  */
 const getProjectKeys = (provider: string): string[] => {
     const keys: string[] = [];
     const env = process.env;
-    const baseNames = [
-        `${provider}_API_KEY`,
-        `NEXT_PUBLIC_${provider}_API_KEY`
-    ];
+    const base = `${provider}_API_KEY`;
 
-    baseNames.forEach(base => {
-        if (env[base]) keys.push(env[base] as string);
-        for (let i = 1; i <= 20; i++) {
-            const keyWithSuffix = `${base}_${i}`;
-            if (env[keyWithSuffix]) keys.push(env[keyWithSuffix] as string);
-        }
-    });
+    // Check primary key
+    if (env[base]) keys.push(env[base] as string);
+
+    // Check numbered variants
+    for (let i = 1; i <= 20; i++) {
+        const keyWithSuffix = `${base}_${i}`;
+        if (env[keyWithSuffix]) keys.push(env[keyWithSuffix] as string);
+    }
 
     return Array.from(new Set(keys)).filter(Boolean);
 };

@@ -22,28 +22,9 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    // ============================================
-    // MODS COLLECTION
-    // Public read (published only), admin-only write
-    // ============================================
+
     
-    match /mods/{modId} {
-      // Allow read only if published or user is admin
-      allow read: if resource.data.published == true || isAdmin();
-      
-      // Only admins can write
-      allow create, update, delete: if isAdmin();
-    }
-    
-    // ============================================
-    // SHORTLINKS (Downloads)
-    // Public read, admin-only write
-    // ============================================
-    
-    match /shortlinks/{slug} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
+
     
     // ============================================
     // ADMIN-ONLY COLLECTIONS
