@@ -608,3 +608,372 @@
     font-size: 0.9375rem;
     margin: 0;
 }
+
+/* ============================================================
+   MOBILE-SPECIFIC IMPROVEMENTS (max-width: 640px)
+   Optimized for touch, readability, and one-handed use
+   ============================================================ */
+
+@media (max-width: 640px) {
+
+    /* =================================
+       BACKGROUND - Lighter for mobile
+       ================================= */
+    .backgroundWrapper {
+        height: 50vh;
+    }
+
+    .backgroundImage {
+        opacity: 0.2;
+    }
+
+    /* =================================
+       NAVBAR - Touch-Friendly
+       ================================= */
+    .navbar {
+        padding: var(--space-3);
+    }
+
+    .backBtn {
+        padding: var(--space-3) var(--space-4);
+        min-height: 44px;
+        font-size: 0.8125rem;
+    }
+
+    /* =================================
+       CONTENT WRAPPER
+       ================================= */
+    .contentWrapper {
+        padding: 0 var(--space-3) var(--space-24);
+    }
+
+    /* =================================
+       HERO SECTION - Mobile Optimized
+       ================================= */
+    .heroSection {
+        gap: var(--space-4);
+        margin-bottom: var(--space-5);
+    }
+
+    /* =================================
+       POSTER - Smaller for Mobile
+       ================================= */
+    .posterColumn {
+        gap: var(--space-3);
+    }
+
+    .posterWrapper {
+        border-radius: var(--radius-lg);
+    }
+
+    .posterImage {
+        width: 160px;
+    }
+
+    .scoreBadge {
+        top: var(--space-2);
+        right: var(--space-2);
+        padding: var(--space-1) var(--space-2);
+        font-size: 0.75rem;
+    }
+
+    /* =================================
+       MOBILE ACTIONS - Floating Bar
+       ================================= */
+    .mobileActions {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: row;
+        gap: var(--space-2);
+        padding: var(--space-3);
+        background: var(--surface-container);
+        border-top: 1px solid var(--outline-variant);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .mobileActions .watchBtnPrimary {
+        flex: 2;
+        min-height: 48px;
+        font-size: 0.9375rem;
+        padding: var(--space-3);
+        border-radius: var(--radius-lg);
+    }
+
+    .mobileActions .actionBtnSecondary {
+        flex: 1;
+        min-height: 48px;
+        font-size: 0.875rem;
+        padding: var(--space-3);
+        border-radius: var(--radius-lg);
+    }
+
+    /* =================================
+       INFO COLUMN - Mobile Layout
+       ================================= */
+    .infoColumn {
+        gap: var(--space-4);
+        width: 100%;
+    }
+
+    /* =================================
+       TITLE SECTION
+       ================================= */
+    .titleSection {
+        gap: var(--space-1);
+    }
+
+    .statusChip {
+        font-size: 0.6875rem;
+        padding: 2px var(--space-2);
+    }
+
+    .title {
+        font-size: 1.375rem;
+        text-align: center;
+        line-height: 1.25;
+    }
+
+    .altTitle {
+        font-size: 0.875rem;
+        text-align: center;
+    }
+
+    /* =================================
+       QUICK META - Horizontal Scroll
+       ================================= */
+    .quickMeta {
+        display: flex;
+        gap: var(--space-2);
+        overflow-x: auto;
+        padding-bottom: var(--space-2);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .quickMeta::-webkit-scrollbar {
+        display: none;
+    }
+
+    .metaChip {
+        flex-shrink: 0;
+        padding: var(--space-2);
+        font-size: 0.75rem;
+        border-radius: var(--radius-md);
+    }
+
+    .metaChip svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    /* =================================
+       GENRES - Better Touch & Contrast
+       ================================= */
+    .genresSection {
+        width: 100%;
+    }
+
+    .genresList {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        justify-content: center;
+    }
+
+    .genreTag {
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.8125rem;
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        /* Ensure high contrast on mobile */
+        background: var(--primary);
+        color: var(--on-primary);
+    }
+
+    /* =================================
+       SYNOPSIS - Optimized Reading
+       ================================= */
+    .synopsisSection {
+        padding: var(--space-4);
+        background: var(--surface-container);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--outline-variant);
+        text-align: left;
+    }
+
+    .sectionLabel {
+        font-size: 0.75rem;
+        margin-bottom: var(--space-2);
+    }
+
+    .synopsisText {
+        font-size: 0.9375rem;
+        line-height: 1.7;
+        /* Better readability */
+        color: var(--on-surface);
+    }
+
+    /* =================================
+       INFORMATION SECTION
+       ================================= */
+    .infoSection {
+        margin-bottom: var(--space-5);
+    }
+
+    .sectionTitle {
+        font-size: 1rem;
+        margin-bottom: var(--space-3);
+    }
+
+    .sectionTitle svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .infoGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
+    }
+
+    .infoItem {
+        padding: var(--space-3);
+        border-radius: var(--radius-lg);
+    }
+
+    .infoIcon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .infoIcon svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .infoLabel {
+        font-size: 0.625rem;
+    }
+
+    .infoValue {
+        font-size: 0.8125rem;
+    }
+
+    /* =================================
+       EPISODES SECTION
+       ================================= */
+    .episodesSection {
+        margin-bottom: var(--space-5);
+    }
+
+    .episodesHeader {
+        margin-bottom: var(--space-3);
+    }
+
+    .episodeCount {
+        font-size: 0.75rem;
+        padding: var(--space-1) var(--space-2);
+    }
+
+    .episodeGrid {
+        gap: var(--space-2);
+    }
+
+    .episodeCard {
+        padding: var(--space-3);
+        gap: var(--space-3);
+        border-radius: var(--radius-lg);
+        min-height: 60px;
+    }
+
+    /* Remove hover transform on mobile */
+    .episodeCard:hover {
+        transform: none;
+    }
+
+    .episodeCard:active {
+        transform: scale(0.98);
+        background: var(--surface-container-high);
+    }
+
+    .episodeNumber {
+        width: 40px;
+        height: 40px;
+        font-size: 0.875rem;
+        border-radius: var(--radius-md);
+    }
+
+    .episodeName {
+        font-size: 0.8125rem;
+    }
+
+    .episodeDuration {
+        font-size: 0.75rem;
+    }
+
+    .episodeArrow {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Disable hover arrow animation on mobile */
+    .episodeCard:hover .episodeArrow {
+        transform: none;
+    }
+
+    /* =================================
+       NO EPISODES STATE
+       ================================= */
+    .noEpisodes {
+        padding: var(--space-8);
+        border-radius: var(--radius-lg);
+    }
+
+    .noEpisodes svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .noEpisodes p {
+        font-size: 0.875rem;
+    }
+}
+
+/* ============================================================
+   EXTRA SMALL MOBILE (max-width: 360px)
+   For very small devices
+   ============================================================ */
+@media (max-width: 360px) {
+    .contentWrapper {
+        padding: 0 var(--space-2) var(--space-24);
+    }
+
+    .posterImage {
+        width: 140px;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .genreTag {
+        font-size: 0.75rem;
+        padding: var(--space-1) var(--space-3);
+        min-height: 32px;
+    }
+
+    .episodeNumber {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8125rem;
+    }
+}

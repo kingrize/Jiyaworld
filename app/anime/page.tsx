@@ -182,51 +182,108 @@ function AnimeGrid({
 }
 
 // ============================================================
-// FEATURED ANIME HERO
+// FEATURED ANIME HERO (Desktop) + CAROUSEL (Mobile)
 // ============================================================
-function FeaturedAnime({ anime, onRandom }: { anime: Anime | null; onRandom: () => void }) {
+function FeaturedAnime({
+    anime,
+    allFeatured,
+    onRandom
+}: {
+    anime: Anime | null;
+    allFeatured: Anime[];
+    onRandom: () => void;
+}) {
     if (!anime) return null;
 
     return (
-        <div className={styles.featuredSection}>
-            <div
-                className={styles.featuredBackground}
-                style={{ backgroundImage: `url(${anime.poster})` }}
-            />
-            <div className={styles.featuredContent}>
-                <div className={styles.featuredPoster}>
-                    <Image
-                        src={anime.poster}
-                        alt={anime.title}
-                        width={180}
-                        height={270}
-                        className={styles.featuredImage}
-                        priority
-                    />
-                </div>
-                <div className={styles.featuredInfo}>
-                    <span className={styles.featuredLabel}>
-                        <Sparkles size={14} />
-                        Featured Pick
-                    </span>
-                    <h2 className={styles.featuredTitle}>{anime.title}</h2>
-                    <div className={styles.featuredMeta}>
-                        {anime.type && <span className={styles.featuredType}>{anime.type}</span>}
-                        {anime.episode && <span>{anime.episode}</span>}
+        <>
+            {/* Desktop: Single Featured Hero */}
+            <div className={styles.featuredSection}>
+                <div
+                    className={styles.featuredBackground}
+                    style={{ backgroundImage: `url(${anime.poster})` }}
+                />
+                <div className={styles.featuredContent}>
+                    <div className={styles.featuredPoster}>
+                        <Image
+                            src={anime.poster}
+                            alt={anime.title}
+                            width={180}
+                            height={270}
+                            className={styles.featuredImage}
+                            priority
+                        />
                     </div>
-                    <div className={styles.featuredActions}>
-                        <Link href={`/anime/${anime.slug}`} className={styles.featuredWatchBtn}>
-                            <Play size={18} />
-                            Watch Now
-                        </Link>
-                        <button onClick={onRandom} className={styles.featuredRandomBtn}>
-                            <Shuffle size={16} />
-                            Random
-                        </button>
+                    <div className={styles.featuredInfo}>
+                        <span className={styles.featuredLabel}>
+                            <Sparkles size={14} />
+                            Featured Pick
+                        </span>
+                        <h2 className={styles.featuredTitle}>{anime.title}</h2>
+                        <div className={styles.featuredMeta}>
+                            {anime.type && <span className={styles.featuredType}>{anime.type}</span>}
+                            {anime.episode && <span>{anime.episode}</span>}
+                        </div>
+                        <div className={styles.featuredActions}>
+                            <Link href={`/anime/${anime.slug}`} className={styles.featuredWatchBtn}>
+                                <Play size={18} />
+                                Watch Now
+                            </Link>
+                            <button onClick={onRandom} className={styles.featuredRandomBtn}>
+                                <Shuffle size={16} />
+                                Random
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            {/* Mobile: Horizontal Scroll Carousel */}
+            <div className={styles.featuredCarousel}>
+                <div className={styles.carouselHeader}>
+                    <span className={styles.carouselLabel}>
+                        <Sparkles size={14} />
+                        Featured
+                    </span>
+                    <button onClick={onRandom} className={styles.carouselShuffle}>
+                        <Shuffle size={14} />
+                    </button>
+                </div>
+                <div className={styles.carouselTrack}>
+                    {allFeatured.slice(0, 8).map((item, index) => (
+                        <Link
+                            key={item.slug}
+                            href={`/anime/${item.slug}`}
+                            className={`${styles.carouselCard} ${index === 0 ? styles.carouselCardFirst : ''}`}
+                        >
+                            <div className={styles.carouselPoster}>
+                                <Image
+                                    src={item.poster}
+                                    alt={item.title}
+                                    width={140}
+                                    height={200}
+                                    className={styles.carouselImage}
+                                />
+                                {item.episode && (
+                                    <span className={styles.carouselEpisode}>
+                                        {item.episode.replace("Episode ", "Ep ")}
+                                    </span>
+                                )}
+                                <div className={styles.carouselGradient}>
+                                    <Play size={20} className={styles.carouselPlayIcon} />
+                                </div>
+                            </div>
+                            <div className={styles.carouselInfo}>
+                                <h3 className={styles.carouselTitle}>{item.title}</h3>
+                                {item.type && (
+                                    <span className={styles.carouselType}>{item.type}</span>
+                                )}
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </>
     );
 }
 
@@ -552,7 +609,11 @@ export default function AnimePage() {
                         )}
 
                         {/* Featured Anime */}
-                        <FeaturedAnime anime={featuredAnime} onRandom={pickRandomFeatured} />
+                        <FeaturedAnime
+                            anime={featuredAnime}
+                            allFeatured={ongoingAnime.slice(0, 8)}
+                            onRandom={pickRandomFeatured}
+                        />
 
                         {/* Quick Stats */}
                         <QuickStats

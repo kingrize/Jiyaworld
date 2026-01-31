@@ -134,8 +134,38 @@ export default async function AnimeDetailPage({
         image: anime.poster,
     }).toString();
 
-    // First episode for "Watch Now" button
-    const firstEpisode = anime.episodes?.[0];
+    // Find Episode 1 for "Watch Now" button
+    // Episodes may be ordered newest-first, so we search for Episode 1 explicitly
+    const getFirstEpisode = () => {
+        if (!anime.episodes || anime.episodes.length === 0) return null;
+
+        // Try to find Episode 1 by name
+        const ep1 = anime.episodes.find((ep: { name: string }) =>
+            ep.name.toLowerCase().includes('episode 1') ||
+            ep.name.match(/\bep\.?\s*1\b/i) ||
+            ep.name === '1'
+        );
+        if (ep1) return ep1;
+
+        // If episodes are ordered newest-first, Episode 1 would be the last one
+        // Otherwise, just take the first element
+        const lastEp = anime.episodes[anime.episodes.length - 1];
+        const firstEp = anime.episodes[0];
+
+        // Parse episode numbers to determine order
+        const getEpNum = (name: string) => {
+            const match = name.match(/(\d+)/);
+            return match ? parseInt(match[1], 10) : 0;
+        };
+
+        const lastNum = getEpNum(lastEp.name);
+        const firstNum = getEpNum(firstEp.name);
+
+        // If last episode has lower number, episodes are in reverse order (newest first)
+        return lastNum < firstNum ? lastEp : firstEp;
+    };
+
+    const firstEpisode = getFirstEpisode();
 
     return (
         <main className={styles.detailPage}>
@@ -176,19 +206,6 @@ export default async function AnimeDetailPage({
                                     <Star size={14} />
                                     <span>{score}</span>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Mobile Actions */}
-                        <div className={styles.mobileActions}>
-                            {firstEpisode && (
-                                <Link
-                                    href={`/anime/watch/${firstEpisode.slug}?${historyParams}`}
-                                    className={styles.watchBtnPrimary}
-                                >
-                                    <Play size={18} />
-                                    Watch Now
-                                </Link>
                             )}
                         </div>
                     </div>
@@ -329,6 +346,28 @@ export default async function AnimeDetailPage({
                         </div>
                     )}
                 </section>
+            </div>
+
+            {/* Mobile Fixed Action Bar - Appears at bottom on mobile */}
+            <div className={styles.mobileActions}>
+                {firstEpisode && (
+                    <Link
+                        href={`/anime/watch/${firstEpisode.slug}?${historyParams}`}
+                        className={styles.watchBtnPrimary}
+                    >
+                        <Play size={18} />
+                        Watch Now
+                    </Link>
+                )}
+                {anime.batch?.slug && (
+                    <Link
+                        href={`/anime/download/${anime.batch.slug}`}
+                        className={styles.actionBtnSecondary}
+                    >
+                        <Download size={16} />
+                        Download
+                    </Link>
+                )}
             </div>
         </main>
     );

@@ -903,3 +903,685 @@
     font-size: 0.8125rem;
     border-top: 1px solid var(--outline-variant);
 }
+
+/* ============================================================
+   MOBILE FEATURED CAROUSEL - Hidden on Desktop
+   ============================================================ */
+.featuredCarousel {
+    display: none;
+}
+
+/* Carousel Header */
+.carouselHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+    padding: 0 var(--space-1);
+}
+
+.carouselLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+.carouselLabel svg {
+    color: var(--primary);
+}
+
+.carouselShuffle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    color: var(--on-surface-muted);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.carouselShuffle:active {
+    background: var(--primary-container);
+    color: var(--primary);
+    transform: scale(0.95);
+}
+
+/* Carousel Track - Peek-style design */
+.carouselTrack {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: var(--space-3);
+    margin: 0 calc(-1 * var(--space-4));
+    padding-left: var(--space-4);
+    padding-right: 60px;
+    /* Peek preview space */
+    scroll-padding-left: var(--space-4);
+}
+
+.carouselTrack::-webkit-scrollbar {
+    display: none;
+}
+
+/* Carousel Card - Dynamic sizing */
+.carouselCard {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    width: 110px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    opacity: 0.85;
+}
+
+.carouselCard:first-child {
+    opacity: 1;
+}
+
+/* Hero first card with larger size */
+.carouselCardFirst {
+    width: 150px;
+    opacity: 1;
+}
+
+.carouselCardFirst .carouselPoster {
+    aspect-ratio: 2 / 2.6;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25),
+        0 0 0 2px var(--primary-container);
+}
+
+.carouselCardFirst .carouselTitle {
+    font-size: 0.8125rem;
+}
+
+.carouselCard:active {
+    transform: scale(0.97);
+    opacity: 1;
+}
+
+/* Carousel Poster - Enhanced styling */
+.carouselPoster {
+    position: relative;
+    aspect-ratio: 2 / 2.8;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--surface-container);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.carouselImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.carouselCard:hover .carouselImage {
+    transform: scale(1.02);
+}
+
+.carouselEpisode {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.carouselGradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top,
+            hsla(0, 0%, 0%, 0.7) 0%,
+            hsla(0, 0%, 0%, 0.2) 50%,
+            transparent 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: var(--space-2);
+    opacity: 1;
+}
+
+.carouselPlayIcon {
+    color: white;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    opacity: 0.9;
+}
+
+/* Carousel Info */
+.carouselInfo {
+    padding: var(--space-2) var(--space-1) 0;
+}
+
+.carouselTitle {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.carouselType {
+    display: inline-block;
+    margin-top: 2px;
+    font-size: 0.5625rem;
+    color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+}
+
+/* ============================================================
+   MOBILE-SPECIFIC IMPROVEMENTS (max-width: 640px)
+   Optimized for touch, readability, and one-handed use
+   ============================================================ */
+
+@media (max-width: 640px) {
+
+    /* =================================
+       NAVBAR - Mobile Optimized
+       ================================= */
+    .navbar {
+        height: 3.5rem;
+        padding: 0 var(--space-3);
+    }
+
+    .backButton span {
+        /* Hide text on mobile for more space */
+        display: none;
+    }
+
+    .backButton {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .navDivider {
+        display: none;
+    }
+
+    .navBrand {
+        font-size: 0.9375rem;
+    }
+
+    .menuButton {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* =================================
+       CONTAINER - More breathing room
+       ================================= */
+    .container {
+        padding: var(--space-3) var(--space-3) var(--space-16);
+    }
+
+    /* =================================
+       SEARCH - Ultra-Compact Mobile Design
+       Lightweight, unobtrusive search chip
+       ================================= */
+    .searchWrapper {
+        flex-wrap: nowrap;
+        gap: var(--space-2);
+        margin-bottom: var(--space-2);
+    }
+
+    .searchContainer {
+        flex: 1;
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-full);
+        min-height: 36px;
+        height: 36px;
+        background: var(--surface-container);
+        gap: var(--space-2);
+        border: 1px solid transparent;
+        transition: all 0.15s ease;
+    }
+
+    .searchContainer:focus-within {
+        background: var(--surface-container-high);
+        border-color: var(--outline-variant);
+    }
+
+    .searchIcon {
+        width: 14px;
+        height: 14px;
+        opacity: 0.6;
+    }
+
+    .searchContainer:focus-within .searchIcon {
+        opacity: 1;
+        color: var(--primary);
+    }
+
+    .searchInput {
+        font-size: 0.8125rem;
+    }
+
+    .searchInput::placeholder {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+
+    /* Hide search button on mobile - use enter key */
+    .searchBtn {
+        display: none;
+    }
+
+    .filterBtn {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-full);
+        flex-shrink: 0;
+        border: none;
+        background: var(--surface-container);
+    }
+
+    .filterBtnActive {
+        background: var(--primary-container);
+    }
+
+    .searchClear {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* =================================
+       FEATURED SECTION - Desktop Hidden, Carousel Shown
+       ================================= */
+    .featuredSection {
+        display: none;
+    }
+
+    .featuredCarousel {
+        display: block;
+        margin-bottom: var(--space-4);
+        padding: var(--space-3) 0;
+        margin-left: calc(-1 * var(--space-3));
+        margin-right: calc(-1 * var(--space-3));
+        background: linear-gradient(180deg,
+                transparent 0%,
+                hsla(var(--hue), 30%, 8%, 0.4) 30%,
+                hsla(var(--hue), 30%, 8%, 0.4) 70%,
+                transparent 100%);
+    }
+
+    .carouselHeader {
+        margin-left: var(--space-3);
+        margin-right: var(--space-3);
+    }
+
+    /* Light theme adjustment for carousel */
+    [data-theme="light"] .featuredCarousel {
+        background: linear-gradient(180deg,
+                transparent 0%,
+                hsla(var(--hue), 20%, 92%, 0.6) 30%,
+                hsla(var(--hue), 20%, 92%, 0.6) 70%,
+                transparent 100%);
+    }
+
+    /* =================================
+       FILTER PANEL - Bottom Sheet Style
+       ================================= */
+    .filterPanel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        margin: 0;
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: var(--space-4);
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .filterHeader {
+        padding-bottom: var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+
+    .filterHeader::before {
+        /* Drag handle indicator */
+        content: "";
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: var(--outline-variant);
+        border-radius: 2px;
+        margin: 0 auto var(--space-4);
+    }
+
+    .filterClose {
+        width: 40px;
+        height: 40px;
+    }
+
+    .filterOptions {
+        flex-wrap: wrap;
+    }
+
+    .filterOption {
+        flex: 1 1 auto;
+        justify-content: center;
+        min-height: 44px;
+        padding: var(--space-3);
+        font-size: 0.875rem;
+    }
+
+    .genreGrid {
+        gap: var(--space-2);
+    }
+
+    .genreChip {
+        padding: var(--space-2) var(--space-4);
+        font-size: 0.875rem;
+        /* Larger touch target */
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* =================================
+       FEATURED SECTION - Compact Mobile
+       ================================= */
+    .featuredSection {
+        margin-bottom: var(--space-4);
+        border-radius: var(--radius-xl);
+    }
+
+    .featuredContent {
+        padding: var(--space-4);
+        gap: var(--space-4);
+    }
+
+    .featuredImage {
+        width: 120px !important;
+        height: auto !important;
+    }
+
+    .featuredLabel {
+        font-size: 0.6875rem;
+        padding: 2px var(--space-2);
+    }
+
+    .featuredTitle {
+        font-size: 1.25rem;
+    }
+
+    .featuredMeta {
+        font-size: 0.8125rem;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+    }
+
+    .featuredActions {
+        width: 100%;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .featuredWatchBtn,
+    .featuredRandomBtn {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+        font-size: 0.9375rem;
+        border-radius: var(--radius-lg);
+    }
+
+    /* =================================
+       QUICK STATS - Compact 2-col
+       ================================= */
+    .quickStats {
+        gap: var(--space-2);
+        margin-bottom: var(--space-4);
+    }
+
+    .statCard {
+        padding: var(--space-3);
+        border-radius: var(--radius-lg);
+    }
+
+    .statIcon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .statValue {
+        font-size: 1.125rem;
+    }
+
+    .statLabel {
+        font-size: 0.6875rem;
+    }
+
+    /* =================================
+       SECTIONS - Mobile Spacing
+       ================================= */
+    .section {
+        margin-bottom: var(--space-6);
+    }
+
+    .sectionHeader {
+        margin-bottom: var(--space-3);
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .sectionTitle {
+        gap: var(--space-2);
+    }
+
+    .sectionIconWrapper {
+        width: 32px;
+        height: 32px;
+    }
+
+    .sectionTitle h2 {
+        font-size: 1rem;
+    }
+
+    .sectionCount {
+        font-size: 0.6875rem;
+        padding: 2px var(--space-2);
+    }
+
+    .seeAllBtn {
+        font-size: 0.8125rem;
+    }
+
+    .clearBtn {
+        min-height: 40px;
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.8125rem;
+    }
+
+    /* =================================
+       ANIME GRID - Mobile Optimized
+       ================================= */
+    .animeGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+    }
+
+    /* =================================
+       ANIME CARD - Touch Friendly
+       ================================= */
+    .animeCard {
+        /* Remove hover transform on mobile */
+        transform: none;
+    }
+
+    .animeCard:hover {
+        transform: none;
+    }
+
+    .animeCard:active {
+        transform: scale(0.98);
+    }
+
+    .cardPoster {
+        border-radius: var(--radius-md);
+    }
+
+    /* Show play overlay on mobile always (subtle) */
+    .cardOverlay {
+        opacity: 1;
+        background: linear-gradient(to top,
+                hsla(0, 0%, 0%, 0.5) 0%,
+                transparent 40%);
+    }
+
+    .playIcon {
+        display: none;
+    }
+
+    .typeBadge {
+        font-size: 0.625rem;
+        padding: 2px var(--space-1);
+    }
+
+    .episodeBadge {
+        font-size: 0.6875rem;
+        padding: 2px var(--space-2);
+    }
+
+    .cardInfo {
+        padding: var(--space-2) 0 0;
+    }
+
+    .cardTitle {
+        font-size: 0.8125rem;
+        line-height: 1.25;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+
+    /* Disable hover color change on mobile */
+    .animeCard:hover .cardTitle {
+        color: var(--on-surface);
+    }
+
+    .cardMeta {
+        font-size: 0.75rem;
+    }
+
+    /* =================================
+       SKELETON - Mobile
+       ================================= */
+    .skeletonPoster {
+        border-radius: var(--radius-md);
+    }
+
+    .skeletonTitle {
+        height: 0.875rem;
+        margin-top: var(--space-2);
+    }
+
+    /* =================================
+       EMPTY STATE - Mobile
+       ================================= */
+    .emptyState {
+        padding: var(--space-8);
+    }
+
+    .emptyState svg {
+        width: 40px;
+        height: 40px;
+    }
+
+    .emptyState p {
+        font-size: 0.875rem;
+    }
+
+    /* =================================
+       ERROR BANNER - Mobile
+       ================================= */
+    .errorBanner {
+        padding: var(--space-3);
+        font-size: 0.8125rem;
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-4);
+    }
+
+    /* =================================
+       FOOTER - Mobile
+       ================================= */
+    .footer {
+        padding: var(--space-8) var(--space-4) var(--space-16);
+        font-size: 0.75rem;
+    }
+}
+
+/* ============================================================
+   EXTRA SMALL MOBILE (max-width: 360px)
+   For very small devices
+   ============================================================ */
+@media (max-width: 360px) {
+    .container {
+        padding: var(--space-2) var(--space-2) var(--space-16);
+    }
+
+    .animeGrid {
+        gap: var(--space-2);
+    }
+
+    .cardTitle {
+        font-size: 0.75rem;
+    }
+
+    .featuredImage {
+        width: 100px !important;
+    }
+
+    .featuredTitle {
+        font-size: 1.125rem;
+    }
+
+    .statCard {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-2);
+    }
+}

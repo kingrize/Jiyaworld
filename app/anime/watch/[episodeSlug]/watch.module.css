@@ -94,6 +94,96 @@
         0 0 0 1px hsla(0, 0%, 100%, 0.05);
 }
 
+/* ============================================================
+   NEXT EPISODE PROMPT - Prominent button below player
+   ============================================================ */
+.nextEpisodePrompt {
+    margin-top: var(--space-4);
+}
+
+.nextEpisodeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: linear-gradient(135deg,
+            hsla(var(--hue), 60%, 50%, 0.15) 0%,
+            hsla(var(--hue), 60%, 40%, 0.1) 100%);
+    border: 1px solid hsla(var(--hue), 60%, 50%, 0.3);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.nextEpisodeBtn:hover {
+    background: linear-gradient(135deg,
+            hsla(var(--hue), 60%, 50%, 0.25) 0%,
+            hsla(var(--hue), 60%, 40%, 0.15) 100%);
+    border-color: hsla(var(--hue), 60%, 50%, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px hsla(var(--hue), 60%, 50%, 0.2);
+}
+
+.nextEpisodeBtn:active {
+    transform: translateY(0);
+}
+
+.nextEpisodeContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nextEpisodeLabel {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.nextEpisodeTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+}
+
+.nextEpisodeIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    background: var(--primary);
+    color: var(--on-primary);
+    transition: all 0.25s ease;
+}
+
+.nextEpisodeBtn:hover .nextEpisodeIcon {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px hsla(var(--hue), 60%, 50%, 0.4);
+}
+
+@media (max-width: 480px) {
+    .nextEpisodeBtn {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .nextEpisodeTitle {
+        font-size: 0.9375rem;
+    }
+
+    .nextEpisodeIcon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+
+
 .playerIframe {
     width: 100%;
     height: 100%;

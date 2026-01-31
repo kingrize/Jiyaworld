@@ -15,6 +15,7 @@ import {
     Home,
     ExternalLink,
     RefreshCw,
+    SkipForward,
 } from "lucide-react";
 import styles from "./watch.module.css";
 
@@ -289,6 +290,23 @@ function WatchContent({ episodeSlug }: { episodeSlug: string }) {
                             </div>
                         )}
                     </div>
+
+                    {/* Prominent Next Episode Button - appears below player */}
+                    {isValidNext && nextSlug && (
+                        <div className={styles.nextEpisodePrompt}>
+                            <Link href={buildNavUrl(nextSlug)} className={styles.nextEpisodeBtn}>
+                                <div className={styles.nextEpisodeContent}>
+                                    <span className={styles.nextEpisodeLabel}>Next Episode</span>
+                                    <span className={styles.nextEpisodeTitle}>
+                                        Continue watching →
+                                    </span>
+                                </div>
+                                <div className={styles.nextEpisodeIcon}>
+                                    <SkipForward size={24} />
+                                </div>
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 {/* Episode Info & Navigation */}
