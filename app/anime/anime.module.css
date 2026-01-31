@@ -301,7 +301,6 @@
 
 /* ============================================================
    TOP ROW - Featured + Trending side by side
-   Featured takes more space as the primary focus
    ============================================================ */
 .topRow {
     display: flex;
@@ -314,19 +313,20 @@
         display: grid;
         grid-template-columns: 1.4fr 1fr;
         gap: var(--space-5);
-        align-items: stretch;
+        align-items: start;
     }
 }
 
 @media (min-width: 1024px) {
     .topRow {
-        grid-template-columns: 1.6fr 1fr;
+        grid-template-columns: 1.5fr 1fr;
         gap: var(--space-6);
     }
 }
 
 .featuredWrapper {
     display: flex;
+    flex-direction: column;
 }
 
 .trendingWrapper {
@@ -335,57 +335,63 @@
 }
 
 /* ============================================================
-   FEATURED CARD - Primary spotlight component
-   Dominant on desktop, compact on mobile
+   FEATURED CARD - Fixed height, consistent sizing
    ============================================================ */
 .featuredCard {
-    flex: 1;
     display: flex;
     gap: var(--space-4);
     padding: var(--space-4);
     background: var(--surface-container);
     border-radius: var(--radius-xl);
     border: 1px solid var(--outline-variant);
+    height: 180px;
+    overflow: hidden;
 }
 
 @media (min-width: 768px) {
     .featuredCard {
-        padding: var(--space-5);
+        padding: var(--space-4);
         gap: var(--space-5);
+        height: 260px;
     }
 }
 
 @media (min-width: 1024px) {
     .featuredCard {
-        padding: var(--space-6);
+        padding: var(--space-5);
         gap: var(--space-6);
+        height: 320px;
     }
 }
 
 .featuredPoster {
     flex-shrink: 0;
     position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .featuredImage {
-    width: 100px;
-    height: 140px;
+    width: auto;
+    height: 100%;
+    max-height: 140px;
+    aspect-ratio: 5 / 7;
     object-fit: cover;
     border-radius: var(--radius-lg);
+    box-shadow: var(--elevation-2);
 }
 
 @media (min-width: 768px) {
     .featuredImage {
-        width: 150px;
-        height: 210px;
+        max-height: 224px;
         border-radius: var(--radius-xl);
     }
 }
 
 @media (min-width: 1024px) {
     .featuredImage {
-        width: 180px;
-        height: 252px;
+        max-height: 280px;
     }
 }
 
@@ -401,7 +407,6 @@
 @media (min-width: 768px) {
     .featuredContent {
         gap: var(--space-2);
-        padding: var(--space-1) 0;
     }
 }
 
@@ -497,27 +502,27 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--on-surface-variant);
 }
 
 @media (min-width: 768px) {
     .featuredMeta {
-        font-size: 0.8125rem;
+        font-size: 0.875rem;
         gap: var(--space-3);
     }
 }
 
 .featuredType {
-    padding: 2px 8px;
+    padding: 3px 10px;
     background: var(--surface-container-high);
     border-radius: var(--radius-sm);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 @media (min-width: 768px) {
     .featuredType {
-        padding: 4px 10px;
+        padding: 4px 12px;
     }
 }
 
@@ -526,18 +531,24 @@
     color: var(--on-surface-variant);
 }
 
-.featuredEpisode,
-.featuredScore {
+.featuredEpisode {
     display: inline-flex;
     align-items: center;
     gap: 4px;
 }
 
-/* Genre chips - small and subtle */
+.featuredScore {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+
+/* Genre chips - readable and balanced */
 .featuredGenres {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1);
+    gap: 6px;
 }
 
 @media (min-width: 768px) {
@@ -547,9 +558,9 @@
 }
 
 .genreChipSmall {
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: var(--radius-full);
-    background: var(--surface-dim);
+    background: var(--surface-container-high);
     color: var(--on-surface-variant);
     font-size: 0.6875rem;
     font-weight: 500;
@@ -557,51 +568,54 @@
 
 @media (min-width: 768px) {
     .genreChipSmall {
-        padding: 3px 10px;
+        padding: 4px 12px;
         font-size: 0.75rem;
     }
 }
 
-/* Synopsis - line clamped for readability */
+/* Synopsis - fills space with line clamp truncation */
 .featuredSynopsis {
     margin: 0;
-    font-size: 0.75rem;
-    line-height: 1.5;
-    color: var(--on-surface-muted);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--on-surface-variant);
+    flex: 1;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
 @media (min-width: 768px) {
     .featuredSynopsis {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
+        font-size: 0.875rem;
+        line-height: 1.65;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
     }
 }
 
 @media (min-width: 1024px) {
     .featuredSynopsis {
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        font-size: 0.875rem;
+        font-size: 0.9375rem;
+        line-height: 1.7;
+        -webkit-line-clamp: 5;
+        line-clamp: 5;
     }
 }
 
 .featuredActions {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin-top: auto;
+    gap: var(--space-3);
     padding-top: var(--space-2);
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 @media (min-width: 768px) {
     .featuredActions {
-        gap: var(--space-3);
         padding-top: var(--space-3);
     }
 }
@@ -610,33 +624,34 @@
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
+    padding: 10px var(--space-5);
     background: var(--primary);
     color: var(--on-primary);
     border-radius: var(--radius-full);
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
-    transition: filter var(--transition-base);
+    transition: filter var(--transition-base), transform var(--transition-base);
 }
 
 @media (min-width: 768px) {
     .featuredWatchBtn {
-        padding: var(--space-3) var(--space-5);
-        font-size: 0.875rem;
+        padding: 12px var(--space-6);
+        font-size: 0.9375rem;
     }
 }
 
 .featuredWatchBtn:hover {
     filter: brightness(1.1);
+    transform: translateY(-1px);
 }
 
 .featuredShuffleBtn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-full);
     background: var(--surface-container-high);
     border: none;
@@ -654,6 +669,100 @@
 
 .featuredShuffleBtn:hover {
     background: var(--surface-container-highest);
+}
+
+/* ============================================================
+   COMMUNITY SUPPORT - Tako leaderboard iframe embed
+   Secondary to main content, calm and unobtrusive
+   ============================================================ */
+.communitySupport {
+    padding: var(--space-3);
+    background: var(--surface-dim);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-4);
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .communitySupport {
+        padding: var(--space-3) var(--space-4);
+    }
+}
+
+.communitySupportHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: var(--space-2);
+}
+
+.communitySupportIcon {
+    color: var(--primary);
+    opacity: 0.7;
+}
+
+.leaderboardEmbed {
+    position: relative;
+    width: 100%;
+    min-height: 120px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--surface-container);
+}
+
+@media (min-width: 768px) {
+    .leaderboardEmbed {
+        min-height: 150px;
+    }
+}
+
+.takoIframe {
+    width: 100%;
+    height: 120px;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .takoIframe {
+        height: 150px;
+    }
+}
+
+.takoIframeLoaded {
+    opacity: 1;
+}
+
+.leaderboardPlaceholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-surface-muted);
+}
+
+.loadingSpinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ============================================================

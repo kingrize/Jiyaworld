@@ -172,8 +172,8 @@ function FeaturedCard({ anime, onShuffle }: {
                 <Image
                     src={anime.poster}
                     alt={anime.title}
-                    width={160}
-                    height={224}
+                    width={200}
+                    height={280}
                     className={styles.featuredImage}
                     priority
                 />
@@ -247,6 +247,45 @@ function FeaturedCard({ anime, onShuffle }: {
                         <Shuffle size={14} />
                     </button>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+// ============================================================
+// COMMUNITY SUPPORT - Tako leaderboard iframe embed
+// Direct client-side integration, display-only
+// ============================================================
+const TAKO_OVERLAY_URL = "https://tako.id/overlay/leaderboard?overlay_key=nskxo4m68w3ei38k02e1pwgr";
+
+function CommunitySupport() {
+    const [loaded, setLoaded] = useState(false);
+    const [hasError, setHasError] = useState(false);
+
+    // Fail silently if iframe doesn't load
+    if (hasError) return null;
+
+    return (
+        <div className={styles.communitySupport}>
+            <div className={styles.communitySupportHeader}>
+                <Heart size={12} className={styles.communitySupportIcon} />
+                <span>Top Supporters</span>
+            </div>
+            <div className={styles.leaderboardEmbed}>
+                <iframe
+                    src={TAKO_OVERLAY_URL}
+                    title="Community Supporters"
+                    className={`${styles.takoIframe} ${loaded ? styles.takoIframeLoaded : ''}`}
+                    onLoad={() => setLoaded(true)}
+                    onError={() => setHasError(true)}
+                    loading="lazy"
+                    sandbox="allow-scripts allow-same-origin"
+                />
+                {!loaded && (
+                    <div className={styles.leaderboardPlaceholder}>
+                        <Loader2 size={16} className={styles.loadingSpinner} />
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -747,12 +786,13 @@ export default function AnimePage() {
                     <>
                         {/* TOP ROW: Featured + Trending side by side on desktop */}
                         <div className={styles.topRow}>
-                            {/* Featured Card */}
+                            {/* Featured Card + Community Support */}
                             <div className={styles.featuredWrapper}>
                                 <FeaturedCard
                                     anime={featuredAnime}
                                     onShuffle={pickRandomFeatured}
                                 />
+                                <CommunitySupport />
                             </div>
 
                             {/* Trending List */}
