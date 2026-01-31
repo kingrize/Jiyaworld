@@ -256,7 +256,8 @@ function FeaturedCard({ anime, onShuffle }: {
 // COMMUNITY SUPPORT - Tako leaderboard iframe embed
 // Direct client-side integration, display-only
 // ============================================================
-const TAKO_OVERLAY_URL = "https://tako.id/overlay/leaderboard?overlay_key=nskxo4m68w3ei38k02e1pwgr";
+const TAKO_OVERLAY_URL = "https://tako.id/overlay/leaderboard?overlay_key=ncdd8m7i45nm8vmp7epfidbj";
+const TAKO_DONATE_URL = "https://tako.id/argazyu";
 
 function CommunitySupport() {
     const [loaded, setLoaded] = useState(false);
@@ -286,6 +287,18 @@ function CommunitySupport() {
                         <Loader2 size={16} className={styles.loadingSpinner} />
                     </div>
                 )}
+            </div>
+            {/* Donate Button Footer */}
+            <div className={styles.communitySupportFooter}>
+                <a
+                    href={TAKO_DONATE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.donateBtn}
+                >
+                    <Heart size={12} />
+                    Support Here
+                </a>
             </div>
         </div>
     );

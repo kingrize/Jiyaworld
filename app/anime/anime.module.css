@@ -765,6 +765,104 @@
     }
 }
 
+/* Footer with donate button */
+.communitySupportFooter {
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--outline-variant);
+    margin-top: var(--space-2);
+}
+
+.donateBtn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--outline);
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: var(--elevation-1);
+    overflow: visible;
+    transition:
+        background var(--transition-base),
+        border-color var(--transition-base),
+        box-shadow var(--transition-base),
+        transform var(--duration-short) var(--ease-standard);
+}
+
+.donateBtn:hover {
+    background: var(--surface-container-highest);
+    border-color: var(--on-surface-muted);
+    box-shadow: var(--elevation-2);
+    transform: translateY(-1px);
+}
+
+.donateBtn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.donateBtn:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: var(--elevation-1);
+    background: var(--surface-container-high);
+}
+
+@media (min-width: 768px) {
+    .donateBtn {
+        padding: 9px 18px;
+        font-size: 0.8125rem;
+        gap: 8px;
+    }
+}
+
+/* Radiating aura effect - desktop hover only */
+@media (min-width: 768px) {
+
+    .donateBtn::before,
+    .donateBtn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        border-radius: var(--radius-full);
+        border: 1px solid var(--primary);
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, -50%) scale(1);
+        transition: opacity 0.3s ease-out;
+    }
+
+    .donateBtn:hover::before {
+        animation: radiateOut 1.8s ease-out infinite;
+    }
+
+    .donateBtn:hover::after {
+        animation: radiateOut 1.8s ease-out 0.9s infinite;
+    }
+}
+
+@keyframes radiateOut {
+    0% {
+        opacity: 0.35;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.6);
+    }
+}
+
 /* ============================================================
    SECTIONS - Content grouping with headers
    ============================================================ */
