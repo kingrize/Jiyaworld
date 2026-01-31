@@ -15,15 +15,15 @@ import {
     Film,
     ChevronRight,
     TrendingUp,
-    CheckCircle2,
     Shuffle,
     Filter,
-    Sparkles,
     Clock,
     Flame,
-    Grid3X3,
     List,
     X,
+    Heart,
+    Calendar,
+    Layers,
 } from "lucide-react";
 import styles from "./anime.module.css";
 
@@ -38,6 +38,18 @@ interface Anime {
     type?: string;
     score?: string;
     status?: string;
+}
+
+interface Genre {
+    name: string;
+    slug: string;
+}
+
+interface FeaturedAnime extends Anime {
+    synopsis?: string;
+    genres?: Genre[];
+    duration?: string;
+    totalEpisodes?: number;
 }
 
 // ============================================================
@@ -55,44 +67,45 @@ const GENRES = [
 ];
 
 // ============================================================
-// ANIME CARD COMPONENT
+// COMPACT ANIME CARD - Vertical poster with info below
+// Aspect ratio: 3:4 for better grid density
 // ============================================================
-function AnimeCard({ anime, priority = false, compact = false }: {
+function AnimeCard({ anime, priority = false }: {
     anime: Anime;
     priority?: boolean;
-    compact?: boolean;
 }) {
     return (
-        <Link href={`/anime/${anime.slug}`} className={`${styles.animeCard} ${compact ? styles.animeCardCompact : ''}`}>
+        <Link href={`/anime/${anime.slug}`} className={styles.animeCard}>
             <div className={styles.cardPoster}>
                 <Image
                     src={anime.poster}
                     alt={anime.title}
                     fill
                     priority={priority}
-                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                    sizes="(max-width: 480px) 45vw, (max-width: 768px) 30vw, (max-width: 1024px) 22vw, 18vw"
                     className={styles.posterImage}
                     onError={(e) => {
                         e.currentTarget.src = "/placeholder-anime.png";
                     }}
                 />
+                {/* Status indicator - top left */}
                 {anime.type && (
-                    <span className={styles.typeBadge}>{anime.type}</span>
+                    <span className={styles.cardTypeBadge}>{anime.type}</span>
                 )}
+                {/* Episode badge - bottom of poster */}
                 {anime.episode && (
-                    <span className={styles.episodeBadge}>
-                        {anime.episode.replace("Episode ", "Ep ")}
-                    </span>
+                    <div className={styles.cardEpisodeBar}>
+                        <Clock size={10} />
+                        <span>{anime.episode.replace("Episode ", "Ep ")}</span>
+                    </div>
                 )}
-                <div className={styles.cardOverlay}>
-                    <Play size={28} className={styles.playIcon} />
-                </div>
             </div>
-            <div className={styles.cardInfo}>
+            {/* Info section - below poster */}
+            <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>{anime.title}</h3>
                 {anime.score && (
                     <div className={styles.cardMeta}>
-                        <Star size={12} />
+                        <Star size={11} className={styles.starIcon} />
                         <span>{anime.score}</span>
                     </div>
                 )}
@@ -102,56 +115,197 @@ function AnimeCard({ anime, priority = false, compact = false }: {
 }
 
 // ============================================================
-// SECTION HEADER
+// HORIZONTAL LIST CARD - For trending/featured lists
+// Shows more info in horizontal layout
 // ============================================================
-function SectionHeader({
-    title,
-    icon: Icon,
-    count,
-    action
-}: {
-    title: string;
-    icon: React.ElementType;
-    count?: number;
-    action?: React.ReactNode;
+function HorizontalCard({ anime, rank }: {
+    anime: Anime;
+    rank?: number;
 }) {
     return (
-        <div className={styles.sectionHeader}>
-            <div className={styles.sectionTitle}>
-                <div className={styles.sectionIconWrapper}>
-                    <Icon size={18} />
+        <Link href={`/anime/${anime.slug}`} className={styles.horizontalCard}>
+            {rank && (
+                <div className={styles.horizontalRank}>
+                    <span>{rank}</span>
                 </div>
-                <h2>{title}</h2>
-                {count !== undefined && (
-                    <span className={styles.sectionCount}>{count}</span>
-                )}
+            )}
+            <div className={styles.horizontalPoster}>
+                <Image
+                    src={anime.poster}
+                    alt={anime.title}
+                    width={56}
+                    height={80}
+                    className={styles.horizontalImage}
+                />
             </div>
-            {action && <div className={styles.sectionAction}>{action}</div>}
+            <div className={styles.horizontalInfo}>
+                <h4 className={styles.horizontalTitle}>{anime.title}</h4>
+                <div className={styles.horizontalMeta}>
+                    {anime.type && (
+                        <span className={styles.horizontalType}>{anime.type}</span>
+                    )}
+                    {anime.episode && (
+                        <span className={styles.horizontalEpisode}>
+                            {anime.episode.replace("Episode ", "Ep ")}
+                        </span>
+                    )}
+                </div>
+            </div>
+            <ChevronRight size={16} className={styles.horizontalArrow} />
+        </Link>
+    );
+}
+
+// ============================================================
+// FEATURED CARD - Spotlight with synopsis and genres
+// Primary visual focus with rich content
+// ============================================================
+function FeaturedCard({ anime, onShuffle }: {
+    anime: FeaturedAnime | null;
+    onShuffle: () => void;
+}) {
+    if (!anime) return null;
+
+    return (
+        <div className={styles.featuredCard}>
+            <div className={styles.featuredPoster}>
+                <Image
+                    src={anime.poster}
+                    alt={anime.title}
+                    width={160}
+                    height={224}
+                    className={styles.featuredImage}
+                    priority
+                />
+            </div>
+            <div className={styles.featuredContent}>
+                {/* Label + Status */}
+                <div className={styles.featuredHeader}>
+                    <span className={styles.featuredLabel}>
+                        <Flame size={12} />
+                        Featured
+                    </span>
+                    {anime.status && (
+                        <span className={styles.featuredStatus} data-status={anime.status.toLowerCase()}>
+                            {anime.status}
+                        </span>
+                    )}
+                </div>
+
+                {/* Title */}
+                <h2 className={styles.featuredTitle}>{anime.title}</h2>
+
+                {/* Quick Meta Row */}
+                <div className={styles.featuredMeta}>
+                    {anime.type && (
+                        <span className={styles.featuredType}>{anime.type}</span>
+                    )}
+                    {anime.totalEpisodes && anime.totalEpisodes > 0 && (
+                        <span className={styles.featuredEpisodeCount}>
+                            {anime.totalEpisodes} Eps
+                        </span>
+                    )}
+                    {anime.episode && !anime.totalEpisodes && (
+                        <span className={styles.featuredEpisode}>
+                            <Clock size={12} />
+                            {anime.episode}
+                        </span>
+                    )}
+                    {anime.score && (
+                        <span className={styles.featuredScore}>
+                            <Star size={12} className={styles.starIcon} />
+                            {anime.score}
+                        </span>
+                    )}
+                </div>
+
+                {/* Genre Chips */}
+                {anime.genres && anime.genres.length > 0 && (
+                    <div className={styles.featuredGenres}>
+                        {anime.genres.slice(0, 4).map((genre) => (
+                            <span key={genre.slug} className={styles.genreChipSmall}>
+                                {genre.name}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                {/* Synopsis */}
+                {anime.synopsis && (
+                    <p className={styles.featuredSynopsis}>
+                        {anime.synopsis}
+                    </p>
+                )}
+
+                {/* Actions */}
+                <div className={styles.featuredActions}>
+                    <Link href={`/anime/${anime.slug}`} className={styles.featuredWatchBtn}>
+                        <Play size={14} fill="currentColor" />
+                        Watch Now
+                    </Link>
+                    <button onClick={onShuffle} className={styles.featuredShuffleBtn} title="Show another">
+                        <Shuffle size={14} />
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
 
 // ============================================================
-// ANIME GRID
+// SECTION CONTAINER - Groups content with surface elevation
+// ============================================================
+function Section({
+    title,
+    icon: Icon,
+    action,
+    children,
+    variant = "default"
+}: {
+    title: string;
+    icon: React.ElementType;
+    action?: React.ReactNode;
+    children: React.ReactNode;
+    variant?: "default" | "surface";
+}) {
+    return (
+        <section className={`${styles.section} ${variant === "surface" ? styles.sectionSurface : ""}`}>
+            <div className={styles.sectionHeader}>
+                <div className={styles.sectionTitleGroup}>
+                    <Icon size={18} className={styles.sectionIcon} />
+                    <h2 className={styles.sectionTitle}>{title}</h2>
+                </div>
+                {action && <div className={styles.sectionAction}>{action}</div>}
+            </div>
+            {children}
+        </section>
+    );
+}
+
+// ============================================================
+// ANIME GRID - Responsive poster grid
 // ============================================================
 function AnimeGrid({
     animes,
     loading,
     emptyMessage,
-    compact = false
+    columns = "default"
 }: {
     animes: Anime[];
     loading: boolean;
     emptyMessage?: string;
-    compact?: boolean;
+    columns?: "default" | "compact";
 }) {
     if (loading) {
         return (
-            <div className={`${styles.animeGrid} ${compact ? styles.animeGridCompact : ''}`}>
+            <div className={`${styles.animeGrid} ${columns === "compact" ? styles.gridCompact : ""}`}>
                 {[...Array(10)].map((_, i) => (
                     <div key={i} className={styles.skeletonCard}>
                         <div className={styles.skeletonPoster} />
-                        <div className={styles.skeletonTitle} />
+                        <div className={styles.skeletonContent}>
+                            <div className={styles.skeletonTitle} />
+                            <div className={styles.skeletonMeta} />
+                        </div>
                     </div>
                 ))}
             </div>
@@ -161,20 +315,19 @@ function AnimeGrid({
     if (animes.length === 0) {
         return (
             <div className={styles.emptyState}>
-                <Film size={48} />
+                <Film size={40} />
                 <p>{emptyMessage || "No anime found"}</p>
             </div>
         );
     }
 
     return (
-        <div className={`${styles.animeGrid} ${compact ? styles.animeGridCompact : ''}`}>
+        <div className={`${styles.animeGrid} ${columns === "compact" ? styles.gridCompact : ""}`}>
             {animes.map((anime, index) => (
                 <AnimeCard
                     key={`${anime.slug}-${index}`}
                     anime={anime}
-                    priority={index < 5}
-                    compact={compact}
+                    priority={index < 4}
                 />
             ))}
         </div>
@@ -182,108 +335,93 @@ function AnimeGrid({
 }
 
 // ============================================================
-// FEATURED ANIME HERO (Desktop) + CAROUSEL (Mobile)
+// TRENDING LIST - Horizontal scrolling list cards
 // ============================================================
-function FeaturedAnime({
-    anime,
-    allFeatured,
-    onRandom
+function TrendingList({
+    animes,
+    loading
 }: {
-    anime: Anime | null;
-    allFeatured: Anime[];
-    onRandom: () => void;
+    animes: Anime[];
+    loading: boolean;
 }) {
-    if (!anime) return null;
+    if (loading) {
+        return (
+            <div className={styles.trendingList}>
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} className={styles.horizontalCardSkeleton}>
+                        <div className={styles.skeletonRank} />
+                        <div className={styles.skeletonThumb} />
+                        <div className={styles.skeletonInfo}>
+                            <div className={styles.skeletonTitle} />
+                            <div className={styles.skeletonMeta} />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
 
     return (
-        <>
-            {/* Desktop: Single Featured Hero */}
-            <div className={styles.featuredSection}>
-                <div
-                    className={styles.featuredBackground}
-                    style={{ backgroundImage: `url(${anime.poster})` }}
+        <div className={styles.trendingList}>
+            {animes.slice(0, 5).map((anime, index) => (
+                <HorizontalCard
+                    key={anime.slug}
+                    anime={anime}
+                    rank={index + 1}
                 />
-                <div className={styles.featuredContent}>
-                    <div className={styles.featuredPoster}>
+            ))}
+        </div>
+    );
+}
+
+// ============================================================
+// QUICK PICKS - Horizontal scroll of compact cards
+// ============================================================
+function QuickPicks({
+    animes,
+    loading
+}: {
+    animes: Anime[];
+    loading: boolean;
+}) {
+    if (loading) {
+        return (
+            <div className={styles.quickPicksTrack}>
+                {[...Array(6)].map((_, i) => (
+                    <div key={i} className={styles.quickPickSkeleton}>
+                        <div className={styles.skeletonPoster} />
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    return (
+        <div className={styles.quickPicksTrack}>
+            {animes.slice(0, 10).map((anime) => (
+                <Link
+                    key={anime.slug}
+                    href={`/anime/${anime.slug}`}
+                    className={styles.quickPickCard}
+                >
+                    <div className={styles.quickPickPoster}>
                         <Image
                             src={anime.poster}
                             alt={anime.title}
-                            width={180}
-                            height={270}
-                            className={styles.featuredImage}
-                            priority
+                            width={100}
+                            height={140}
+                            className={styles.quickPickImage}
                         />
+                        {anime.episode && (
+                            <span className={styles.quickPickEpisode}>
+                                {anime.episode.replace("Episode ", "Ep ")}
+                            </span>
+                        )}
                     </div>
-                    <div className={styles.featuredInfo}>
-                        <span className={styles.featuredLabel}>
-                            <Sparkles size={14} />
-                            Featured Pick
-                        </span>
-                        <h2 className={styles.featuredTitle}>{anime.title}</h2>
-                        <div className={styles.featuredMeta}>
-                            {anime.type && <span className={styles.featuredType}>{anime.type}</span>}
-                            {anime.episode && <span>{anime.episode}</span>}
-                        </div>
-                        <div className={styles.featuredActions}>
-                            <Link href={`/anime/${anime.slug}`} className={styles.featuredWatchBtn}>
-                                <Play size={18} />
-                                Watch Now
-                            </Link>
-                            <button onClick={onRandom} className={styles.featuredRandomBtn}>
-                                <Shuffle size={16} />
-                                Random
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Mobile: Horizontal Scroll Carousel */}
-            <div className={styles.featuredCarousel}>
-                <div className={styles.carouselHeader}>
-                    <span className={styles.carouselLabel}>
-                        <Sparkles size={14} />
-                        Featured
-                    </span>
-                    <button onClick={onRandom} className={styles.carouselShuffle}>
-                        <Shuffle size={14} />
-                    </button>
-                </div>
-                <div className={styles.carouselTrack}>
-                    {allFeatured.slice(0, 8).map((item, index) => (
-                        <Link
-                            key={item.slug}
-                            href={`/anime/${item.slug}`}
-                            className={`${styles.carouselCard} ${index === 0 ? styles.carouselCardFirst : ''}`}
-                        >
-                            <div className={styles.carouselPoster}>
-                                <Image
-                                    src={item.poster}
-                                    alt={item.title}
-                                    width={140}
-                                    height={200}
-                                    className={styles.carouselImage}
-                                />
-                                {item.episode && (
-                                    <span className={styles.carouselEpisode}>
-                                        {item.episode.replace("Episode ", "Ep ")}
-                                    </span>
-                                )}
-                                <div className={styles.carouselGradient}>
-                                    <Play size={20} className={styles.carouselPlayIcon} />
-                                </div>
-                            </div>
-                            <div className={styles.carouselInfo}>
-                                <h3 className={styles.carouselTitle}>{item.title}</h3>
-                                {item.type && (
-                                    <span className={styles.carouselType}>{item.type}</span>
-                                )}
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            </div>
-        </>
+                    <span className={styles.quickPickTitle}>{anime.title}</span>
+                </Link>
+            ))}
+        </div>
     );
 }
 
@@ -319,7 +457,7 @@ function FilterPanel({
                 </button>
             </div>
 
-            <div className={styles.filterSection}>
+            <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>Sort By</label>
                 <div className={styles.filterOptions}>
                     {[
@@ -330,7 +468,7 @@ function FilterPanel({
                         <button
                             key={id}
                             onClick={() => onSortChange(id)}
-                            className={`${styles.filterOption} ${sortBy === id ? styles.filterOptionActive : ''}`}
+                            className={`${styles.filterChip} ${sortBy === id ? styles.filterChipActive : ''}`}
                         >
                             <Icon size={14} />
                             {label}
@@ -339,7 +477,7 @@ function FilterPanel({
                 </div>
             </div>
 
-            <div className={styles.filterSection}>
+            <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>Genre</label>
                 <div className={styles.genreGrid}>
                     <button
@@ -364,34 +502,6 @@ function FilterPanel({
 }
 
 // ============================================================
-// QUICK STATS
-// ============================================================
-function QuickStats({ ongoing, completed }: { ongoing: number; completed: number }) {
-    return (
-        <div className={styles.quickStats}>
-            <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                    <TrendingUp size={20} />
-                </div>
-                <div className={styles.statInfo}>
-                    <span className={styles.statValue}>{ongoing}</span>
-                    <span className={styles.statLabel}>Ongoing</span>
-                </div>
-            </div>
-            <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                    <CheckCircle2 size={20} />
-                </div>
-                <div className={styles.statInfo}>
-                    <span className={styles.statValue}>{completed}</span>
-                    <span className={styles.statLabel}>Completed</span>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// ============================================================
 // MAIN PAGE COMPONENT
 // ============================================================
 export default function AnimePage() {
@@ -402,7 +512,7 @@ export default function AnimePage() {
     const [ongoingAnime, setOngoingAnime] = useState<Anime[]>([]);
     const [completedAnime, setCompletedAnime] = useState<Anime[]>([]);
     const [searchResults, setSearchResults] = useState<Anime[]>([]);
-    const [featuredAnime, setFeaturedAnime] = useState<Anime | null>(null);
+    const [featuredAnime, setFeaturedAnime] = useState<FeaturedAnime | null>(null);
 
     // UI states
     const [loadingOngoing, setLoadingOngoing] = useState(true);
@@ -420,6 +530,29 @@ export default function AnimePage() {
         setMounted(true);
     }, []);
 
+    // Fetch detailed info for featured anime
+    const fetchFeaturedDetail = async (anime: Anime): Promise<FeaturedAnime> => {
+        try {
+            const res = await fetch(`${API_URL}/detail/${anime.slug}`);
+            if (res.ok) {
+                const data = await res.json();
+                const detail = data.detail;
+                return {
+                    ...anime,
+                    synopsis: detail?.synopsis,
+                    genres: detail?.genres,
+                    duration: detail?.duration,
+                    totalEpisodes: detail?.episodes?.length,
+                    score: detail?.score || anime.score,
+                    status: detail?.status || anime.status,
+                };
+            }
+        } catch (err) {
+            console.error("Error fetching featured detail:", err);
+        }
+        return anime;
+    };
+
     // Fetch ongoing anime
     useEffect(() => {
         async function fetchOngoing() {
@@ -429,9 +562,12 @@ export default function AnimePage() {
                 const data = await res.json();
                 const animes = data.animes || [];
                 setOngoingAnime(animes);
-                // Set a random featured anime
+
+                // Set a random featured anime with detail data
                 if (animes.length > 0) {
-                    setFeaturedAnime(animes[Math.floor(Math.random() * Math.min(animes.length, 5))]);
+                    const randomAnime = animes[Math.floor(Math.random() * Math.min(animes.length, 5))];
+                    const detailedFeatured = await fetchFeaturedDetail(randomAnime);
+                    setFeaturedAnime(detailedFeatured);
                 }
             } catch (err) {
                 console.error("Error fetching ongoing:", err);
@@ -484,11 +620,13 @@ export default function AnimePage() {
         }
     }, [searchQuery]);
 
-    // Random anime picker
-    const pickRandomFeatured = useCallback(() => {
+    // Random anime picker with detail fetch
+    const pickRandomFeatured = useCallback(async () => {
         const allAnime = [...ongoingAnime, ...completedAnime];
         if (allAnime.length > 0) {
-            setFeaturedAnime(allAnime[Math.floor(Math.random() * allAnime.length)]);
+            const randomAnime = allAnime[Math.floor(Math.random() * allAnime.length)];
+            const detailedFeatured = await fetchFeaturedDetail(randomAnime);
+            setFeaturedAnime(detailedFeatured);
         }
     }, [ongoingAnime, completedAnime]);
 
@@ -504,6 +642,13 @@ export default function AnimePage() {
         if (e.key === "Enter") handleSearch();
     };
 
+    // Get recommended anime
+    const getRecommendedAnime = useCallback(() => {
+        const all = [...ongoingAnime, ...completedAnime];
+        const shuffled = all.sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, 10);
+    }, [ongoingAnime, completedAnime]);
+
     if (!mounted) {
         return (
             <div className={styles.loadingScreen}>
@@ -516,22 +661,20 @@ export default function AnimePage() {
         <main className={styles.animePage}>
             <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-            {/* Navbar - Consistent with other pages */}
+            {/* Navbar */}
             <nav className={styles.navbar}>
                 <div className={styles.navLeft}>
-                    <Link href="/" className={styles.backButton}>
+                    <Link href="/" className={styles.backBtn}>
                         <ArrowLeft size={18} />
-                        <span>Back</span>
                     </Link>
-                    <div className={styles.navDivider} />
                     <div className={styles.navBrand}>
-                        <Tv size={20} className={styles.navBrandIcon} />
+                        <Tv size={18} className={styles.navIcon} />
                         <span>Anime</span>
                     </div>
                 </div>
                 <button
                     onClick={() => setIsSidebarOpen(true)}
-                    className={styles.menuButton}
+                    className={styles.menuBtn}
                     aria-label="Open Menu"
                 >
                     <LayoutGrid size={20} />
@@ -539,14 +682,14 @@ export default function AnimePage() {
             </nav>
 
             {/* Main Content */}
-            <div className={styles.container}>
-                {/* Search Bar */}
-                <div className={styles.searchWrapper}>
-                    <div className={styles.searchContainer}>
-                        <Search size={20} className={styles.searchIcon} />
+            <div className={styles.pageContent}>
+                {/* Search Section */}
+                <div className={styles.searchSection}>
+                    <div className={styles.searchBar}>
+                        <Search size={18} className={styles.searchIcon} />
                         <input
                             type="text"
-                            placeholder="Search anime titles..."
+                            placeholder="Search anime..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={handleKeyDown}
@@ -554,18 +697,15 @@ export default function AnimePage() {
                         />
                         {searchQuery && (
                             <button onClick={clearSearch} className={styles.searchClear}>
-                                <X size={16} />
+                                <X size={14} />
                             </button>
                         )}
                     </div>
-                    <button onClick={handleSearch} className={styles.searchBtn} disabled={!searchQuery.trim()}>
-                        Search
-                    </button>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
                         className={`${styles.filterBtn} ${showFilters ? styles.filterBtnActive : ''}`}
                     >
-                        <Filter size={18} />
+                        <Filter size={16} />
                     </button>
                 </div>
 
@@ -579,85 +719,112 @@ export default function AnimePage() {
                     onSortChange={setSortBy}
                 />
 
+                {/* Error Banner */}
+                {error && (
+                    <div className={styles.errorBanner}>
+                        <span>{error}</span>
+                    </div>
+                )}
+
                 {/* Search Results Mode */}
                 {isSearchMode ? (
-                    <section className={styles.section}>
-                        <SectionHeader
-                            title={`Search Results`}
-                            icon={Search}
-                            count={searchResults.length}
-                            action={
-                                <button onClick={clearSearch} className={styles.clearBtn}>
-                                    Clear Search
-                                </button>
-                            }
-                        />
+                    <Section
+                        title={`Results for "${searchQuery}"`}
+                        icon={Search}
+                        action={
+                            <button onClick={clearSearch} className={styles.textBtn}>
+                                Clear
+                            </button>
+                        }
+                    >
                         <AnimeGrid
                             animes={searchResults}
                             loading={loadingSearch}
                             emptyMessage={`No results for "${searchQuery}"`}
                         />
-                    </section>
+                    </Section>
                 ) : (
                     <>
-                        {/* Error Banner */}
-                        {error && (
-                            <div className={styles.errorBanner}>
-                                <Sparkles size={16} />
-                                <span>{error}</span>
+                        {/* TOP ROW: Featured + Trending side by side on desktop */}
+                        <div className={styles.topRow}>
+                            {/* Featured Card */}
+                            <div className={styles.featuredWrapper}>
+                                <FeaturedCard
+                                    anime={featuredAnime}
+                                    onShuffle={pickRandomFeatured}
+                                />
                             </div>
-                        )}
 
-                        {/* Featured Anime */}
-                        <FeaturedAnime
-                            anime={featuredAnime}
-                            allFeatured={ongoingAnime.slice(0, 8)}
-                            onRandom={pickRandomFeatured}
-                        />
+                            {/* Trending List */}
+                            <div className={styles.trendingWrapper}>
+                                <Section
+                                    title="Trending"
+                                    icon={Flame}
+                                    variant="surface"
+                                    action={
+                                        <Link href="/anime/list?type=ongoing" className={styles.linkBtn}>
+                                            All <ChevronRight size={14} />
+                                        </Link>
+                                    }
+                                >
+                                    <TrendingList
+                                        animes={ongoingAnime}
+                                        loading={loadingOngoing}
+                                    />
+                                </Section>
+                            </div>
+                        </div>
 
-                        {/* Quick Stats */}
-                        <QuickStats
-                            ongoing={ongoingAnime.length}
-                            completed={completedAnime.length}
-                        />
-
-                        {/* Ongoing Anime Section */}
-                        <section className={styles.section}>
-                            <SectionHeader
-                                title="Ongoing Series"
-                                icon={TrendingUp}
-                                count={ongoingAnime.length}
-                                action={
-                                    <Link href="/anime/list?type=ongoing" className={styles.seeAllBtn}>
-                                        View All <ChevronRight size={16} />
-                                    </Link>
-                                }
+                        {/* Quick Picks - Horizontal scroll */}
+                        <Section
+                            title="Quick Picks"
+                            icon={Layers}
+                            action={
+                                <button onClick={pickRandomFeatured} className={styles.iconBtn}>
+                                    <Shuffle size={14} />
+                                </button>
+                            }
+                        >
+                            <QuickPicks
+                                animes={ongoingAnime}
+                                loading={loadingOngoing}
                             />
+                        </Section>
+
+                        {/* Ongoing Series - Main Grid */}
+                        <Section
+                            title="Ongoing Series"
+                            icon={Calendar}
+                            action={
+                                <Link href="/anime/list?type=ongoing" className={styles.linkBtn}>
+                                    View All <ChevronRight size={14} />
+                                </Link>
+                            }
+                        >
                             <AnimeGrid
                                 animes={ongoingAnime.slice(0, 10)}
                                 loading={loadingOngoing}
                                 emptyMessage="No ongoing anime available"
                             />
-                        </section>
+                        </Section>
 
-                        {/* Completed Anime Section */}
-                        <section className={styles.section}>
-                            <SectionHeader
-                                title="Completed Series"
-                                icon={CheckCircle2}
-                                count={completedAnime.length}
-                                action={
-                                    <Link href="/anime/list?type=completed" className={styles.seeAllBtn}>
-                                        View All <ChevronRight size={16} />
-                                    </Link>
-                                }
-                            />
+                        {/* Recommended For You */}
+                        <Section
+                            title="You Might Like"
+                            icon={Heart}
+                            action={
+                                <button onClick={pickRandomFeatured} className={styles.textBtn}>
+                                    <Shuffle size={12} />
+                                    Refresh
+                                </button>
+                            }
+                        >
                             <AnimeGrid
-                                animes={completedAnime.slice(0, 10)}
-                                loading={loadingCompleted}
-                                emptyMessage="No completed anime available"
+                                animes={getRecommendedAnime()}
+                                loading={loadingOngoing && loadingCompleted}
+                                emptyMessage="No recommendations available"
                             />
-                        </section>
+                        </Section>
                     </>
                 )}
             </div>
