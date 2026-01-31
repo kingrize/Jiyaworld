@@ -168,19 +168,10 @@ function FeaturedCard({ anime, onShuffle }: {
 
     return (
         <div className={styles.featuredCard}>
-            <div className={styles.featuredPoster}>
-                <Image
-                    src={anime.poster}
-                    alt={anime.title}
-                    width={200}
-                    height={280}
-                    className={styles.featuredImage}
-                    priority
-                />
-            </div>
-            <div className={styles.featuredContent}>
-                {/* Label + Status */}
-                <div className={styles.featuredHeader}>
+            {/* Poster Column - Labels above cover image */}
+            <div className={styles.featuredPosterColumn}>
+                {/* Labels positioned above */}
+                <div className={styles.featuredLabels}>
                     <span className={styles.featuredLabel}>
                         <Flame size={12} />
                         Featured
@@ -191,10 +182,21 @@ function FeaturedCard({ anime, onShuffle }: {
                         </span>
                     )}
                 </div>
-
-                {/* Title */}
+                {/* Cover image */}
+                <div className={styles.featuredPoster}>
+                    <Image
+                        src={anime.poster}
+                        alt={anime.title}
+                        width={200}
+                        height={280}
+                        className={styles.featuredImage}
+                        priority
+                    />
+                </div>
+            </div>
+            <div className={styles.featuredContent}>
+                {/* Title - grouped with synopsis */}
                 <h2 className={styles.featuredTitle}>{anime.title}</h2>
-
                 {/* Quick Meta Row */}
                 <div className={styles.featuredMeta}>
                     {anime.type && (
