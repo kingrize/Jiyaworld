@@ -1,0 +1,348 @@
+/* app/links/links.module.css */
+
+/* ============================================
+   CONTAINER & LAYOUT
+   ============================================ */
+.container {
+    min-height: 100vh;
+    background-color: var(--background-one);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6) var(--space-4);
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+/* ============================================
+   PROFILE SECTION
+   ============================================ */
+.profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    text-align: center;
+    padding: var(--space-6) 0;
+}
+
+.avatarWrapper {
+    position: relative;
+    margin-bottom: var(--space-2);
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--surface-container-high);
+    box-shadow: var(--elevation-2);
+    transition: transform var(--duration-medium) var(--ease-emphasized),
+        box-shadow var(--duration-medium) var(--ease-emphasized);
+}
+
+.avatar:hover {
+    transform: scale(1.05);
+    box-shadow: var(--elevation-4);
+}
+
+.name {
+    font-size: clamp(1.75rem, 5vw, 2.25rem);
+    font-weight: 700;
+    color: var(--on-surface);
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1.2;
+    background: linear-gradient(90deg,
+            var(--on-surface) 0%,
+            var(--primary) 50%,
+            var(--on-surface) 100%);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .name {
+        animation: none;
+        background: none;
+        background-clip: unset;
+        -webkit-background-clip: unset;
+        -webkit-text-fill-color: var(--on-surface);
+        color: var(--on-surface);
+    }
+}
+
+.tagline {
+    font-size: 1rem;
+    color: var(--on-surface-variant);
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 400px;
+}
+
+/* ============================================
+   LINKS SECTION
+   ============================================ */
+.linksContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+.linkSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.categoryTitle {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--on-surface-muted);
+    margin: 0;
+    padding: 0 var(--space-2);
+}
+
+.linkList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+/* ============================================
+   LINK CARDS
+   ============================================ */
+.linkCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    background-color: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    color: var(--on-surface);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all var(--duration-medium) var(--ease-emphasized);
+    cursor: pointer;
+    min-height: 56px;
+    box-shadow: var(--elevation-1);
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.linkCardMounted {
+    animation: slideIn var(--duration-long) var(--ease-emphasized) forwards;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.linkCard:hover {
+    background-color: var(--surface-container-high);
+    border-color: var(--outline);
+    box-shadow: var(--elevation-3);
+    transform: translateY(-2px);
+}
+
+.linkCard:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: var(--elevation-1);
+}
+
+.linkContent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.linkIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: var(--surface-container-highest);
+    border-radius: var(--radius-md);
+    color: var(--on-surface-variant);
+    transition: all var(--duration-short) var(--ease-standard);
+    flex-shrink: 0;
+}
+
+.linkCard:hover .linkIcon {
+    background-color: var(--primary-container);
+    color: var(--primary);
+}
+
+.linkTitle {
+    font-size: 0.9375rem;
+    letter-spacing: 0.01em;
+}
+
+.externalIcon {
+    color: var(--on-surface-muted);
+    flex-shrink: 0;
+    transition: color var(--duration-short) var(--ease-standard);
+}
+
+.linkCard:hover .externalIcon {
+    color: var(--on-surface-variant);
+}
+
+/* ============================================
+   HIGHLIGHTED LINK (e.g., Support)
+   ============================================ */
+.linkCardHighlight {
+    background: linear-gradient(135deg,
+            var(--surface-container) 0%,
+            var(--surface-container-high) 100%);
+    border-color: var(--primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.linkCardHighlight::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            transparent 0%,
+            var(--primary-container) 100%);
+    opacity: 0;
+    transition: opacity var(--duration-medium) var(--ease-emphasized);
+    pointer-events: none;
+}
+
+.linkCardHighlight:hover::before {
+    opacity: 1;
+}
+
+.linkCardHighlight:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-container), var(--elevation-3);
+}
+
+.linkCardHighlight .linkIcon {
+    background-color: var(--primary-container);
+    color: var(--primary);
+}
+
+.linkCardHighlight:hover .linkIcon {
+    background-color: var(--primary);
+    color: var(--on-primary);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer {
+    padding: var(--space-8) 0 var(--space-4);
+    text-align: center;
+}
+
+.footerText {
+    font-size: 0.8125rem;
+    color: var(--on-surface-muted);
+    margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet and up */
+@media (min-width: 640px) {
+    .container {
+        padding: var(--space-12) var(--space-6);
+    }
+
+    .avatar {
+        width: 140px;
+        height: 140px;
+    }
+
+    .linkCard {
+        padding: var(--space-5) var(--space-6);
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .wrapper {
+        max-width: 600px;
+    }
+
+    .linkCard {
+        transition: all var(--duration-short) var(--ease-standard);
+    }
+
+    .linkCard:hover {
+        transform: translateY(-4px);
+    }
+}
+
+/* ============================================
+   LIGHT MODE ADJUSTMENTS
+   ============================================ */
+[data-theme="light"] .linkCard {
+    background-color: var(--surface-container);
+    border-color: var(--outline-variant);
+}
+
+[data-theme="light"] .linkCard:hover {
+    background-color: var(--surface-bright);
+    border-color: var(--outline);
+}
+
+[data-theme="light"] .linkIcon {
+    background-color: var(--surface-container-high);
+}
+
+[data-theme="light"] .linkCard:hover .linkIcon {
+    background-color: var(--primary-container);
+}
+
+[data-theme="light"] .linkCardHighlight {
+    border-color: var(--primary);
+}
+
+[data-theme="light"] .linkCardHighlight:hover {
+    box-shadow: 0 0 0 2px var(--primary-container), var(--elevation-2);
+}
+

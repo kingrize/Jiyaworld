@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Book,
-  Gamepad2,
+  Tv,
   ChevronRight,
   ChevronDown,
   X,
@@ -19,6 +19,9 @@ import {
   Languages,
   Shield,
   User,
+  Link as LinkIcon,
+  Mail,
+  Wrench,
 } from "lucide-react";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -30,35 +33,28 @@ type Category = {
   items: { name: string; href: string }[];
 };
 
-// Reordered: GAME first, then STUDY, MEDIA, TRANSLATE
+// Reorganized categories: AI Tools + Media Tools
 const categories: Category[] = [
   {
-    name: "GAME",
-    icon: Gamepad2,
+    name: "AI TOOLS",
+    icon: Book,
     items: [
-      { name: "Check Nickname", href: "/tools/check-nickname" },
+      { name: "Study AI", href: "/tools/study-ai" },
+      { name: "Translate AI", href: "/tools/translate-ai" },
     ],
   },
   {
-    name: "STUDY",
-    icon: Book,
-    items: [{ name: "StudyAI", href: "/tools/study-ai" }],
-  },
-  {
-    name: "MEDIA",
+    name: "MEDIA TOOLS",
     icon: Youtube,
-    items: [{ name: "YT Saver", href: "/tools/youtube-downloader" }],
-  },
-  {
-    name: "TRANSLATE",
-    icon: Languages,
-    items: [{ name: "TranslateAI", href: "/tools/translate-ai" }],
+    items: [
+      { name: "YouTube Downloader", href: "/tools/youtube-downloader" },
+    ],
   },
 ];
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
   const router = useRouter();
-  const [expanded, setExpanded] = useState<string[]>(["GAME", "STUDY", "MEDIA", "TRANSLATE"]);
+  const [expanded, setExpanded] = useState<string[]>(["AI TOOLS", "MEDIA TOOLS"]);
   const [theme, setTheme] = useState("system");
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -174,6 +170,22 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
               <a href="/about" className="sidebar-nav-item">
                 <Info size={16} />
                 <span>About</span>
+              </a>
+              <a href="/contact" className="sidebar-nav-item">
+                <Mail size={16} />
+                <span>Contact</span>
+              </a>
+              <a href="/links" className="sidebar-nav-item">
+                <LinkIcon size={16} />
+                <span>Links</span>
+              </a>
+              <a href="/tools" className="sidebar-nav-item">
+                <Wrench size={16} />
+                <span>Tools</span>
+              </a>
+              <a href="/anime" className="sidebar-nav-item">
+                <Tv size={16} />
+                <span>Anime</span>
               </a>
             </div>
           </div>
