@@ -180,23 +180,22 @@ export function ChatBubble() {
         <div style={{
           width: "min(380px, calc(100vw - 3rem))",
           height: "min(600px, calc(100vh - 100px))",
-          background: "var(--background-one)",
-          borderRadius: "24px",
-          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border)",
+          background: "var(--surface)",
+          borderRadius: "var(--radius-lg)",
+          boxShadow: "0 12px 32px -8px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--outline-variant)",
           display: isOpen ? "flex" : "none",
           flexDirection: "column",
           overflow: "hidden",
           transformOrigin: "bottom right",
           animation: isOpen ? "chatSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
-          border: "1px solid var(--border)",
         }}>
 
           {/* Header */}
           <div style={{
             padding: "1rem 1.25rem",
-            background: "rgba(var(--surface-three), 0.8)",
-            backdropFilter: "blur(10px)",
-            borderBottom: "1px solid var(--border)",
+            background: "rgba(var(--hue), 10%, 11%, 0.95)", // slightly translucent surface
+            backdropFilter: "blur(12px)",
+            borderBottom: "1px solid var(--outline-variant)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -205,76 +204,58 @@ export function ChatBubble() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <div style={{ position: "relative" }}>
                 <div style={{
-                  width: "42px",
-                  height: "42px",
-                  borderRadius: "14px",
-                  background: "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)",
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--surface-container-high)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+
                 }}>
-                  <Bot size={22} color="var(--background-one)" strokeWidth={2.5} />
+                  <Bot size={20} color="var(--primary)" strokeWidth={2} />
                 </div>
                 <div style={{
                   position: "absolute",
-                  bottom: -2,
-                  right: -2,
-                  width: "12px",
-                  height: "12px",
+                  bottom: -1,
+                  right: -1,
+                  width: "10px",
+                  height: "10px",
                   background: "#22c55e",
                   borderRadius: "50%",
-                  border: "2px solid var(--surface-three)",
+                  border: "2px solid var(--surface)",
                 }}></div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
                 <h3 style={{
-                  fontSize: "1rem",
-                  fontWeight: "700",
-                  color: "var(--text-one)",
+                  fontSize: "0.9375rem",
+                  fontWeight: "600",
+                  color: "var(--on-surface)",
                   margin: 0,
                   lineHeight: 1.2,
+                  letterSpacing: "0.01em",
                 }}>Kira</h3>
                 <span style={{
                   fontSize: "0.75rem",
-                  color: "var(--text-four)",
-                  fontWeight: "500",
+                  color: "var(--on-surface-muted)",
+                  fontWeight: "400",
                 }}>
-                  Always here to help
+                  Assistant
                 </span>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div style={{ display: "flex", gap: "0.25rem" }}>
               {/* --- 5. SETTINGS ICON --- */}
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 style={{
                   width: "32px",
                   height: "32px",
-                  borderRadius: "10px",
+                  borderRadius: "var(--radius-sm)",
                   border: "none",
-                  background: showSettings ? "var(--surface-five)" : "var(--surface-four)",
-                  color: "var(--text-four)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <Settings size={16} />
-              </button>
-
-              <button
-                onClick={() => setIsOpen(false)}
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: "var(--surface-four)",
-                  color: "var(--text-four)",
+                  background: showSettings ? "var(--surface-container-highest)" : "transparent",
+                  color: "var(--on-surface-variant)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -282,15 +263,44 @@ export function ChatBubble() {
                   transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--red-one)";
-                  e.currentTarget.style.color = "white";
+                  e.currentTarget.style.background = "var(--surface-container-high)";
+                  e.currentTarget.style.color = "var(--on-surface)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "var(--surface-four)";
-                  e.currentTarget.style.color = "var(--text-four)";
+                  if (!showSettings) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "var(--on-surface-variant)";
+                  }
                 }}
               >
-                <X size={18} />
+                <Settings size={18} />
+              </button>
+
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "none",
+                  background: "transparent",
+                  color: "var(--on-surface-variant)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--surface-container-high)";
+                  e.currentTarget.style.color = "var(--on-surface)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "var(--on-surface-variant)";
+                }}
+              >
+                <X size={20} />
               </button>
             </div>
           </div>
@@ -301,11 +311,11 @@ export function ChatBubble() {
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "1.25rem",
+              padding: "1rem",
               display: "flex",
               flexDirection: "column",
-              gap: "1.25rem",
-              background: "var(--background-one)",
+              gap: "1.5rem", // More breathing room
+              background: "var(--surface)",
               position: "relative",
             }}
           >
@@ -317,14 +327,14 @@ export function ChatBubble() {
                 left: 0,
                 right: 0,
                 padding: "1rem",
-                background: "var(--surface-three)",
-                borderBottom: "1px solid var(--border)",
+                background: "var(--surface-container)",
+                borderBottom: "1px solid var(--outline-variant)",
                 zIndex: 20,
-                animation: "chatSlideIn 0.3s ease-out",
+                animation: "chatSlideIn 0.2s ease-out",
               }}>
-                <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "0.85rem", color: "var(--text-one)" }}>Custom API Key</h4>
-                <p style={{ margin: "0 0 0.75rem 0", fontSize: "0.75rem", color: "var(--text-four)" }}>
-                  Want higher capacity? Enter your own Google Gemini API key here.
+                <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "0.85rem", color: "var(--on-surface)", fontWeight: 500 }}>Custom API Key</h4>
+                <p style={{ margin: "0 0 0.75rem 0", fontSize: "0.75rem", color: "var(--on-surface-variant)" }}>
+                  Use your own Google Gemini API key for higher limits.
                 </p>
                 <input
                   type="password"
@@ -334,12 +344,13 @@ export function ChatBubble() {
                   style={{
                     width: "100%",
                     padding: "0.6rem 0.75rem",
-                    borderRadius: "10px",
-                    border: "1px solid var(--border)",
-                    background: "var(--background-one)",
-                    color: "var(--text-one)",
+                    borderRadius: "var(--radius-sm)",
+                    border: "1px solid var(--outline-variant)",
+                    background: "var(--surface)",
+                    color: "var(--on-surface)",
                     fontSize: "0.85rem",
                     outline: "none",
+                    fontFamily: "monospace",
                   }}
                 />
                 <button
@@ -348,14 +359,17 @@ export function ChatBubble() {
                     marginTop: "0.75rem",
                     width: "100%",
                     padding: "0.5rem",
-                    borderRadius: "8px",
+                    borderRadius: "var(--radius-sm)",
                     background: "var(--primary)",
-                    color: "var(--text-three)",
+                    color: "var(--on-primary)",
                     border: "none",
                     fontSize: "0.8rem",
                     fontWeight: 600,
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    opacity: 0.9,
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = "0.9"}
                 >
                   Save & Close
                 </button>
@@ -371,7 +385,7 @@ export function ChatBubble() {
                     display: "flex",
                     flexDirection: isUser ? "row-reverse" : "row",
                     alignItems: "flex-end",
-                    gap: "0.5rem",
+                    gap: "0.75rem",
                     animation: "chatMessageAppear 0.3s cubic-bezier(0.2, 0, 0.2, 1) forwards",
                   }}
                 >
@@ -379,54 +393,52 @@ export function ChatBubble() {
                     <div style={{
                       width: "28px",
                       height: "28px",
-                      borderRadius: "10px",
-                      background: "var(--surface-four)",
+                      borderRadius: "8px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                      marginBottom: "4px",
+                      marginBottom: "6px",
+                      opacity: 0.8,
                     }}>
-                      <Bot size={14} color="var(--primary)" />
+                      <Bot size={16} color="var(--primary)" />
                     </div>
                   )}
 
                   <div style={{
-                    maxWidth: "85%",
-                    padding: "0.85rem 1rem",
-                    borderRadius: isUser ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
+                    maxWidth: "88%",
+                    padding: "0.75rem 1rem",
+                    borderRadius: isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
                     background: isUser
-                      ? "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)"
-                      : "var(--surface-three)",
-                    boxShadow: isUser
-                      ? "0 2px 8px rgba(0,0,0,0.15)"
-                      : "none",
-                    border: isUser ? "none" : "1px solid var(--border)",
+                      ? "var(--surface-container-high)"
+                      : "transparent",
+                    color: "var(--on-surface)",
+                    // border: isUser ? "1px solid var(--outline-variant)" : "none",
                   }}>
                     <ReactMarkdown
                       components={{
                         p: ({ node, ...props }) => (
                           <p style={{
                             margin: 0,
-                            fontSize: "0.95rem",
+                            fontSize: "0.9375rem", // 15px
                             lineHeight: "1.6",
-                            fontWeight: isUser ? 500 : 450,
-                            color: isUser ? "#1a1a2e" : "var(--text-one)",
+                            fontWeight: 400,
+                            color: "var(--on-surface)",
                           }} {...props} />
                         ),
                         strong: ({ node, ...props }) => (
                           <span style={{
-                            fontWeight: 700,
-                            color: isUser ? "#0d0d1a" : "var(--primary)"
+                            fontWeight: 600,
+                            color: "var(--primary)"
                           }} {...props} />
                         ),
                         a: ({ node, ...props }) => (
                           <a
                             style={{
-                              color: isUser ? "#0d0d1a" : "var(--primary)",
+                              color: "var(--primary)",
                               textDecoration: "underline",
                               textUnderlineOffset: "3px",
-                              fontWeight: 600,
+                              fontWeight: 500,
                             }}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -436,14 +448,12 @@ export function ChatBubble() {
                         code: ({ node, ...props }) => (
                           <code
                             style={{
-                              background: isUser ? "rgba(255,255,255,0.2)" : "var(--surface-four)",
-                              padding: "0.2rem 0.6rem",
-                              borderRadius: "6px",
+                              background: "rgba(125,125,125,0.1)",
+                              padding: "0.2rem 0.4rem",
+                              borderRadius: "4px",
                               fontFamily: "monospace",
                               fontSize: "0.85em",
-                              fontWeight: 600,
-                              color: isUser ? "#1a1a2e" : "var(--text-one)",
-                              border: isUser ? "none" : "1px solid var(--border)",
+                              color: "var(--on-surface-variant)",
                             }}
                             {...props}
                           />
@@ -461,34 +471,41 @@ export function ChatBubble() {
             })}
 
             {loading && (
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
                 <div style={{
-                  width: "28px", height: "28px", borderRadius: "10px",
-                  background: "var(--surface-four)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "4px"
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  marginBottom: "6px",
+                  opacity: 0.8,
                 }}>
-                  <Bot size={14} color="var(--primary)" />
+                  <Bot size={16} color="var(--primary)" />
                 </div>
                 <div style={{
                   padding: "0.75rem 1rem",
-                  borderRadius: "20px 20px 20px 4px",
-                  background: "var(--surface-three)",
-                  border: "1px solid var(--border)",
+                  borderRadius: "18px 18px 18px 4px",
+                  background: "transparent",
+                  // border: "1px solid var(--outline-variant)",
                   display: "flex",
                   gap: "4px",
                   alignItems: "center"
                 }}>
-                  <div className="typing-dot" style={{ width: "6px", height: "6px", background: "var(--text-four)", borderRadius: "50%", animation: "typing 1.4s infinite ease-in-out both", animationDelay: "0s" }}></div>
-                  <div className="typing-dot" style={{ width: "6px", height: "6px", background: "var(--text-four)", borderRadius: "50%", animation: "typing 1.4s infinite ease-in-out both", animationDelay: "0.2s" }}></div>
-                  <div className="typing-dot" style={{ width: "6px", height: "6px", background: "var(--text-four)", borderRadius: "50%", animation: "typing 1.4s infinite ease-in-out both", animationDelay: "0.4s" }}></div>
+                  <div className="typing-dot" style={{ width: "5px", height: "5px", background: "var(--on-surface-muted)", borderRadius: "50%", animation: "typing 1.4s infinite ease-in-out both", animationDelay: "0s" }}></div>
+                  <div className="typing-dot" style={{ width: "5px", height: "5px", background: "var(--on-surface-muted)", borderRadius: "50%", animation: "typing 1.4s infinite ease-in-out both", animationDelay: "0.2s" }}></div>
+                  <div className="typing-dot" style={{ width: "5px", height: "5px", background: "var(--on-surface-muted)", borderRadius: "50%", animation: "typing 1.4s infinite ease-in-out both", animationDelay: "0.4s" }}></div>
                 </div>
               </div>
             )}
 
             {/* Suggested Prompts */}
             {!loading && messages.length === 1 && !showSettings && (
-              <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <p style={{ fontSize: "0.8rem", color: "var(--text-four)", marginLeft: "0.5rem", marginBottom: "0.25rem" }}>
-                  Suggested questions
+              <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <p style={{ fontSize: "0.75rem", color: "var(--on-surface-muted)", marginLeft: "0.25rem", marginBottom: "0" }}>
+                  Suggested
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                   {suggestions.map((suggestion, idx) => (
@@ -498,11 +515,11 @@ export function ChatBubble() {
                       className="suggestion-btn"
                       style={{
                         padding: "0.5rem 0.8rem",
-                        borderRadius: "12px",
-                        background: "var(--surface-two)",
-                        border: "1px solid var(--border)",
-                        color: "var(--text-one)",
-                        fontSize: "0.85rem",
+                        borderRadius: "var(--radius-md)",
+                        background: "var(--surface-container)",
+                        border: "1px solid transparent",
+                        color: "var(--on-surface)",
+                        fontSize: "0.8125rem",
                         cursor: "pointer",
                         transition: "all 0.2s ease",
                         textAlign: "left",
@@ -525,8 +542,8 @@ export function ChatBubble() {
           {/* Input Area */}
           <div style={{
             padding: "1rem",
-            background: "var(--surface-two)",
-            borderTop: "1px solid var(--border)",
+            background: "var(--surface-container)", // Distinct from message area
+            // borderTop: "1px solid var(--outline-variant)", 
           }}>
             <form
               onSubmit={(e) => handleSend(e)}
@@ -535,25 +552,26 @@ export function ChatBubble() {
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
-                background: "var(--background-one)",
-                border: "1px solid var(--border)",
-                borderRadius: "16px",
-                padding: "0.3rem 0.3rem 0.3rem 1rem",
-                transition: "border-color 0.2s ease",
+                background: "var(--surface)",
+                border: "1px solid transparent",
+                borderRadius: "var(--radius-full)", // Pill shape input
+                padding: "0.3rem 0.3rem 0.3rem 1.25rem",
+                transition: "all 0.2s ease",
+                boxShadow: "0 0 0 1px var(--outline-variant)",
               }}
               onFocusCapture={(e) => {
                 const target = e.currentTarget as HTMLFormElement;
-                target.style.borderColor = "var(--primary)";
+                target.style.boxShadow = "0 0 0 1px var(--primary)";
               }}
               onBlurCapture={(e) => {
                 const target = e.currentTarget as HTMLFormElement;
-                target.style.borderColor = "var(--border)";
+                target.style.boxShadow = "0 0 0 1px var(--outline-variant)";
               }}
             >
               <input
                 ref={inputRef}
                 type="text"
-                placeholder={input.trim().length > 0 && input.trim().length < 5 ? "Too short..." : "Ask anything..."}
+                placeholder={input.trim().length > 0 && input.trim().length < 5 ? "Too short..." : "Ask helpful Kira..."}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 style={{
@@ -561,40 +579,40 @@ export function ChatBubble() {
                   background: "transparent",
                   border: "none",
                   outline: "none",
-                  color: "var(--text-one)",
-                  fontSize: "0.95rem",
+                  color: "var(--on-surface)",
+                  fontSize: "0.9375rem",
                   padding: "0.6rem 0",
                   width: "100%",
                 }}
               />
               <button
                 type="submit"
-                // --- 1. DISABLING BUTTON DURING LOADING OR SHORT INPUT ---
                 disabled={input.trim().length < 5 || loading}
                 title={input.trim().length < 5 ? "Minimum 5 characters" : "Send message"}
                 style={{
                   width: "36px",
                   height: "36px",
-                  borderRadius: "12px",
+                  borderRadius: "50%",
                   border: "none",
                   background: input.trim().length >= 5 && !loading
                     ? "var(--primary)"
-                    : "var(--surface-four)",
-                  color: input.trim().length >= 5 && !loading ? "var(--text-three)" : "var(--text-four)",
+                    : "var(--surface-container-highest)",
+                  color: input.trim().length >= 5 && !loading ? "var(--on-primary)" : "var(--on-surface-muted)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  cursor: input.trim().length >= 5 && !loading ? "pointer" : "not-allowed",
+                  cursor: input.trim().length >= 5 && !loading ? "pointer" : "default",
                   transition: "all 0.2s ease",
                   flexShrink: 0,
+                  opacity: input.trim().length >= 5 && !loading ? 1 : 0.5,
                 }}
               >
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               </button>
             </form>
             <div style={{ textAlign: "center", marginTop: "0.6rem" }}>
-              <span style={{ fontSize: "0.7rem", color: "var(--text-four)", opacity: 0.6 }}>
-                AI can make mistakes. Check important info.
+              <span style={{ fontSize: "0.6875rem", color: "var(--on-surface-muted)", opacity: 0.7 }}>
+                AI can make mistakes.
               </span>
             </div>
           </div>
@@ -608,20 +626,20 @@ export function ChatBubble() {
           style={{
             width: isOpen ? "56px" : (isHovered ? "140px" : "60px"),
             height: "60px",
-            borderRadius: "30px",
+            borderRadius: "30px", // Fully rounded
             background: isOpen
-              ? "var(--surface-four)"
-              : "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)",
-            color: isOpen ? "var(--text-one)" : "var(--background-one)",
-            border: isOpen ? "1px solid var(--border)" : "none",
+              ? "var(--surface-container-high)"
+              : "var(--surface-container-highest)",
+            color: "var(--on-surface)",
+            border: "1px solid var(--outline-variant)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: "0.75rem",
             boxShadow: isOpen
-              ? "0 4px 15px rgba(0,0,0,0.15)"
-              : "0 8px 30px rgba(0,0,0,0.3)",
+              ? "none"
+              : "0 4px 20px rgba(0,0,0,0.2)",
             transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
             overflow: "hidden",
             padding: "0 1rem",
@@ -629,20 +647,33 @@ export function ChatBubble() {
           }}
         >
           {isOpen ? (
-            <X size={26} strokeWidth={2.5} />
+            <X size={24} strokeWidth={2} />
           ) : (
             <>
-              <MessageCircle size={26} strokeWidth={2.5} style={{ flexShrink: 0 }} />
+              <div style={{ position: 'relative', display: 'flex' }}>
+                <MessageCircle size={24} strokeWidth={2} style={{ flexShrink: 0 }} />
+                <div style={{
+                  position: "absolute",
+                  top: -2,
+                  right: -2,
+                  width: "8px",
+                  height: "8px",
+                  background: "var(--primary)",
+                  borderRadius: "50%",
+                }}></div>
+              </div>
+
               <span style={{
-                fontSize: "1rem",
-                fontWeight: 700,
+                fontSize: "0.9375rem",
+                fontWeight: 600,
                 whiteSpace: "nowrap",
                 opacity: isHovered ? 1 : 0,
                 width: isHovered ? "auto" : 0,
                 overflow: "hidden",
                 transition: "opacity 0.2s ease, width 0.35s ease",
+                color: "var(--on-surface)",
               }}>
-                Chat
+                Chat with Kira
               </span>
             </>
           )}
@@ -650,32 +681,32 @@ export function ChatBubble() {
 
         <style jsx>{`
           @keyframes chatSlideIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
           }
           @keyframes chatMessageAppear {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
           }
           @keyframes typing {
             0% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            50% { transform: translateY(-3px); }
             100% { transform: translateY(0); }
           }
           .chat-bubble-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
           }
           .chat-bubble-scrollbar::-webkit-scrollbar-track {
             background: transparent;
           }
           .chat-bubble-scrollbar::-webkit-scrollbar-thumb {
-            background-color: var(--surface-four);
+            background-color: var(--outline-variant);
             border-radius: 20px;
           }
           .suggestion-btn:hover {
             border-color: var(--primary) !important;
-            background: var(--surface-three) !important;
-            transform: translateY(-2px);
+            background: var(--surface-container-high) !important;
+            transform: translateY(-1px);
           }
         `}</style>
       </div>
