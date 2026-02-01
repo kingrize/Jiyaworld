@@ -3,26 +3,28 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Book,
-  Tv,
+  Sparkles,
+  Play,
   ChevronRight,
   ChevronDown,
   X,
   Moon,
   Sun,
-  Monitor,
-  Home,
-  Info,
-  LogIn,
-  LogOut,
-  Youtube,
-  Languages,
-  Shield,
-  User,
-  Link as LinkIcon,
-  Mail,
-  Wrench,
+  Laptop,
+  House,
+  CircleUser,
+  ArrowRightFromLine,
+  ArrowLeftToLine,
+  CirclePlay,
+  Globe,
+  ShieldCheck,
+  UserCircle,
+  ExternalLink,
+  AtSign,
+  Palette,
+  Gamepad2,
 } from "lucide-react";
+
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { isAdminUID } from "@/lib/admin";
@@ -33,11 +35,11 @@ type Category = {
   items: { name: string; href: string }[];
 };
 
-// Reorganized categories: AI Tools + Media Tools
+// Reorganized categories: AI Tools + Media Tools + Games
 const categories: Category[] = [
   {
     name: "AI TOOLS",
-    icon: Book,
+    icon: Sparkles,
     items: [
       { name: "Study AI", href: "/tools/study-ai" },
       { name: "Translate AI", href: "/tools/translate-ai" },
@@ -45,16 +47,23 @@ const categories: Category[] = [
   },
   {
     name: "MEDIA TOOLS",
-    icon: Youtube,
+    icon: CirclePlay,
     items: [
       { name: "YouTube Downloader", href: "/tools/youtube-downloader" },
+    ],
+  },
+  {
+    name: "GAMES",
+    icon: Gamepad2,
+    items: [
+      { name: "2048", href: "/games/2048" },
     ],
   },
 ];
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
   const router = useRouter();
-  const [expanded, setExpanded] = useState<string[]>(["AI TOOLS", "MEDIA TOOLS"]);
+  const [expanded, setExpanded] = useState<string[]>(["AI TOOLS", "MEDIA TOOLS", "GAMES"]);
   const [theme, setTheme] = useState("system");
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -164,27 +173,27 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
             <div className="sidebar-section-title">Navigation</div>
             <div className="sidebar-nav-list">
               <a href="/" className="sidebar-nav-item">
-                <Home size={16} />
+                <House size={16} />
                 <span>Home</span>
               </a>
               <a href="/about" className="sidebar-nav-item">
-                <Info size={16} />
+                <CircleUser size={16} />
                 <span>About</span>
               </a>
               <a href="/contact" className="sidebar-nav-item">
-                <Mail size={16} />
+                <AtSign size={16} />
                 <span>Contact</span>
               </a>
               <a href="/links" className="sidebar-nav-item">
-                <LinkIcon size={16} />
+                <ExternalLink size={16} />
                 <span>Links</span>
               </a>
               <a href="/tools" className="sidebar-nav-item">
-                <Wrench size={16} />
+                <Palette size={16} />
                 <span>Tools</span>
               </a>
               <a href="/anime" className="sidebar-nav-item">
-                <Tv size={16} />
+                <Play size={16} />
                 <span>Anime</span>
               </a>
             </div>
@@ -239,7 +248,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                 <>
                   {/* Logged in state */}
                   <div className="sidebar-user-info">
-                    <User size={14} />
+                    <UserCircle size={14} />
                     <span className="sidebar-user-email">
                       {user.displayName || user.email || "User"}
                     </span>
@@ -250,7 +259,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                       onClick={handleAdminPanel}
                       className="sidebar-account-btn sidebar-account-btn--admin"
                     >
-                      <Shield size={14} />
+                      <ShieldCheck size={14} />
                       <span>Admin Panel</span>
                     </button>
                   )}
@@ -259,7 +268,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                     onClick={handleLogout}
                     className="sidebar-account-btn sidebar-account-btn--logout"
                   >
-                    <LogOut size={14} />
+                    <ArrowRightFromLine size={14} />
                     <span>Sign out</span>
                   </button>
                 </>
@@ -269,7 +278,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                   onClick={handleLogin}
                   className="sidebar-account-btn sidebar-account-btn--login"
                 >
-                  <LogIn size={14} />
+                  <ArrowLeftToLine size={14} />
                   <span>Login to Account</span>
                 </button>
               )}
@@ -300,7 +309,7 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                 className={`sidebar-theme-btn ${theme === 'system' ? 'active' : ''}`}
                 onClick={() => handleThemeChange('system')}
               >
-                <Monitor size={14} />
+                <Laptop size={14} />
                 <span>System</span>
               </button>
             </div>

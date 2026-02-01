@@ -2,254 +2,124 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {
-  User, LayoutGrid, ArrowLeft,
-  Code2, Palette, Tv, Languages,
-  Facebook, Instagram
-} from "lucide-react";
+import { LayoutGrid, ArrowLeft, CircleUser } from "lucide-react";
 import { FloatingSidebar } from "../../components/floating-sidebar";
-
-// Data Skills
-const skills = [
-  { name: "JavaScript", level: 90 },
-  { name: "TypeScript", level: 85 },
-  { name: "React", level: 88 },
-  { name: "Next.js", level: 85 },
-  { name: "Node.js", level: 75 },
-  { name: "Tailwind CSS", level: 95 },
-];
 
 export default function About() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <main>
+    <main className="personal-room">
       <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-      {/* STICKY NAVBAR */}
+      {/* NAVBAR */}
       <nav>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-four)", padding: "0.5rem", borderRadius: "8px", transition: "all 0.2s" }} className="hover:bg-[var(--surface-three)] hover:text-[var(--text-one)]">
-            <ArrowLeft size={20} />
-            <span style={{ fontWeight: 600 }}>Back</span>
+          <Link
+            href="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              color: "var(--on-surface-muted)",
+              padding: "0.5rem",
+              borderRadius: "8px",
+              transition: "all 0.2s",
+              textDecoration: "none"
+            }}
+          >
+            <ArrowLeft size={18} />
+            <span style={{ fontWeight: 400, fontSize: "0.875rem" }}>back</span>
           </Link>
-          <div style={{ height: "24px", width: "1px", background: "var(--border)" }}></div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "bold", fontSize: "1.1rem", color: "var(--text-one)" }}>
-            <User size={20} color="var(--primary)" />
-            <span>About Me</span>
+          <div style={{ height: "20px", width: "1px", background: "var(--outline-variant)", opacity: 0.5 }}></div>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            fontWeight: 500,
+            fontSize: "0.9375rem",
+            color: "var(--on-surface-variant)"
+          }}>
+            <CircleUser size={18} style={{ opacity: 0.6 }} />
+            <span>about</span>
           </div>
         </div>
 
-        {/* Tombol Sidebar Mobile */}
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="nav-sidebar-btn"
           aria-label="Open Menu"
         >
-          <LayoutGrid size={24} />
+          <LayoutGrid size={22} />
         </button>
       </nav>
 
-      <div className="wrapper">
+      {/* CONTENT */}
+      <div className="room-container" style={{ alignItems: "flex-start", paddingTop: "var(--space-8)" }}>
+        <div className="room-cluster mounted" style={{ maxWidth: "520px", gap: "var(--space-6)" }}>
 
-        {/* HERO SECTION - Minimalist Center */}
-        <header className="hero-header" style={{ marginBottom: "6rem" }}>
-          <div className="hero-avatar-wrapper animate-float">
+          {/* Avatar + Name */}
+          <div className="room-identity">
             <img
               src="/avatar.png"
               alt="Jiya"
-              className="hero-avatar"
+              className="room-identity-avatar"
             />
+            <span className="room-identity-name">Jiya</span>
           </div>
-          <div className="animate-slide-up" style={{ textAlign: "center", maxWidth: "600px" }}>
-            <h1 className="hero-title" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", letterSpacing: "-0.03em", marginBottom: "0.5rem" }}>
-              About <span style={{ color: "var(--primary)" }}>Me</span>
-            </h1>
-            <p className="hero-bio" style={{ margin: "0 auto", fontSize: "1.1rem", opacity: 0.8 }}>
-              Coding with creativity, fueled by curiosity (and lots of coffee).
+
+          {/* Self-description - honest, casual */}
+          <div className="room-note" style={{ background: "transparent", border: "none", padding: 0 }}>
+            <p style={{ marginBottom: "var(--space-4)", lineHeight: 1.7 }}>
+              I'm a hobbyist developer. Not a professional, not looking for clients.
+            </p>
+            <p style={{ marginBottom: "var(--space-4)", lineHeight: 1.7 }}>
+              I build things when I feel like it. Most projects here are half-finished
+              or experiments that I wanted to try. Some work, some don't.
+            </p>
+            <p style={{ marginBottom: "var(--space-4)", lineHeight: 1.7 }}>
+              I like clean interfaces, quiet tools, and code that doesn't annoy me later.
+            </p>
+            <p style={{ lineHeight: 1.7 }}>
+              This site is just a personal space — somewhere to put things I've made
+              and maybe share with a few people.
             </p>
           </div>
-        </header>
 
-        {/* INTRODUCTION - Clean & Modern (No Heavy Cards) */}
-        <section className="animate-slide-up" style={{ marginBottom: "6rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "4rem" }}>
+          {/* Separator */}
+          <div className="room-separator" />
 
-            {/* Who I Am */}
-            <div>
-              <h3 style={{
-                fontSize: "1.75rem",
-                marginBottom: "1.5rem",
-                color: "var(--text-one)",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                borderLeft: "3px solid var(--primary)",
-                paddingLeft: "1rem"
-              }}>
-                Who I Am
-              </h3>
-              <p style={{ lineHeight: "1.8", color: "var(--text-four)", fontSize: "1.05rem" }}>
-                Hi, I'm Jiya. I don't just write code; I <span style={{ color: "var(--text-one)", fontWeight: "500" }}>solve problems</span> (mostly the ones I create).
-                I believe technology should work hard so we don't have to.
-                Basically, I'm a detail-oriented individual who loves efficiency—mostly because I'm lazy enough to automate everything.
-              </p>
-            </div>
-
-            {/* What I Do */}
-            <div>
-              <h3 style={{
-                fontSize: "1.75rem",
-                marginBottom: "1.5rem",
-                color: "var(--text-one)",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                borderLeft: "3px solid var(--secondary)",
-                paddingLeft: "1rem"
-              }}>
-                What I Do
-              </h3>
-              <p style={{ lineHeight: "1.8", color: "var(--text-four)", fontSize: "1.05rem" }}>
-                My specialty? <span style={{ color: "var(--text-one)", fontWeight: "500" }}>Modern Web Development</span>.
-                I build interfaces that are fast, responsive, and easy on the eyes.
-                From design concepts to clean code implementation, I enjoy the process—especially when it works on the first try (it rarely does).
-              </p>
-            </div>
-
+          {/* Interests - casual, not a showcase */}
+          <div style={{ color: "var(--on-surface-muted)", fontSize: "0.875rem" }}>
+            <p style={{ marginBottom: "var(--space-3)" }}>
+              <span style={{ opacity: 0.6 }}>usually working with:</span>{" "}
+              <span style={{ color: "var(--on-surface-variant)" }}>
+                typescript, react, next.js
+              </span>
+            </p>
+            <p>
+              <span style={{ opacity: 0.6 }}>also into:</span>{" "}
+              <span style={{ color: "var(--on-surface-variant)" }}>
+                anime, minimal design, quiet evenings
+              </span>
+            </p>
           </div>
-        </section>
 
-        {/* SKILLS SECTION - Minimalist Progress Bars */}
-        <section className="animate-slide-up" style={{ marginBottom: "6rem" }}>
-          <h3 style={{ fontSize: "1.5rem", marginBottom: "2rem", color: "var(--text-one)", textAlign: "center" }}>Technical Proficiency</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem 4rem" }}>
-            {skills.map(skill => (
-              <div key={skill.name} style={{ marginBottom: "0.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", alignItems: "center" }}>
-                  <span style={{ fontWeight: "600", color: "var(--text-one)", fontSize: "0.95rem" }}>{skill.name}</span>
-                  <span style={{ color: "var(--text-four)", fontSize: "0.85rem", fontFamily: "monospace" }}>{skill.level}%</span>
-                </div>
-                <div style={{ width: "100%", height: "6px", background: "var(--surface-two)", borderRadius: "100px", overflow: "hidden" }}>
-                  <div style={{
-                    width: `${skill.level}%`,
-                    height: "100%",
-                    background: "var(--primary)",
-                    borderRadius: "100px",
-                    transition: "width 1s ease-in-out"
-                  }}></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+          {/* Separator */}
+          <div className="room-separator" />
 
-        {/* BEYOND CODING - Minimalist Icons Grid */}
-        <section className="animate-slide-up" style={{ marginBottom: "6rem" }}>
-          <h3 style={{ fontSize: "1.5rem", marginBottom: "3rem", color: "var(--text-one)", textAlign: "center" }}>Beyond Coding</h3>
+          {/* Note */}
+          <p style={{
+            fontSize: "0.8125rem",
+            color: "var(--on-surface-muted)",
+            fontStyle: "italic",
+            opacity: 0.6
+          }}>
+            that's about it.
+          </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "2rem", textAlign: "center" }}>
-
-            {/* Design */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-              <div style={{
-                width: "60px", height: "60px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "var(--primary)",
-                background: "var(--surface-two)",
-                borderRadius: "50%"
-              }}>
-                <Palette size={28} strokeWidth={1.5} />
-              </div>
-              <div>
-                <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "var(--text-one)" }}>Design</h4>
-                <p style={{ fontSize: "0.9rem", color: "var(--text-four)", lineHeight: "1.5" }}>Visual aesthetics & Minimalist UI/UX.</p>
-              </div>
-            </div>
-
-            {/* Anime */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-              <div style={{
-                width: "60px", height: "60px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "var(--secondary)",
-                background: "var(--surface-two)",
-                borderRadius: "50%"
-              }}>
-                <Tv size={28} strokeWidth={1.5} />
-              </div>
-              <div>
-                <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "var(--text-one)" }}>Anime</h4>
-                <p style={{ fontSize: "0.9rem", color: "var(--text-four)", lineHeight: "1.5" }}>Because reality needs a break sometimes.</p>
-              </div>
-            </div>
-
-            {/* Learning */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-              <div style={{
-                width: "60px", height: "60px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "#4ade80",
-                background: "var(--surface-two)",
-                borderRadius: "50%"
-              }}>
-                <Languages size={28} strokeWidth={1.5} />
-              </div>
-              <div>
-                <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "var(--text-one)" }}>Languages</h4>
-                <p style={{ fontSize: "0.9rem", color: "var(--text-four)", lineHeight: "1.5" }}>Currently pretending to learn new languages.</p>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* CONNECT / SOCIALS - Simple & Direct */}
-        <section className="animate-slide-up" style={{ textAlign: "center", marginBottom: "4rem" }}>
-          <h3 style={{ marginBottom: "1.5rem", color: "var(--text-one)", fontSize: "1.5rem" }}>Let's Connect</h3>
-
-          <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", flexWrap: "wrap" }}>
-            <a
-              href="https://www.facebook.com/shallwelife"
-              target="_blank"
-              style={{
-                display: "flex", alignItems: "center", gap: "0.5rem",
-                color: "var(--text-four)", fontSize: "0.95rem",
-                transition: "color 0.2s"
-              }}
-              className="hover:text-[var(--text-one)]"
-            >
-              <Facebook size={20} /> <span style={{ borderBottom: "1px solid transparent" }} className="hover:border-[var(--text-one)]">Facebook</span>
-            </a>
-
-            <a
-              href="https://www.instagram.com/jiya.py"
-              target="_blank"
-              style={{
-                display: "flex", alignItems: "center", gap: "0.5rem",
-                color: "var(--text-four)", fontSize: "0.95rem",
-                transition: "color 0.2s"
-              }}
-              className="hover:text-[var(--text-one)]"
-            >
-              <Instagram size={20} /> <span style={{ borderBottom: "1px solid transparent" }} className="hover:border-[var(--text-one)]">Instagram</span>
-            </a>
-          </div>
-        </section>
-
+        </div>
       </div>
-
-      <footer className="footer-minimal">
-        <div className="footer-links">
-          <Link href="/">Home</Link>
-          <Link href="/about" style={{ color: "var(--primary)" }}>About</Link>
-          <Link href="/contact">Contact</Link>
-          <Link href="https://github.com">GitHub</Link>
-        </div>
-        <div className="footer-copy">
-          &copy; {new Date().getFullYear()} Jiya World. Crafted with passion (and minimal effort).
-        </div>
-      </footer>
     </main>
   );
 }

@@ -812,3 +812,293 @@
         height: 3.5rem;
     }
 }
+
+/* =========================================
+   PERSONAL ROOM THEME REFINEMENTS
+   Matching calm, focused, lived-in feel
+   ========================================= */
+
+/* Page: Calmer background */
+.studyPage {
+    background: var(--surface);
+}
+
+/* Navbar: Quieter, more transparent */
+.navbar {
+    height: 3.5rem;
+}
+
+@supports (backdrop-filter: blur(20px)) {
+    .navbar {
+        background-color: hsla(var(--hue), 8%, 11%, 0.3);
+    }
+}
+
+[data-theme="light"] .navbar {
+    background-color: hsla(calc(var(--hue) + 10), 25%, 99%, 0.4);
+}
+
+/* Nav brand: Subdued */
+.navBrand {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    opacity: 0.8;
+}
+
+.navBrandIcon {
+    color: var(--on-surface-variant);
+    opacity: 0.6;
+}
+
+/* Menu button: Quieter */
+.menuButton {
+    color: var(--on-surface-muted);
+    opacity: 0.6;
+}
+
+.menuButton:hover {
+    background: transparent;
+    color: var(--on-surface-variant);
+    opacity: 1;
+}
+
+/* Page Header: Calmer hierarchy */
+.pageTitle {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    letter-spacing: -0.01em;
+}
+
+.pageSubtitle {
+    font-size: 0.9375rem;
+    color: var(--on-surface-muted);
+}
+
+/* Cards: Softer surfaces */
+.card {
+    background: var(--surface-container);
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+    border-radius: var(--radius-lg);
+}
+
+.cardPadded {
+    padding: var(--space-5);
+}
+
+/* Card Icon: More subtle */
+.cardIcon {
+    background: hsla(var(--hue), 30%, 50%, 0.1);
+    color: var(--on-surface-variant);
+}
+
+.cardTitle {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+/* Mode Selector: Gentler */
+.modeSelector {
+    background: hsla(var(--hue), 10%, 50%, 0.05);
+    border-radius: var(--radius-md);
+}
+
+.modeButton {
+    font-weight: 500;
+    color: var(--on-surface-muted);
+}
+
+.modeButton:hover {
+    color: var(--on-surface-variant);
+    background: hsla(var(--hue), 10%, 50%, 0.08);
+}
+
+.modeButtonActive {
+    background: hsla(var(--hue), 10%, 50%, 0.12);
+    color: var(--on-surface);
+    box-shadow: none;
+}
+
+/* Input Tabs: Softer */
+.inputTabs {
+    border-bottom: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+}
+
+.inputTab {
+    font-weight: 500;
+    color: var(--on-surface-muted);
+}
+
+.inputTab:hover {
+    color: var(--on-surface-variant);
+    background: hsla(var(--hue), 10%, 50%, 0.06);
+}
+
+.inputTabActive {
+    color: var(--on-surface);
+    background: transparent;
+}
+
+.inputTabActive::after {
+    background: var(--on-surface-muted);
+    opacity: 0.5;
+}
+
+/* Upload Area: Calmer */
+.uploadArea {
+    border: 1px dashed var(--outline-variant);
+    background: hsla(var(--hue), 10%, 50%, 0.03);
+}
+
+.uploadArea:hover {
+    border-color: var(--on-surface-muted);
+    background: hsla(var(--hue), 10%, 50%, 0.06);
+}
+
+.uploadIcon {
+    background: hsla(var(--hue), 30%, 50%, 0.1);
+    color: var(--on-surface-variant);
+}
+
+.uploadLabel {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+/* Text Input: Softer focus */
+.textInput {
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.15);
+    background: hsla(var(--hue), 10%, 50%, 0.03);
+}
+
+.textInput:focus {
+    border-color: var(--on-surface-muted);
+    box-shadow: none;
+}
+
+/* Setting Labels: Quieter */
+.settingLabel {
+    font-weight: 500;
+    color: var(--on-surface-muted);
+    opacity: 0.7;
+}
+
+.settingSelect,
+.settingInput {
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.15);
+    background: hsla(var(--hue), 10%, 50%, 0.03);
+}
+
+/* Analyze Button: Less aggressive */
+.analyzeButton {
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    border: 1px solid var(--outline-variant);
+    font-weight: 500;
+}
+
+.analyzeButton:hover:not(:disabled) {
+    background: var(--surface-container-highest);
+    filter: none;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Empty State: Softer */
+.emptyState {
+    border: 1px dashed hsla(var(--hue), 10%, 50%, 0.2);
+    color: var(--on-surface-muted);
+}
+
+.emptyIcon {
+    opacity: 0.3;
+}
+
+/* Results Header: Calmer */
+.resultsHeaderIcon {
+    background: hsla(var(--hue), 30%, 50%, 0.1);
+    color: var(--on-surface-variant);
+}
+
+.resultsHeaderText h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.resultsHeaderBadge {
+    background: hsla(var(--hue), 30%, 50%, 0.1);
+    color: var(--on-surface-variant);
+}
+
+/* Result Cards: Softer */
+.resultCard {
+    background: var(--surface-container);
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+}
+
+.resultCardIcon {
+    color: var(--on-surface-muted);
+    opacity: 0.6;
+}
+
+.resultCardTitle {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+/* Summary Items: Gentler */
+.summaryItem {
+    background: hsla(var(--hue), 10%, 50%, 0.05);
+    border-radius: var(--radius-sm);
+}
+
+.summaryBullet {
+    background: var(--on-surface-muted);
+    opacity: 0.4;
+}
+
+/* Question Cards: Calmer */
+.questionCard {
+    background: hsla(var(--hue), 10%, 50%, 0.04);
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+}
+
+.questionNumber {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.questionLevel {
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.answerToggle {
+    color: var(--on-surface-muted);
+    font-weight: 500;
+}
+
+.answerContent {
+    background: hsla(var(--hue), 10%, 50%, 0.06);
+}
+
+/* Keywords: Softer */
+.keyword {
+    background: hsla(var(--hue), 10%, 50%, 0.08);
+    color: var(--on-surface-variant);
+    font-weight: 400;
+}
+
+/* Mode Hint: Quieter */
+.modeHint {
+    background: hsla(var(--hue), 10%, 50%, 0.04);
+    color: var(--on-surface-muted);
+    opacity: 0.8;
+}
+
+/* External Badge: Subdued */
+.externalBadge {
+    background: hsla(var(--hue), 30%, 50%, 0.1);
+    color: var(--on-surface-muted);
+}

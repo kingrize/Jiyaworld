@@ -7625,3 +7625,814 @@ footer a:hover {
     font-size: 0.75rem;
   }
 }
+
+/* ==============================================
+   PERSONAL ROOM HOMEPAGE
+   ============================================== */
+
+.personal-room {
+  min-height: 100vh;
+  background: var(--background-one);
+}
+
+.room-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  padding: var(--space-8) var(--space-6);
+}
+
+.room-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+  max-width: 420px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.room-cluster.mounted {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Identity Line */
+.room-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+}
+
+.room-identity-name {
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.room-identity-divider {
+  opacity: 0.5;
+}
+
+.room-identity-role {
+  font-weight: 400;
+}
+
+/* Status Card */
+.room-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.room-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsl(142, 76%, 40%);
+  box-shadow: 0 0 8px hsla(142, 76%, 40%, 0.4);
+  flex-shrink: 0;
+}
+
+.room-status-text {
+  font-size: 0.9375rem;
+  color: var(--on-surface);
+  font-weight: 400;
+}
+
+.room-status-meta {
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  font-weight: 400;
+}
+
+/* Pinned Note */
+.room-note {
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  width: 100%;
+}
+
+.room-note p {
+  font-size: 0.9375rem;
+  color: var(--on-surface);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.room-note p + p {
+  margin-top: var(--space-2);
+}
+
+/* Now Playing */
+.room-playing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+}
+
+.room-playing-icon {
+  color: var(--on-surface-variant);
+  flex-shrink: 0;
+}
+
+.room-playing-text {
+  font-size: 0.8125rem;
+  color: var(--on-surface);
+}
+
+.room-playing-artist {
+  color: var(--on-surface-variant);
+}
+
+.room-playing-idle {
+  color: var(--on-surface-variant);
+  font-style: italic;
+}
+
+/* Explore Button - Secondary */
+.room-explore-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: lowercase;
+}
+
+.room-explore-btn:hover {
+  color: var(--on-surface);
+  border-color: var(--on-surface-variant);
+  background: var(--surface-container);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .room-container {
+    padding: var(--space-6) var(--space-4);
+    align-items: flex-start;
+    padding-top: var(--space-10);
+  }
+
+  .room-cluster {
+    gap: var(--space-4);
+  }
+
+  .room-status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .room-status-meta {
+    padding-left: calc(8px + var(--space-2));
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .room-cluster {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ==============================================
+   PERSONAL ROOM - REFINEMENTS
+   ============================================== */
+
+/* Avatar in Identity */
+.room-identity-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--surface-container-high);
+  flex-shrink: 0;
+}
+
+/* Subtle Separator */
+.room-separator {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg, 
+    transparent 0%, 
+    var(--outline-variant) 20%, 
+    var(--outline-variant) 80%, 
+    transparent 100%
+  );
+  opacity: 0.5;
+  margin: var(--space-1) 0;
+}
+
+/* Enhanced Now Playing */
+.room-playing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0;
+}
+
+.room-playing-label {
+  font-size: 0.6875rem;
+  color: var(--on-surface-muted);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+.room-playing-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.room-playing-icon {
+  color: var(--on-surface-muted);
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.room-playing-text {
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.room-playing-artist {
+  color: var(--on-surface-muted);
+}
+
+.room-playing-idle {
+  color: var(--on-surface-muted);
+  font-style: italic;
+}
+
+/* Ghost Explore Button */
+.room-explore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--on-surface-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-transform: lowercase;
+  margin-top: var(--space-2);
+}
+
+.room-explore-btn:hover {
+  color: var(--on-surface-variant);
+}
+
+.room-explore-btn svg {
+  opacity: 0.6;
+}
+
+.room-explore-btn:hover svg {
+  opacity: 0.8;
+}
+
+
+/* Ambient Line */
+.room-ambient {
+  font-size: 0.6875rem;
+  color: var(--on-surface-muted);
+  opacity: 0.4;
+  font-style: italic;
+  margin-top: var(--space-6);
+  letter-spacing: 0.01em;
+}
+
+
+/* ==============================================
+   PERSONAL ROOM THEME - NAVBAR & SIDEBAR REFINEMENTS
+   ============================================== */
+
+/* 
+ * Navbar: Quieter, more supportive presence
+ * - Reduced visual weight
+ * - Subtle branding
+ * - Softer interactions
+ */
+
+/* Override nav to feel lighter */
+.personal-room nav {
+  background-color: transparent;
+  border-bottom: none;
+  height: 3.5rem;
+}
+
+@supports (backdrop-filter: blur(20px)) {
+  .personal-room nav {
+    background-color: hsla(var(--hue), 8%, 11%, 0.3);
+  }
+}
+
+[data-theme="light"] .personal-room nav {
+  background-color: hsla(calc(var(--hue) + 10), 25%, 99%, 0.4);
+}
+
+/* Quieter nav brand */
+.personal-room .nav-brand {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  letter-spacing: 0;
+  opacity: 0.8;
+}
+
+.personal-room .nav-brand-icon {
+  color: var(--on-surface-variant);
+  opacity: 0.6;
+}
+
+.personal-room .nav-brand-accent {
+  color: var(--on-surface-variant);
+}
+
+/* Softer menu button */
+.personal-room .nav-sidebar-btn {
+  color: var(--on-surface-muted);
+  opacity: 0.6;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.personal-room .nav-sidebar-btn:hover {
+  background-color: transparent;
+  color: var(--on-surface-variant);
+  opacity: 1;
+}
+
+/*
+ * Sidebar: Feels like a shelf or notebook
+ * - Softer background
+ * - Better breathing room
+ * - Gentler interactions
+ */
+
+/* Softer overlay */
+.sidebar-overlay {
+  background-color: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+/* Calmer panel */
+.sidebar-panel {
+  background-color: var(--surface);
+  border-right: none;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .sidebar-panel {
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Softer header */
+.sidebar-header {
+  padding: var(--space-5) var(--space-5);
+  border-bottom: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+}
+
+/* Quieter logo */
+.sidebar-logo {
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+/* Softer brand text */
+.brand-name {
+  font-weight: 500;
+  color: var(--on-surface-variant);
+}
+
+.brand-tag {
+  display: none;
+}
+
+/* Gentler close button */
+.sidebar-close {
+  border: none;
+  color: var(--on-surface-muted);
+  opacity: 0.5;
+}
+
+.sidebar-close:hover {
+  background: transparent;
+  color: var(--on-surface-variant);
+  opacity: 1;
+  border: none;
+}
+
+/* Better scroll area spacing */
+.sidebar-scroll-area {
+  padding: var(--space-6);
+  gap: var(--space-6);
+}
+
+/* Quieter section titles */
+.sidebar-section-title {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-muted);
+  opacity: 0.6;
+  margin-bottom: var(--space-4);
+}
+
+/* More breathing room in nav list */
+.sidebar-nav-list {
+  gap: var(--space-2);
+}
+
+/* Softer nav items */
+.sidebar-nav-item {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--on-surface-muted);
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+.sidebar-nav-item svg {
+  opacity: 0.5;
+}
+
+.sidebar-nav-item:hover {
+  background: hsla(var(--hue), 10%, 50%, 0.08);
+  color: var(--on-surface-variant);
+}
+
+.sidebar-nav-item:hover svg {
+  opacity: 0.7;
+}
+
+/* Gentler category headers */
+.sidebar-category-header {
+  padding: var(--space-3) var(--space-4);
+  color: var(--on-surface-muted);
+}
+
+.sidebar-category-header:hover {
+  background: hsla(var(--hue), 10%, 50%, 0.08);
+  color: var(--on-surface-variant);
+}
+
+.category-label {
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.category-label svg {
+  opacity: 0.4;
+}
+
+/* Softer category items */
+.sidebar-category-items {
+  margin-left: var(--space-8);
+}
+
+.sidebar-item-link {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--on-surface-muted);
+}
+
+.sidebar-item-link:hover {
+  color: var(--on-surface-variant);
+  background: hsla(var(--hue), 10%, 50%, 0.06);
+}
+
+/* Softer divider */
+.sidebar-divider {
+  background: hsla(var(--hue), 10%, 50%, 0.1);
+  margin: var(--space-2) 0;
+}
+
+/* Account section refinements */
+.sidebar-account-btn {
+  font-weight: 400;
+  color: var(--on-surface-muted);
+}
+
+.sidebar-account-btn svg {
+  opacity: 0.5;
+}
+
+.sidebar-account-btn:hover {
+  background: hsla(var(--hue), 10%, 50%, 0.08);
+  color: var(--on-surface-variant);
+}
+
+.sidebar-account-btn:hover svg {
+  opacity: 0.7;
+}
+
+
+/* ==============================================
+   GLOBAL PERSONAL ROOM THEME
+   Applied to all pages for calm, unified feel
+   ============================================== */
+
+/* 
+ * Page titles and headers - calmer hierarchy
+ */
+.hero-title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    letter-spacing: -0.01em;
+}
+
+.hero-bio {
+    font-size: 0.9375rem;
+    color: var(--on-surface-muted);
+    line-height: 1.6;
+}
+
+.section-title {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--on-surface-muted);
+    opacity: 0.6;
+}
+
+/* 
+ * Cards - softer surfaces
+ */
+.card {
+    background: var(--surface-container);
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+}
+
+.card h3 {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+/* 
+ * Buttons - calmer interactions
+ */
+.btn-hero {
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-hero.primary {
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    border: 1px solid var(--outline-variant);
+}
+
+.btn-hero.primary:hover {
+    background: var(--surface-container-highest);
+    transform: none;
+    box-shadow: none;
+}
+
+/* 
+ * Inputs - gentler focus states
+ */
+input, textarea, select {
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.15);
+    background: hsla(var(--hue), 10%, 50%, 0.03);
+    transition: border-color 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--on-surface-muted);
+    box-shadow: none;
+    outline: none;
+}
+
+/* 
+ * Footer - quieter presence
+ */
+.footer-minimal {
+    border-top: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+    padding: var(--space-6) var(--space-4);
+}
+
+.footer-links a {
+    color: var(--on-surface-muted);
+    font-weight: 400;
+    font-size: 0.8125rem;
+}
+
+.footer-links a:hover {
+    color: var(--on-surface-variant);
+}
+
+.footer-copy {
+    color: var(--on-surface-muted);
+    opacity: 0.5;
+    font-size: 0.75rem;
+}
+
+/* 
+ * Tech grid - subdued
+ */
+.tech-grid {
+    gap: var(--space-3);
+}
+
+.tech-item {
+    background: hsla(var(--hue), 10%, 50%, 0.06);
+    border: none;
+    color: var(--on-surface-muted);
+    font-weight: 400;
+    font-size: 0.8125rem;
+    padding: var(--space-3) var(--space-4);
+}
+
+/* 
+ * Status dot - calmer
+ */
+.status-dot {
+    background: hsl(142, 50%, 45%);
+    box-shadow: 0 0 6px hsla(142, 50%, 45%, 0.3);
+}
+
+/* 
+ * Hero avatar - subtler
+ */
+.hero-avatar {
+    border: 2px solid var(--surface-container-high);
+    box-shadow: none;
+}
+
+.hero-avatar:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* 
+ * Terminal window - softer
+ */
+.terminal-window,
+div[style*="borderRadius: \"12px\""][style*="border: \"1px solid var(--border)\""] {
+    border-color: hsla(var(--hue), 10%, 50%, 0.15);
+    background: var(--surface-container);
+}
+
+/* 
+ * General page wrapper
+ */
+.wrapper {
+    max-width: 800px;
+}
+
+/* 
+ * Hero header - calmer layout
+ */
+.hero-header {
+    padding: var(--space-8) 0;
+}
+
+/*
+ * Animations - respect reduced motion globally
+ */
+@media (prefers-reduced-motion: reduce) {
+    .animate-slide-up,
+    .animate-float {
+        animation: none;
+    }
+}
+
+/* 
+ * Study grid - better spacing
+ */
+.study-grid {
+    gap: var(--space-6);
+}
+
+/*
+ * Back button styling - consistent
+ */
+a[style*="ArrowLeft"],
+.backButton,
+[class*="back"] {
+    color: var(--on-surface-muted);
+    font-weight: 400;
+}
+
+
+/* ==============================================
+   ADMIN PAGES - PERSONAL ROOM REFINEMENTS
+   ============================================== */
+
+/* Admin page: Calmer */
+.admin-page {
+    background: var(--surface);
+}
+
+.admin-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.admin-subtitle {
+    color: var(--on-surface-muted);
+    font-size: 0.875rem;
+}
+
+.admin-dashboard-card {
+    background: var(--surface-container);
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+}
+
+.admin-dashboard-card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.admin-section-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--on-surface-muted);
+    opacity: 0.6;
+}
+
+.admin-info-item {
+    background: hsla(var(--hue), 10%, 50%, 0.04);
+}
+
+.admin-info-label {
+    color: var(--on-surface-muted);
+}
+
+.admin-info-value {
+    color: var(--on-surface-variant);
+}
+
+.admin-signout-btn {
+    background: var(--surface-container-high);
+    color: var(--on-surface-variant);
+    border: 1px solid var(--outline-variant);
+}
+
+.admin-signout-btn:hover {
+    background: var(--surface-container-highest);
+}
+
+/* Login page: Calmer */
+.admin-login-page {
+    background: var(--surface);
+}
+
+.admin-login-box {
+    background: var(--surface-container);
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+    box-shadow: none;
+}
+
+.admin-login-title {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.admin-login-btn {
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    border: 1px solid var(--outline-variant);
+}
+
+.admin-login-btn:hover {
+    background: var(--surface-container-highest);
+    transform: none;
+}
+
+.admin-login-btn--primary {
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+}

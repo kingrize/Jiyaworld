@@ -346,3 +346,70 @@
     box-shadow: 0 0 0 2px var(--primary-container), var(--elevation-2);
 }
 
+
+
+/* =========================================
+   PERSONAL ROOM THEME REFINEMENTS
+   ========================================= */
+
+/* Profile: Calmer presentation */
+.name {
+    font-size: clamp(1.5rem, 4vw, 1.75rem);
+    font-weight: 500;
+    background: none;
+    background-clip: unset;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: var(--on-surface-variant);
+    color: var(--on-surface-variant);
+    animation: none;
+}
+
+.tagline {
+    color: var(--on-surface-muted);
+    font-size: 0.9375rem;
+}
+
+/* Avatar: Softer */
+.avatar {
+    border: 2px solid var(--surface-container-high);
+    box-shadow: none;
+}
+
+.avatar:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Link cards: Calmer */
+.linkCard {
+    background: var(--surface-container);
+    border: 1px solid hsla(var(--hue), 10%, 50%, 0.1);
+}
+
+.linkCard:hover {
+    transform: none;
+    box-shadow: none;
+    background: var(--surface-container-high);
+}
+
+.linkIcon {
+    background: hsla(var(--hue), 30%, 50%, 0.1);
+    color: var(--on-surface-variant);
+}
+
+.linkTitle {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.linkDescription {
+    color: var(--on-surface-muted);
+}
+
+/* Section headers: Quieter */
+.sectionHeader {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--on-surface-muted);
+    opacity: 0.6;
+}
