@@ -23,6 +23,7 @@ import {
   AtSign,
   Palette,
   Gamepad2,
+  BookOpen,
 } from "lucide-react";
 
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
@@ -52,18 +53,11 @@ const categories: Category[] = [
       { name: "YouTube Downloader", href: "/tools/youtube-downloader" },
     ],
   },
-  {
-    name: "GAMES",
-    icon: Gamepad2,
-    items: [
-      { name: "2048", href: "/games/2048" },
-    ],
-  },
 ];
 
 export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
   const router = useRouter();
-  const [expanded, setExpanded] = useState<string[]>(["AI TOOLS", "MEDIA TOOLS", "GAMES"]);
+  const [expanded, setExpanded] = useState<string[]>(["AI TOOLS", "MEDIA TOOLS"]);
   const [theme, setTheme] = useState("system");
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -195,6 +189,14 @@ export function FloatingSidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
               <a href="/anime" className="sidebar-nav-item">
                 <Play size={16} />
                 <span>Anime</span>
+              </a>
+              <a href="/games" className="sidebar-nav-item">
+                <Gamepad2 size={16} />
+                <span>Games</span>
+              </a>
+              <a href="/manhwa" className="sidebar-nav-item">
+                <BookOpen size={16} />
+                <span>Manhwa</span>
               </a>
             </div>
           </div>

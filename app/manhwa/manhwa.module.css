@@ -1,0 +1,1207 @@
+/* ============================================================
+   MANHWA PAGE - Reading Corner
+   A calm, focused reading space in Material You style
+   ============================================================ */
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+.manhwaPage {
+    min-height: 100dvh;
+    background: var(--surface);
+}
+
+.loadingScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    color: var(--primary);
+}
+
+/* ============================================================
+   NAVBAR - Compact header
+   ============================================================ */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 var(--space-4);
+    background: var(--surface);
+    border-bottom: 1px solid var(--outline-variant);
+    backdrop-filter: blur(12px);
+}
+
+.navLeft {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    color: var(--on-surface-variant);
+    transition: background var(--transition-base);
+}
+
+.backBtn:hover {
+    background: var(--surface-container);
+}
+
+.navBrand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--on-surface);
+}
+
+.navIcon {
+    color: var(--primary);
+}
+
+.menuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: none;
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    transition: background var(--transition-base);
+}
+
+.menuBtn:hover {
+    background: var(--surface-container);
+}
+
+/* ============================================================
+   PAGE CONTENT - Main container
+   ============================================================ */
+.pageContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+    .pageContent {
+        padding: var(--space-6);
+        gap: var(--space-8);
+    }
+}
+
+/* ============================================================
+   HERO SECTION - Reading corner intro
+   ============================================================ */
+.hero {
+    text-align: center;
+    padding: var(--space-6) 0;
+}
+
+.heroEmoji {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-3);
+    display: inline-block;
+}
+
+.heroTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    margin-bottom: var(--space-2);
+    letter-spacing: -0.02em;
+}
+
+.heroSubtitle {
+    font-size: 0.9375rem;
+    color: var(--on-surface-variant);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* ============================================================
+   SEARCH SECTION
+   ============================================================ */
+.searchSection {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.searchBar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 44px;
+    padding: 0 var(--space-4);
+    background: var(--surface-container);
+    border-radius: var(--radius-full);
+    transition: background var(--transition-base);
+}
+
+.searchBar:focus-within {
+    background: var(--surface-container-high);
+}
+
+.searchIcon {
+    color: var(--on-surface-muted);
+    flex-shrink: 0;
+}
+
+.searchInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.9375rem;
+    color: var(--on-surface);
+    min-width: 0;
+}
+
+.searchInput::placeholder {
+    color: var(--on-surface-muted);
+}
+
+.searchClear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--surface-dim);
+    border: none;
+    color: var(--on-surface-muted);
+    cursor: pointer;
+}
+
+/* ============================================================
+   SECTION LAYOUT
+   ============================================================ */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.sectionTitleGroup {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.sectionIcon {
+    color: var(--primary);
+}
+
+.sectionTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    margin: 0;
+}
+
+.sectionAction a,
+.sectionAction button {
+    font-size: 0.8125rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* ============================================================
+   MANHWA GRID
+   ============================================================ */
+.manhwaGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+}
+
+@media (min-width: 480px) {
+    .manhwaGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .manhwaGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-4);
+    }
+}
+
+@media (min-width: 1024px) {
+    .manhwaGrid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .manhwaGrid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* ============================================================
+   MANHWA CARD
+   ============================================================ */
+.manhwaCard {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-container);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    border: 1px solid transparent;
+}
+
+.manhwaCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--elevation-2);
+    border-color: var(--outline-variant);
+}
+
+.cardPoster {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    background: var(--surface-dim);
+}
+
+.posterImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-long) var(--ease-emphasized);
+}
+
+.manhwaCard:hover .posterImage {
+    transform: scale(1.03);
+}
+
+.cardTypeBadge {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    padding: 2px 8px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: 0.625rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+}
+
+.cardChapterBar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+.cardContent {
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.cardTitle {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cardMeta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--on-surface-muted);
+}
+
+.starIcon {
+    color: hsl(45, 100%, 50%);
+}
+
+.genreText {
+    font-size: 0.6875rem;
+    color: var(--on-surface-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   LOADING & EMPTY STATES
+   ============================================================ */
+.skeletonCard {
+    background: var(--surface-container);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.skeletonPoster {
+    aspect-ratio: 2 / 3;
+    background: linear-gradient(90deg, var(--surface-dim) 25%, var(--surface-container-high) 50%, var(--surface-dim) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeletonContent {
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.skeletonTitle {
+    height: 16px;
+    background: var(--surface-dim);
+    border-radius: var(--radius-sm);
+}
+
+.skeletonMeta {
+    height: 12px;
+    width: 60%;
+    background: var(--surface-dim);
+    border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12) var(--space-4);
+    color: var(--on-surface-muted);
+    text-align: center;
+}
+
+.emptyState svg {
+    margin-bottom: var(--space-4);
+    opacity: 0.4;
+}
+
+.emptyState p {
+    font-size: 0.9375rem;
+    color: var(--on-surface-variant);
+}
+
+/* ============================================================
+   ERROR STATE
+   ============================================================ */
+.errorBanner {
+    padding: var(--space-4);
+    background: hsla(0, 60%, 50%, 0.1);
+    border: 1px solid hsla(0, 60%, 50%, 0.25);
+    border-radius: var(--radius-lg);
+    color: hsl(0, 60%, 55%);
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+[data-theme="light"] .errorBanner {
+    background: hsla(0, 65%, 50%, 0.08);
+    color: hsl(0, 55%, 45%);
+}
+
+/* ============================================================
+   DETAIL PAGE STYLES
+   ============================================================ */
+.detailPage {
+    min-height: 100dvh;
+    background: var(--surface);
+}
+
+.detailContent {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+    .detailContent {
+        padding: var(--space-6);
+    }
+}
+
+.detailHero {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--space-4);
+    background: var(--surface-container);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+}
+
+@media (min-width: 768px) {
+    .detailHero {
+        grid-template-columns: 200px 1fr;
+        padding: var(--space-6);
+        gap: var(--space-6);
+    }
+}
+
+.detailPoster {
+    aspect-ratio: 2 / 3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--elevation-3);
+}
+
+.detailPoster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detailInfo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.detailTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    margin: 0;
+    line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+    .detailTitle {
+        font-size: 1.75rem;
+    }
+}
+
+.detailMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.detailBadge {
+    padding: 4px 12px;
+    background: var(--surface-container-high);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.detailSynopsis {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--on-surface-variant);
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .detailSynopsis {
+        font-size: 0.9375rem;
+    }
+}
+
+.detailActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-3);
+}
+
+.readBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 24px;
+    background: var(--primary);
+    color: var(--on-primary);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--elevation-2);
+    transition: filter var(--transition-base), transform var(--transition-base);
+}
+
+.readBtn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.secondaryBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 20px;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background var(--transition-base);
+}
+
+.secondaryBtn:hover {
+    background: var(--surface-container-highest);
+}
+
+/* ============================================================
+   CHAPTER LIST
+   ============================================================ */
+.chapterSection {
+    background: var(--surface-container);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+}
+
+@media (min-width: 768px) {
+    .chapterSection {
+        padding: var(--space-5);
+    }
+}
+
+.chapterHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.chapterTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    margin: 0;
+}
+
+.chapterCount {
+    font-size: 0.8125rem;
+    color: var(--on-surface-muted);
+}
+
+.chapterGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2);
+}
+
+@media (min-width: 480px) {
+    .chapterGrid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .chapterGrid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: var(--space-2);
+    }
+}
+
+@media (min-width: 1024px) {
+    .chapterGrid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
+
+.chapterBtn {
+    padding: var(--space-3);
+    background: var(--surface-dim);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--on-surface);
+    cursor: pointer;
+    text-align: center;
+    transition: background var(--transition-base), transform var(--transition-base);
+}
+
+.chapterBtn:hover {
+    background: var(--surface-container-high);
+    transform: translateY(-1px);
+}
+
+.chapterBtnActive {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+
+.chapterBtnActive:hover {
+    background: var(--primary);
+}
+
+/* ============================================================
+   READER PAGE STYLES
+   ============================================================ */
+.readerPage {
+    min-height: 100dvh;
+    background: var(--surface-dim);
+}
+
+.readerNavbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 var(--space-4);
+    background: var(--surface);
+    border-bottom: 1px solid var(--outline-variant);
+    backdrop-filter: blur(12px);
+    transition: transform var(--duration-medium) var(--ease-standard);
+}
+
+.readerNavbar.hidden {
+    transform: translateY(-100%);
+}
+
+.readerTitle {
+    flex: 1;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 var(--space-4);
+}
+
+.readerChapter {
+    color: var(--primary);
+    margin-left: var(--space-2);
+}
+
+.readerProgress {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--outline-variant);
+    z-index: 99;
+}
+
+.readerProgressBar {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.15s linear;
+}
+
+.readerContent {
+    padding-top: 60px;
+    padding-bottom: 80px;
+}
+
+.readerImages {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.readerImage {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.readerFooter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 var(--space-4);
+    background: var(--surface);
+    border-top: 1px solid var(--outline-variant);
+    backdrop-filter: blur(12px);
+    transition: transform var(--duration-medium) var(--ease-standard);
+}
+
+.readerFooter.hidden {
+    transform: translateY(100%);
+}
+
+.navBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 10px 20px;
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter var(--transition-base), transform var(--transition-base);
+}
+
+.navBtn:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.navBtn:disabled {
+    background: var(--surface-dim);
+    color: var(--on-surface-muted);
+    cursor: not-allowed;
+}
+
+.chapterInfo {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+.readerControls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.iconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    transition: background var(--transition-base);
+}
+
+.iconBtn:hover {
+    background: var(--surface-container);
+}
+
+/* ============================================================
+   FULLSCREEN MODE
+   ============================================================ */
+.readerPage.fullscreen {
+    background: #000;
+}
+
+.readerPage.fullscreen .readerNavbar,
+.readerPage.fullscreen .readerFooter,
+.readerPage.fullscreen .readerProgress {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.readerPage.fullscreen .readerContent {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* ============================================================
+   LOADING STATE FOR READER
+   ============================================================ */
+.readerLoading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: var(--space-4);
+    color: var(--on-surface-variant);
+}
+
+.loadingSpinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================
+   CONTINUE READING CARD
+   ============================================================ */
+.continueCard {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: hsla(45, 80%, 50%, 0.1);
+    border: 1px solid hsla(45, 80%, 50%, 0.25);
+    border-radius: var(--radius-xl);
+}
+
+[data-theme="light"] .continueCard {
+    background: hsla(40, 90%, 50%, 0.08);
+    border-color: hsla(40, 90%, 50%, 0.2);
+}
+
+.continueIcon {
+    color: hsl(45, 80%, 50%);
+}
+
+.continueText {
+    flex: 1;
+}
+
+.continueLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: hsl(45, 80%, 50%);
+    margin-bottom: 2px;
+}
+
+.continueChapter {
+    font-size: 0.875rem;
+    color: var(--on-surface);
+}
+
+.continueBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: hsl(45, 80%, 50%);
+    color: hsl(45, 30%, 15%);
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter var(--transition-base);
+}
+
+.continueBtn:hover {
+    filter: brightness(1.1);
+}
+
+/* ============================================================
+   HISTORY SECTION - Continue Reading cards
+   ============================================================ */
+.historyGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+}
+
+@media (min-width: 480px) {
+    .historyGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .historyGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.historyCard {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition:
+        transform var(--transition-base),
+        box-shadow var(--transition-base),
+        border-color var(--transition-base);
+}
+
+.historyCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--elevation-2);
+    border-color: var(--primary);
+}
+
+.historyPoster {
+    position: relative;
+    width: 60px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--surface-dim);
+}
+
+@media (min-width: 768px) {
+    .historyPoster {
+        width: 70px;
+        height: 95px;
+    }
+}
+
+.historyPlayOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.historyCard:hover .historyPlayOverlay {
+    opacity: 1;
+}
+
+.historyContent {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.historyTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.historyMeta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.75rem;
+    color: var(--on-surface-muted);
+}
+
+.historyChapter {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.historyTime {
+    opacity: 0.7;
+}
+
+/* Section Link */
+.sectionLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    background: var(--primary-container);
+    transition: filter var(--transition-base);
+}
+
+.sectionLink:hover {
+    filter: brightness(0.95);
+}
+
+/* ============================================================
+   FILTER BAR - All Comics page
+   ============================================================ */
+.filterBar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4) 0;
+}
+
+@media (min-width: 768px) {
+    .filterBar {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.sortControls {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.sortBtn {
+    padding: 8px 16px;
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    transition:
+        background var(--transition-base),
+        border-color var(--transition-base),
+        color var(--transition-base);
+}
+
+.sortBtn:hover {
+    background: var(--surface-container-high);
+}
+
+.sortBtn.active {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+}
+
+.comicsCount {
+    padding: var(--space-2) 0;
+    font-size: 0.8125rem;
+    color: var(--on-surface-muted);
+}
+
+.pageIndicator {
+    padding: 6px 14px;
+    background: var(--surface-container);
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+/* ============================================================
+   LOAD MORE BUTTON
+   ============================================================ */
+.loadMoreContainer {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-6) 0;
+}
+
+.loadMoreBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 12px 28px;
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--on-surface);
+    cursor: pointer;
+    transition:
+        background var(--transition-base),
+        transform var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+.loadMoreBtn:hover:not(:disabled) {
+    background: var(--surface-container-high);
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-1);
+}
+
+.loadMoreBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.clearFilterBtn {
+    margin-top: var(--space-4);
+    padding: 10px 20px;
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: filter var(--transition-base);
+}
+
+.clearFilterBtn:hover {
+    filter: brightness(1.1);
+}
