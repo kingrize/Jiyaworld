@@ -19,6 +19,7 @@ import styles from "../manhwa.module.css";
 import {
     API_BASE,
     getComicHistory,
+    createChapterSlug,
     type Chapter,
     type ComicDetail,
     type ReadingHistoryEntry
@@ -166,18 +167,22 @@ export default function ManhwaDetailPage() {
 
     // Handle reading a chapter
     const handleReadChapter = (chapter: Chapter) => {
-        // Store state for reader page
+        // Create URL-safe chapter slug
+        const chapterSlug = createChapterSlug(chapter.chapter);
+
+        // Store state for reader page (include both raw chapter and slug)
         sessionStorage.setItem(
             `manhwa_reader_${slug}`,
             JSON.stringify({
                 chapterLink: chapter.link,
                 comicTitle: comic?.title,
                 chapterNumber: chapter.chapter,
+                chapterSlug: chapterSlug,
                 comic: comic,
             })
         );
 
-        router.push(`/manhwa/${slug}/${chapter.chapter}`);
+        router.push(`/manhwa/${slug}/${chapterSlug}`);
     };
 
     // Handle read from start

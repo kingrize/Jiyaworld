@@ -15,7 +15,7 @@ import {
     List,
 } from "lucide-react";
 import styles from "../../manhwa.module.css";
-import { saveToHistory, API_BASE } from "@/lib/manhwa";
+import { saveToHistory, API_BASE, createChapterSlug } from "@/lib/manhwa";
 
 // ============================================================
 // TYPES
@@ -172,17 +172,12 @@ export default function ReaderPage() {
     const navigateToChapter = (chapterLink: string | null) => {
         if (!chapterLink) return;
 
-        // Extract chapter number from link
-        const match = chapterLink.match(/chapter[_-]?(\d+)/i);
-        let chapterNum = "";
+        // Extract chapter number from link (e.g., "/manga-title/chapter-123" → "chapter-123")
+        const parts = chapterLink.split("/");
+        const lastPart = parts[parts.length - 1] || "";
 
-        if (match) {
-            chapterNum = match[1];
-        } else {
-            // Try to get the last part of the link
-            const parts = chapterLink.split("/");
-            chapterNum = parts[parts.length - 1];
-        }
+        // Create a URL-safe slug from the chapter part
+        const chapterSlug = createChapterSlug(lastPart) || createChapterSlug(`chapter-${lastPart}`);
 
         // Update session storage with new chapter link
         const storedData = sessionStorage.getItem(`manhwa_reader_${slug}`);
@@ -193,12 +188,13 @@ export default function ReaderPage() {
                 JSON.stringify({
                     ...data,
                     chapterLink: chapterLink,
-                    chapterNumber: chapterNum,
+                    chapterNumber: lastPart,
+                    chapterSlug: chapterSlug,
                 })
             );
         }
 
-        router.push(`/manhwa/${slug}/${chapterNum}`);
+        router.push(`/manhwa/${slug}/${chapterSlug}`);
     };
 
     // Toggle fullscreen

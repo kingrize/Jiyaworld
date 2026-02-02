@@ -71,6 +71,17 @@ export function processLink(link: string): string {
     return link.replace("/manga/", "/").replace("/plus/", "/");
 }
 
+/**
+ * Create a URL-safe slug from a chapter name
+ * Example: "Chapter 201" → "chapter-201"
+ */
+export function createChapterSlug(chapter: string): string {
+    return chapter
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
 // ============================================================
 // READING HISTORY MANAGEMENT
 // ============================================================
