@@ -24,10 +24,18 @@ export interface Chapter {
     link: string;
 }
 
+export interface Genre {
+    name: string;
+    slug?: string;
+    link?: string;
+}
+
 export interface ComicDetail {
     synopsis?: string;
     chapters?: Chapter[];
     creator?: string;
+    status?: string;
+    genres?: (string | Genre)[];
 }
 
 export interface ReadingHistoryEntry {

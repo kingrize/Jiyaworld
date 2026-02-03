@@ -13,9 +13,17 @@ import {
     Play,
     Clock,
     Home,
-    ChevronRight,
+    ChevronDown,
+    ChevronUp,
+    BookMarked,
+    Bookmark,
+    Star,
+    User,
+    Calendar,
+    Hash,
+    Layers,
 } from "lucide-react";
-import styles from "../manhwa.module.css";
+import styles from "./detail.module.css";
 import {
     API_BASE,
     getComicHistory,
@@ -37,7 +45,7 @@ interface ComicState {
 }
 
 // ============================================================
-// MAIN DETAIL PAGE
+// MAIN DETAIL PAGE - REDESIGNED
 // ============================================================
 export default function ManhwaDetailPage() {
     const params = useParams();
@@ -54,11 +62,15 @@ export default function ManhwaDetailPage() {
     const [error, setError] = useState<string | null>(null);
     const [history, setHistory] = useState<ReadingHistoryEntry | null>(null);
 
+    // UI states
+    const [synopsisExpanded, setSynopsisExpanded] = useState(false);
+    const [showAllChapters, setShowAllChapters] = useState(false);
+
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // Load comic data from session storage or fetch from trending/latest
+    // Load comic data from session storage or fetch
     useEffect(() => {
         async function loadComic() {
             try {
@@ -66,7 +78,6 @@ export default function ManhwaDetailPage() {
                 const storedComic = sessionStorage.getItem(`manhwa_${slug}`);
                 if (storedComic) {
                     const data = JSON.parse(storedComic);
-                    // Ensure processedLink is included in comic state
                     const comicWithLink: ComicState = {
                         ...data.comic,
                         processedLink: data.processedLink,
@@ -87,7 +98,7 @@ export default function ManhwaDetailPage() {
 
                 const allComics = [
                     ...(latestData.comics || []),
-                    ...(trendingData.comics || []),
+                    ...(trendingData.comics || trendingData.trending || []),
                 ];
 
                 // Find comic by slug
@@ -140,7 +151,6 @@ export default function ManhwaDetailPage() {
                 setComicDetail(data);
             } catch (err) {
                 console.error("Error fetching comic detail:", err);
-                // Set minimal detail on error
                 setComicDetail({
                     synopsis: "Synopsis not available.",
                     chapters: [],
@@ -151,7 +161,6 @@ export default function ManhwaDetailPage() {
             }
         }
 
-        // Load reading history using shared function
         function loadHistory() {
             const historyEntry = getComicHistory(slug);
             if (historyEntry) {
@@ -167,10 +176,7 @@ export default function ManhwaDetailPage() {
 
     // Handle reading a chapter
     const handleReadChapter = (chapter: Chapter) => {
-        // Create URL-safe chapter slug
         const chapterSlug = createChapterSlug(chapter.chapter);
-
-        // Store state for reader page (include both raw chapter and slug)
         sessionStorage.setItem(
             `manhwa_reader_${slug}`,
             JSON.stringify({
@@ -181,20 +187,16 @@ export default function ManhwaDetailPage() {
                 comic: comic,
             })
         );
-
         router.push(`/manhwa/${slug}/${chapterSlug}`);
     };
 
-    // Handle read from start
     const handleReadFromStart = () => {
         if (comicDetail?.chapters && comicDetail.chapters.length > 0) {
-            // Get first chapter (usually last in array)
             const firstChapter = comicDetail.chapters[comicDetail.chapters.length - 1];
             handleReadChapter(firstChapter);
         }
     };
 
-    // Handle continue reading
     const handleContinueReading = () => {
         if (history) {
             handleReadChapter({
@@ -204,10 +206,23 @@ export default function ManhwaDetailPage() {
         }
     };
 
+    // Get visible chapters (first 20 or all)
+    const visibleChapters = showAllChapters
+        ? comicDetail?.chapters || []
+        : (comicDetail?.chapters || []).slice(0, 20);
+
+    // Detect type from title/source
+    const detectType = () => {
+        const title = comic?.title?.toLowerCase() || "";
+        if (title.includes("manhwa") || title.includes("korean")) return "Manhwa";
+        if (title.includes("manhua") || title.includes("chinese")) return "Manhua";
+        return "Manga";
+    };
+
     if (!mounted) {
         return (
             <div className={styles.loadingScreen}>
-                <Loader2 size={32} className={styles.loadingSpinner} />
+                <Loader2 size={32} className={styles.spinner} />
             </div>
         );
     }
@@ -216,19 +231,15 @@ export default function ManhwaDetailPage() {
         return (
             <main className={styles.detailPage}>
                 <nav className={styles.navbar}>
-                    <div className={styles.navLeft}>
-                        <Link href="/manhwa" className={styles.backBtn}>
-                            <ArrowLeft size={18} />
-                        </Link>
-                        <div className={styles.navBrand}>
-                            <BookOpen size={18} className={styles.navIcon} />
-                            <span>Loading...</span>
-                        </div>
-                    </div>
+                    <Link href="/manhwa" className={styles.backBtn}>
+                        <ArrowLeft size={20} />
+                    </Link>
+                    <span className={styles.navTitle}>Loading...</span>
+                    <div className={styles.navSpacer} />
                 </nav>
                 <div className={styles.loadingScreen}>
-                    <Loader2 size={32} className={styles.loadingSpinner} />
-                    <p>Loading manhwa...</p>
+                    <Loader2 size={40} className={styles.spinner} />
+                    <p className={styles.loadingText}>Loading manhwa...</p>
                 </div>
             </main>
         );
@@ -238,24 +249,20 @@ export default function ManhwaDetailPage() {
         return (
             <main className={styles.detailPage}>
                 <nav className={styles.navbar}>
-                    <div className={styles.navLeft}>
-                        <Link href="/manhwa" className={styles.backBtn}>
-                            <ArrowLeft size={18} />
-                        </Link>
-                        <div className={styles.navBrand}>
-                            <BookOpen size={18} className={styles.navIcon} />
-                            <span>Error</span>
-                        </div>
-                    </div>
+                    <Link href="/manhwa" className={styles.backBtn}>
+                        <ArrowLeft size={20} />
+                    </Link>
+                    <span className={styles.navTitle}>Error</span>
+                    <div className={styles.navSpacer} />
                 </nav>
-                <div className={styles.detailContent}>
-                    <div className={styles.errorBanner}>
-                        <p>{error || "Manhwa not found"}</p>
-                        <Link href="/manhwa" className={styles.secondaryBtn}>
-                            <Home size={16} />
-                            Back to Manhwa
-                        </Link>
-                    </div>
+                <div className={styles.errorContainer}>
+                    <BookOpen size={64} className={styles.errorIcon} />
+                    <h2 className={styles.errorTitle}>{error || "Manhwa not found"}</h2>
+                    <p className={styles.errorText}>The manhwa you're looking for doesn't exist or has been removed.</p>
+                    <Link href="/manhwa" className={styles.errorBtn}>
+                        <Home size={18} />
+                        Back to Manhwa
+                    </Link>
                 </div>
             </main>
         );
@@ -265,17 +272,12 @@ export default function ManhwaDetailPage() {
         <main className={styles.detailPage}>
             <FloatingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-            {/* Navbar */}
+            {/* Minimal Navbar */}
             <nav className={styles.navbar}>
-                <div className={styles.navLeft}>
-                    <Link href="/manhwa" className={styles.backBtn}>
-                        <ArrowLeft size={18} />
-                    </Link>
-                    <div className={styles.navBrand}>
-                        <BookOpen size={18} className={styles.navIcon} />
-                        <span>Detail</span>
-                    </div>
-                </div>
+                <Link href="/manhwa" className={styles.backBtn}>
+                    <ArrowLeft size={20} />
+                </Link>
+                <span className={styles.navTitle}>Details</span>
                 <button
                     onClick={() => setIsSidebarOpen(true)}
                     className={styles.menuBtn}
@@ -285,106 +287,180 @@ export default function ManhwaDetailPage() {
                 </button>
             </nav>
 
-            {/* Content */}
-            <div className={styles.detailContent}>
-                {/* Hero Section */}
-                <div className={styles.detailHero}>
-                    <div className={styles.detailPoster}>
+            {/* Hero Section */}
+            <section className={styles.hero}>
+                {/* Background blur */}
+                <div className={styles.heroBg}>
+                    <Image
+                        src={comic.image}
+                        alt=""
+                        fill
+                        priority
+                        className={styles.heroBgImage}
+                    />
+                    <div className={styles.heroBgOverlay} />
+                </div>
+
+                <div className={styles.heroContent}>
+                    {/* Cover Image */}
+                    <div className={styles.coverWrapper}>
                         <Image
                             src={comic.image}
                             alt={comic.title}
-                            width={200}
-                            height={300}
+                            width={180}
+                            height={270}
                             priority
+                            className={styles.coverImage}
                             onError={(e) => {
                                 e.currentTarget.src = "/placeholder-comic.png";
                             }}
                         />
                     </div>
 
-                    <div className={styles.detailInfo}>
-                        <h1 className={styles.detailTitle}>{comic.title}</h1>
+                    {/* Info */}
+                    <div className={styles.heroInfo}>
+                        <h1 className={styles.title}>{comic.title}</h1>
 
-                        <div className={styles.detailMeta}>
-                            <span className={styles.detailBadge}>
-                                <Clock size={12} />
-                                {comic.chapter}
+                        {/* Metadata Row */}
+                        <div className={styles.metaRow}>
+                            <span className={styles.metaChip}>
+                                <BookMarked size={12} />
+                                {detectType()}
                             </span>
-                            {comicDetail?.chapters && (
-                                <span className={styles.detailBadge}>
-                                    {comicDetail.chapters.length} Chapters
+                            <span className={styles.metaChip}>
+                                <Layers size={12} />
+                                {comicDetail?.chapters?.length || 0} Ch
+                            </span>
+                            {comicDetail?.status && (
+                                <span className={`${styles.metaChip} ${styles.statusChip}`}>
+                                    {comicDetail.status}
                                 </span>
                             )}
                         </div>
 
-                        {comicDetail?.synopsis && (
-                            <p className={styles.detailSynopsis}>
-                                {comicDetail.synopsis}
-                            </p>
+                        {/* Genre chips (if available) */}
+                        {comicDetail?.genres && comicDetail.genres.length > 0 && (
+                            <div className={styles.genreRow}>
+                                {comicDetail.genres.slice(0, 4).map((genre: { name: string; slug?: string; link?: string } | string, i: number) => (
+                                    <span key={i} className={styles.genreChip}>
+                                        {typeof genre === 'string' ? genre : genre.name}
+                                    </span>
+                                ))}
+                            </div>
                         )}
 
-                        <div className={styles.detailActions}>
-                            <button
-                                onClick={handleReadFromStart}
-                                className={styles.readBtn}
-                                disabled={!comicDetail?.chapters?.length}
-                            >
-                                <Play size={16} fill="currentColor" />
-                                Read from Start
-                            </button>
-                            <Link href="/manhwa" className={styles.secondaryBtn}>
-                                <Home size={16} />
-                                Home
-                            </Link>
+                        {/* Desktop CTA */}
+                        <div className={styles.heroCta}>
+                            {history ? (
+                                <button onClick={handleContinueReading} className={styles.primaryBtn}>
+                                    <Play size={18} fill="currentColor" />
+                                    Continue Ch. {history.lastChapter}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleReadFromStart}
+                                    className={styles.primaryBtn}
+                                    disabled={!comicDetail?.chapters?.length}
+                                >
+                                    <Play size={18} fill="currentColor" />
+                                    Start Reading
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
+            </section>
 
-                {/* Continue Reading Card */}
-                {history && (
-                    <div className={styles.continueCard}>
-                        <Clock size={20} className={styles.continueIcon} />
-                        <div className={styles.continueText}>
-                            <div className={styles.continueLabel}>Continue Reading</div>
-                            <div className={styles.continueChapter}>
-                                Chapter {history.lastChapter}
-                            </div>
+            {/* Main Content */}
+            <div className={styles.content}>
+                {/* Synopsis Section */}
+                {comicDetail?.synopsis && (
+                    <section className={styles.synopsisSection}>
+                        <h2 className={styles.sectionTitle}>Synopsis</h2>
+                        <div className={`${styles.synopsisText} ${synopsisExpanded ? styles.expanded : ""}`}>
+                            <p>{comicDetail.synopsis}</p>
                         </div>
-                        <button
-                            onClick={handleContinueReading}
-                            className={styles.continueBtn}
-                        >
-                            <Play size={14} />
-                            Continue
-                        </button>
-                    </div>
+                        {comicDetail.synopsis.length > 200 && (
+                            <button
+                                onClick={() => setSynopsisExpanded(!synopsisExpanded)}
+                                className={styles.expandBtn}
+                            >
+                                {synopsisExpanded ? (
+                                    <>Show less <ChevronUp size={16} /></>
+                                ) : (
+                                    <>Show more <ChevronDown size={16} /></>
+                                )}
+                            </button>
+                        )}
+                    </section>
                 )}
 
                 {/* Chapter List */}
                 {comicDetail?.chapters && comicDetail.chapters.length > 0 && (
-                    <div className={styles.chapterSection}>
+                    <section className={styles.chapterSection}>
                         <div className={styles.chapterHeader}>
-                            <h2 className={styles.chapterTitle}>Chapters</h2>
+                            <h2 className={styles.sectionTitle}>
+                                <Hash size={18} />
+                                Chapters
+                            </h2>
                             <span className={styles.chapterCount}>
-                                {comicDetail.chapters.length} chapters
+                                {comicDetail.chapters.length} total
                             </span>
                         </div>
 
-                        <div className={styles.chapterGrid}>
-                            {comicDetail.chapters.map((chapter, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => handleReadChapter(chapter)}
-                                    className={`${styles.chapterBtn} ${history?.lastChapter === chapter.chapter
-                                        ? styles.chapterBtnActive
-                                        : ""
-                                        }`}
-                                >
-                                    {chapter.chapter}
-                                </button>
-                            ))}
+                        <div className={styles.chapterList}>
+                            {visibleChapters.map((chapter, index) => {
+                                const isActive = history?.lastChapter === chapter.chapter;
+                                return (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleReadChapter(chapter)}
+                                        className={`${styles.chapterItem} ${isActive ? styles.chapterActive : ""}`}
+                                    >
+                                        <span className={styles.chapterNum}>{chapter.chapter}</span>
+                                        {isActive && (
+                                            <span className={styles.chapterBadge}>
+                                                <Bookmark size={12} />
+                                                Last Read
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
-                    </div>
+
+                        {(comicDetail.chapters.length > 20) && (
+                            <button
+                                onClick={() => setShowAllChapters(!showAllChapters)}
+                                className={styles.showMoreBtn}
+                            >
+                                {showAllChapters ? (
+                                    <>Show less <ChevronUp size={16} /></>
+                                ) : (
+                                    <>Show all {comicDetail.chapters.length} chapters <ChevronDown size={16} /></>
+                                )}
+                            </button>
+                        )}
+                    </section>
+                )}
+            </div>
+
+            {/* Sticky Mobile CTA */}
+            <div className={styles.stickyBar}>
+                {history ? (
+                    <button onClick={handleContinueReading} className={styles.stickyBtn}>
+                        <Play size={20} fill="currentColor" />
+                        <span>Continue Chapter {history.lastChapter}</span>
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleReadFromStart}
+                        className={styles.stickyBtn}
+                        disabled={!comicDetail?.chapters?.length}
+                    >
+                        <Play size={20} fill="currentColor" />
+                        <span>Start Reading</span>
+                    </button>
                 )}
             </div>
         </main>

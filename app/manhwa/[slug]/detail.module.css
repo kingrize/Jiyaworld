@@ -1,0 +1,569 @@
+/* ============================================================
+   MANHWA DETAIL PAGE - PREMIUM REDESIGN
+   Modern, clean, content-focused UI
+   ============================================================ */
+
+/* ============================================================
+   BASE & LAYOUT
+   ============================================================ */
+.detailPage {
+    min-height: 100vh;
+    background: var(--surface);
+    padding-bottom: 80px;
+    /* Space for sticky bar */
+}
+
+.loadingScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: var(--space-4);
+    color: var(--on-surface-variant);
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingText {
+    font-size: var(--font-sm);
+    color: var(--on-surface-variant);
+}
+
+/* ============================================================
+   NAVBAR - Minimal & Clean
+   ============================================================ */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--outline-variant);
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-container);
+    color: var(--on-surface);
+    transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+    background: var(--surface-container-high);
+    transform: scale(1.05);
+}
+
+.navTitle {
+    font-size: var(--font-base);
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+.navSpacer {
+    width: 40px;
+}
+
+.menuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-container);
+    color: var(--on-surface);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.menuBtn:hover {
+    background: var(--surface-container-high);
+    transform: scale(1.05);
+}
+
+/* ============================================================
+   ERROR STATE
+   ============================================================ */
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: var(--space-6);
+    text-align: center;
+    gap: var(--space-4);
+}
+
+.errorIcon {
+    color: var(--outline);
+    opacity: 0.5;
+}
+
+.errorTitle {
+    font-size: var(--font-xl);
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+.errorText {
+    font-size: var(--font-sm);
+    color: var(--on-surface-variant);
+    max-width: 300px;
+}
+
+.errorBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: var(--primary);
+    color: var(--on-primary);
+    border-radius: var(--radius-full);
+    font-weight: 500;
+    margin-top: var(--space-2);
+    transition: all 0.2s ease;
+}
+
+.errorBtn:hover {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+.hero {
+    position: relative;
+    padding: var(--space-6) var(--space-4);
+    overflow: hidden;
+}
+
+.heroBg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.heroBgImage {
+    object-fit: cover;
+    filter: blur(30px) saturate(1.5);
+    transform: scale(1.2);
+}
+
+.heroBgOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+            rgba(var(--surface-rgb), 0.7) 0%,
+            rgba(var(--surface-rgb), 0.9) 60%,
+            var(--surface) 100%);
+    /* Fallback for browsers without --surface-rgb */
+    background: linear-gradient(180deg,
+            hsla(0, 0%, 8%, 0.7) 0%,
+            hsla(0, 0%, 8%, 0.9) 60%,
+            var(--surface) 100%);
+}
+
+.heroContent {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: var(--space-5);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Mobile: Stack vertically */
+@media (max-width: 600px) {
+    .heroContent {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
+
+/* Cover Image */
+.coverWrapper {
+    flex-shrink: 0;
+    width: 180px;
+    height: 270px;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+    background: var(--surface-container);
+}
+
+.coverImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Hero Info */
+.heroInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-3);
+    flex: 1;
+    min-width: 0;
+}
+
+.title {
+    font-size: var(--font-2xl);
+    font-weight: 700;
+    color: var(--on-surface);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+@media (min-width: 600px) {
+    .title {
+        font-size: var(--font-3xl);
+    }
+}
+
+/* Metadata Row */
+.metaRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+@media (max-width: 600px) {
+    .metaRow {
+        justify-content: center;
+    }
+}
+
+.metaChip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    background: var(--surface-container-high);
+    border-radius: var(--radius-full);
+    font-size: var(--font-xs);
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.statusChip {
+    background: var(--tertiary-container);
+    color: var(--on-tertiary-container);
+}
+
+/* Genre Row */
+.genreRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+}
+
+@media (max-width: 600px) {
+    .genreRow {
+        justify-content: center;
+    }
+}
+
+.genreChip {
+    padding: var(--space-1) var(--space-2);
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    font-size: var(--font-xs);
+    color: var(--on-surface-variant);
+}
+
+/* Hero CTA - Desktop only */
+.heroCta {
+    display: none;
+    margin-top: var(--space-3);
+}
+
+@media (min-width: 600px) {
+    .heroCta {
+        display: flex;
+        gap: var(--space-3);
+    }
+}
+
+.primaryBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: var(--font-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.primaryBtn:hover:not(:disabled) {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.3);
+}
+
+.primaryBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   CONTENT AREA
+   ============================================================ */
+.content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+}
+
+/* ============================================================
+   SYNOPSIS SECTION
+   ============================================================ */
+.synopsisSection {
+    margin-top: var(--space-6);
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-lg);
+    font-weight: 600;
+    color: var(--on-surface);
+    margin-bottom: var(--space-3);
+}
+
+.synopsisText {
+    position: relative;
+    max-height: 100px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.synopsisText::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, var(--surface));
+    pointer-events: none;
+}
+
+.synopsisText.expanded {
+    max-height: none;
+}
+
+.synopsisText.expanded::after {
+    display: none;
+}
+
+.synopsisText p {
+    font-size: var(--font-sm);
+    line-height: 1.7;
+    color: var(--on-surface-variant);
+}
+
+.expandBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    padding: var(--space-2) 0;
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: var(--font-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.expandBtn:hover {
+    color: var(--secondary);
+}
+
+/* ============================================================
+   CHAPTER SECTION
+   ============================================================ */
+.chapterSection {
+    margin-top: var(--space-8);
+}
+
+.chapterHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.chapterCount {
+    font-size: var(--font-sm);
+    color: var(--on-surface-variant);
+}
+
+/* Chapter List - Grid on desktop, list on mobile */
+.chapterList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--space-2);
+}
+
+@media (min-width: 600px) {
+    .chapterList {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: var(--space-3);
+    }
+}
+
+.chapterItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3);
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 56px;
+}
+
+.chapterItem:hover {
+    background: var(--surface-container-high);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.chapterActive {
+    background: var(--primary-container) !important;
+    border-color: var(--primary) !important;
+}
+
+.chapterNum {
+    font-size: var(--font-sm);
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+.chapterBadge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.showMoreBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    margin-top: var(--space-4);
+    padding: var(--space-3);
+    background: var(--surface-container);
+    border: 1px dashed var(--outline-variant);
+    border-radius: var(--radius-lg);
+    color: var(--on-surface-variant);
+    font-size: var(--font-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.showMoreBtn:hover {
+    background: var(--surface-container-high);
+    border-style: solid;
+    color: var(--primary);
+}
+
+/* ============================================================
+   STICKY MOBILE CTA BAR
+   ============================================================ */
+.stickyBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    padding: var(--space-3) var(--space-4);
+    padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+    background: var(--surface-container-highest);
+    border-top: 1px solid var(--outline-variant);
+    backdrop-filter: blur(16px);
+}
+
+@media (min-width: 600px) {
+    .stickyBar {
+        display: none;
+    }
+}
+
+.stickyBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-4);
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: var(--radius-xl);
+    font-size: var(--font-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.stickyBtn:hover:not(:disabled) {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+}
+
+.stickyBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
